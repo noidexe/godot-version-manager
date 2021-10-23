@@ -106,8 +106,6 @@ func _find_links(url:String):
 	searches -= 1
 	req.queue_free()
 	
-	
-
 func _update_list():
 	clear()
 	filtered_db_view = []
@@ -133,12 +131,12 @@ func _on_Refresh_pressed():
 		yield(get_tree().create_timer(0.2),"timeout")
 	refresh_button.text = "Refresh"
 	disabled = false
-	_update_list()
-	
 
 
 func _on_Download_pressed():
 	if selected != -1:
+		var dir = Directory.new()
+		dir.make_dir("user://versions/")
 		var _selection = filtered_db_view[selected]
 		download_button.disabled = true
 		var filename =  "user://versions/" + _selection.name + "_win64.exe.zip"
@@ -195,3 +193,7 @@ func _on_RC_toggled(button_pressed):
 	rc_included = button_pressed
 	_update_list()
 	pass # Replace with function body.
+
+
+func _on_VersionSelect_refresh_finished():
+	_update_list()
