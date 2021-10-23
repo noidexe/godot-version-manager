@@ -2,7 +2,12 @@ extends OptionButton
 
 
 var download_db : Dictionary
+var filtered_db_view :  Array
 var download_links : Array
+
+var alpha_included = false
+var beta_included = false
+var rc_included = false
 
 var base_url = "https://downloads.tuxfamily.org/godotengine/"
 var searches = 0
@@ -28,6 +33,7 @@ func _reload():
 		_update_list()
 
 func _refresh():
+	download_links = []
 	download_db = {
 		"last_updated" : OS.get_unix_time(),
 		"versions" : []
@@ -35,6 +41,15 @@ func _refresh():
 	_find_links(base_url)
 	while searches > 0:
 		yield(get_tree().create_timer(1.0),"timeout")
+	
+	
+	download_links.sort()
+	for link in download_links:
+		var entry = {
+			"name" : link.get_file().trim_suffix("_win64.exe.zip"),
+			"path" : link
+		}
+		download_db.versions.append(entry)
 	
 	var file = File.new()
 	file.open("user://download_db.json", File.WRITE)
@@ -49,16 +64,13 @@ func _parsexml(buffer : PoolByteArray, partial_path):
 		while(true):
 			var err = xml.read()
 			if err != OK:
-				print("Error %s reading XML" % err)
+				if err != ERR_FILE_EOF:
+					print("Error %s reading XML" % err)
 				break
 			if xml.get_node_type() == XMLParser.NODE_ELEMENT and xml.get_node_name() == "a":
 				var href = xml.get_named_attribute_value_safe("href")
 				if href.ends_with("win64.exe.zip"):
-					var entry = {
-						"name" : href.trim_suffix("_win64.exe.zip"),
-						"path" : partial_path + href
-					}
-					download_db.versions.append(entry)
+					download_links.append(partial_path + href)
 				elif (
 					href.begins_with("alpha")
 					or href.begins_with("beta")
@@ -87,6 +99,7 @@ func _find_links(url:String):
 	var req = HTTPRequest.new()
 	add_child(req)
 	req.request(url, [], false)
+	refresh_button.text = "Scraping%s %s" % [ [".", "..", "..."][randi() % 3] ,url.rsplit("/",true,2)[1] ]
 	var response = yield(req,"request_completed")
 	if response[1] == 200:
 		_parsexml(response[3], url)
@@ -97,7 +110,18 @@ func _find_links(url:String):
 
 func _update_list():
 	clear()
+	filtered_db_view = []
 	for entry in download_db.versions:
+		if (
+			"stable" in entry.name
+			or (rc_included and "rc" in entry.name)
+			or (beta_included and "beta" in entry.name)
+			or (alpha_included and "alpha" in entry.name) 
+			):
+			filtered_db_view.append(entry)
+	
+	
+	for entry in filtered_db_view:
 		add_item(entry.name)
 
 
@@ -105,19 +129,20 @@ func _on_Refresh_pressed():
 	disabled = true
 	_refresh()
 	while searches > 0: 
-		refresh_button.text = "Downloading (%s remaining)" % searches
+		refresh_button.text = "Scraping %s urls%s" % [ searches, [".", "..", "..."][randi() % 3] ]
 		yield(get_tree().create_timer(0.2),"timeout")
 	refresh_button.text = "Refresh"
 	disabled = false
 	_update_list()
-	pass # Replace with function body.
+	
 
 
 func _on_Download_pressed():
 	if selected != -1:
+		var _selection = filtered_db_view[selected]
 		download_button.disabled = true
-		var filename =  "user://versions/" + download_db.versions[selected].name + "_win64.exe.zip"
-		var url = download_db.versions[selected].path
+		var filename =  "user://versions/" + _selection.name + "_win64.exe.zip"
+		var url = _selection.path
 		var req = HTTPRequest.new()
 		add_child(req)
 		req.download_file = filename
@@ -134,7 +159,7 @@ func _on_Download_pressed():
 		print(output)
 		download_button.disabled = false
 		download_button.text = "Download"
-		_add_version(download_db.versions[selected].name,filename.rstrip(".zip"))
+		_add_version(_selection.name,filename.rstrip(".zip"))
 	pass # Replace with function body.
 
 func _add_version(v_name : String, path: String):
@@ -152,3 +177,21 @@ func _add_version(v_name : String, path: String):
 	file.store_line(to_json(config))
 	file.close()
 	emit_signal("version_added")
+
+
+func _on_Alpha_toggled(button_pressed):
+	alpha_included = button_pressed
+	_update_list()
+	pass # Replace with function body.
+
+
+func _on_Beta_toggled(button_pressed):
+	beta_included = button_pressed
+	_update_list()
+	pass # Replace with function body.
+
+
+func _on_RC_toggled(button_pressed):
+	rc_included = button_pressed
+	_update_list()
+	pass # Replace with function body.

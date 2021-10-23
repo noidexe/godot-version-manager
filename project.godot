@@ -12,7 +12,16 @@ config_version=4
 
 config/name="Godot Version Manager"
 run/main_scene="res://scenes/Main.tscn"
+run/low_processor_mode=true
+boot_splash/image="res://splash.png"
+boot_splash/fullsize=false
+boot_splash/bg_color=Color( 1, 1, 1, 1 )
 config/icon="res://icon.png"
+
+[display]
+
+window/size/width=900
+window/energy_saving/keep_screen_on=false
 
 [physics]
 
