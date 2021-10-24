@@ -10,10 +10,9 @@ var icons = {
 
 var config : Dictionary = { "versions" : [] }
 export var context_menu : NodePath
-# Called when the node enters the scene tree for the first time.
+
 func _ready():
 	_reload()
-	pass # Replace with function body.
 
 
 func _reload():
@@ -27,11 +26,11 @@ func _reload():
 	_update_list()
 
 
-
 func _update_list():
 	clear()
 	for version in config.versions:
 		add_item(version.name, _get_correct_icon(version.name))
+
 
 func _get_correct_icon(v_name : String):
 	for test in ["tool", "alpha", "beta", "rc", "stable"]:
@@ -49,13 +48,13 @@ func _on_Installed_item_activated(index):
 
 func _on_version_added():
 	_reload()
-	pass # Replace with function body.
 
 
 func _on_ContextMenu_id_pressed(id):
 	if id == 0 and is_anything_selected():
 		_delete(get_selected_items()[0])
-		
+
+
 func _delete(idx):
 	config.versions.remove(idx)
 	_save()
@@ -64,9 +63,12 @@ func _delete(idx):
 
 func _on_Installed_item_rmb_selected(_index, at_position):
 	var menu = get_node(context_menu) as PopupMenu
-	menu.rect_position = at_position
+	# The top_left is at the beginning of the container
+	# So we need to add the rect_position of the parent node to 
+	# Compensate
+	menu.set_position(rect_position + at_position)
 	menu.popup()
-	pass # Replace with function body.
+	
 
 func _save():
 	var file = File.new()
