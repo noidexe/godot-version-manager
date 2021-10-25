@@ -29,6 +29,38 @@ var rc_included = false
 # base_url used for scraping
 var base_url = "https://downloads.tuxfamily.org/godotengine/"
 
+var platforms = {
+	"X11": {
+		"suffix": "_x11.64.zip",
+		"extraction-command" : [
+			"tar",
+			[
+				"-xaf"
+			]
+		]
+	},
+	"OSX": {
+		"suffix": "_osx.universal.zip",
+		"extraction-command" : [
+			"tar",
+			[
+				"-xaf"
+			]
+		]
+	},
+	"Windows": {
+		"suffix": "_win64.exe.zip",
+		"extraction-command" : [
+			"powershell.exe",
+			[
+				"-command",
+				"\"Expand-Archive '{filename}' '{dest_dir}'\"",
+			]
+		]
+	}
+}
+var current_platform
+
 var requests = 0 # Number of concurrent http requests running
 const MAX_REQUESTS = 4
 
@@ -39,6 +71,12 @@ signal refresh_finished()
 signal version_added()
 
 func _ready():
+	if OS.has_feature("Windows"):
+		current_platform = "Windows"
+	elif OS.has_feature("OSX"):
+		current_platform = "OSX"
+	elif OS.has_feature("X11"):
+		current_platform = "X11"
 	_reload()
 
 # Deserializes json version of download_db and
@@ -70,7 +108,7 @@ func _refresh():
 	download_links.invert()
 	for link in download_links:
 		var entry = {
-			"name" : link.get_file().trim_suffix("_win64.exe.zip"),
+			"name" : link.get_file().trim_suffix(platforms[current_platform].suffix),
 			"path" : link
 		}
 		download_db.versions.append(entry)
@@ -104,7 +142,7 @@ func _parsexml(buffer : PoolByteArray, partial_path):
 				var href = xml.get_named_attribute_value_safe("href")
 				
 				# TODO: make it configurable to support other platforms
-				if href.ends_with("win64.exe.zip"):
+				if href.ends_with(platforms[current_platform].suffix):
 					download_links.append(partial_path + href)
 
 				# if it is a folder that may contain downloads, recursively parse it
@@ -178,13 +216,13 @@ func _on_Download_pressed():
 	download_button.disabled = true
 	
 	# TODO: make it work with other platforms
-	var filename =  "user://versions/" + _selection.name + "_win64.exe.zip"
+	var filename =  "user://versions/" + _selection.name + platforms[current_platform].suffix
 	var url = _selection.path
 	
 	var req = HTTPRequest.new()
 	add_child(req)
 	req.download_file = filename
-	req.request(url)
+	req.request(url, [], false)
 	
 	while req.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:	
 		download_button.text = "Downloading... %d%% %d/%d" % [100.0 * req.get_downloaded_bytes() / req.get_body_size(), req.get_downloaded_bytes() / 1024, req.get_body_size() / 1024]
@@ -196,7 +234,11 @@ func _on_Download_pressed():
 	# TODO: Make this configurable for all platforms. Use tar on unix based systems
 	#OS.execute(ProjectSettings.globalize_path("res://bin/7za.exe"), ["x", "-y", "-o" + ProjectSettings.globalize_path("user://versions/"), ProjectSettings.globalize_path(filename)], true, output) 
 	var output = []
-	OS.execute(ProjectSettings.globalize_path("powershell.exe"), ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+	if OS.has_feature("Windows"):
+		OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+	else:
+		OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
 	print(output)
 	
 	download_button.disabled = false
