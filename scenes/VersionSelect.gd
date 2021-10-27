@@ -127,7 +127,7 @@ func _find_links(url:String):
 	
 	var req = HTTPRequest.new()
 	add_child(req)
-	req.request(url, [], false)
+	req.request(url)
 	
 	refresh_button.text = "Scraping%s %s" % [ [".", "..", "..."][randi() % 3] ,url.rsplit("/",true,2)[1] ]
 	
@@ -142,7 +142,7 @@ func _find_links(url:String):
 func _update_list():
 	clear()
 	filtered_db_view = []
-
+	
 	for entry in download_db.versions:
 		if (
 			"stable" in entry.name

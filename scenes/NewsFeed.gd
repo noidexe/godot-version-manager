@@ -23,7 +23,7 @@ func _ready():
 
 # Updates display of news
 func _refresh_news():
-	$req.request("https://godotengine.org/news",[],false)
+	$req.request("https://godotengine.org/news")
 	var response = yield($req,"request_completed")
 	_update_news_feed(_get_news(response[3]))
 
@@ -137,7 +137,7 @@ func _download_images():
 		
 		var local_path = "user://images/" + img_id
 		local_images[img_id] = "[img=50]%s%s[/img]" % [ local_path, ".tex" ]
-		req.request(images[img_id], [], false)
+		req.request(images[img_id])
 		var response = yield(req,"request_completed")
 		if response[1] == 200:
 			_save_texture(response[3], local_path)

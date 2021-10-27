@@ -23,6 +23,10 @@ config/icon="res://icon.png"
 window/size/width=900
 window/energy_saving/keep_screen_on=false
 
+[network]
+
+ssl/certificates="res://ca-certificates.crt"
+
 [physics]
 
 common/enable_pause_aware_picking=true
