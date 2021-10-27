@@ -67,6 +67,7 @@ func _refresh():
 	
 	# Build download_db
 	download_links.sort()
+	download_links.invert()
 	for link in download_links:
 		var entry = {
 			"name" : link.get_file().trim_suffix("_win64.exe.zip"),
