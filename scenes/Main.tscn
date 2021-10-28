@@ -12000,6 +12000,7 @@ custom_constants/icon_margin = 10
 custom_constants/hseparation = 10
 items = [ "Item 0", ExtResource( 5 ), false ]
 allow_rmb_select = true
+fixed_icon_size = Vector2( 64, 64 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
