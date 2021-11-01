@@ -29,6 +29,8 @@ var rc_included = false
 # base_url used for scraping
 var base_url = "https://downloads.tuxfamily.org/godotengine/"
 
+
+# UNUSED FOR NOW
 var platforms = {
 	"X11": {
 		"suffix": "_x11.64.zip",

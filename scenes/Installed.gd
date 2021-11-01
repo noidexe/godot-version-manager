@@ -43,7 +43,12 @@ func _on_Installed_item_activated(index):
 	var path : String =  config.versions[index].path
 	var args : PoolStringArray = config.versions[index].arguments.split(" ")
 	args.append("-p")
-	OS.execute(ProjectSettings.globalize_path(path), args, false)
+	if OS.has_feature("OSX"):
+		var osx_args := PoolStringArray([ProjectSettings.globalize_path(path), "--args"])
+		osx_args.append_array(args)
+		OS.execute("open", osx_args, false)
+	else:
+		OS.execute(ProjectSettings.globalize_path(path), args, false)
 
 
 func _on_version_added():
