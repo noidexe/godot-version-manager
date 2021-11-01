@@ -3,6 +3,16 @@ Download, Instal and Manage any vesion of Godot Engine from a simple app.
 
 ![image](https://user-images.githubusercontent.com/526829/138571544-61a933af-6f1a-4e11-8f3c-eafdfab4df5d.png)
 
+## Installation
+### Windows:
+Unzip and double-click. Extraction of downloaded versions requires powershell
+### Linux:
+Unzip and double-click. Extraction of downloaded versions requires `unzip` which, if not installed, should be available in your distro repository
+### OSX:
+- Should auto extract after download
+- You need to run `sudo xattr -r -d com.apple.quarantine path/to/Godot Version Manager.app` since unsigned binaries get marked as untrusted otherwise. Feel free to build the project yourself if you don't trust the prebuilt binaries
+- Double click Godot Version Manager.app
+
 ## Features
 - Automatically download and install any version of Godot from a drop-drown menu. (requires powershell for extraction)
 - Show or hide alpha, beta, rc versions from download drop-down. 
@@ -11,8 +21,8 @@ Download, Instal and Manage any vesion of Godot Engine from a simple app.
 - Right click to remove entry entry from the list
 
 ## TODO
-- [ ] Linux support
-- [ ] OSX support
+- [x] Linux support
+- [x] OSX support
 - [ ] General code clean up
 - [ ] Better(i.e some at all) error handling
 - [ ] Inform about available updates for installed versions
