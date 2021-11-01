@@ -33,19 +33,23 @@ var platforms = {
 	"X11": {
 		"suffix": "_x11.64.zip",
 		"extraction-command" : [
-			"tar",
+			"unzip",
 			[
-				"-xaf"
-			]
+				"{zip_path}",
+				"-d",
+				"{dest_folder}"
+			],
 		]
 	},
 	"OSX": {
 		"suffix": "_osx.universal.zip",
 		"extraction-command" : [
-			"tar",
+			"unzip",
 			[
-				"-xaf"
-			]
+				"{zip_path}",
+				"-d",
+				"{dest_folder}"
+			],
 		]
 	},
 	"Windows": {
@@ -236,15 +240,20 @@ func _on_Download_pressed():
 	var output = []
 	if OS.has_feature("Windows"):
 		OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
-	else:
+		_add_version(_selection.name,filename.rstrip(".zip"))
+	elif OS.has_feature("X11"):
 		OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
 		OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
+		_add_version(_selection.name,filename.rstrip(".zip"))
+	elif OS.has_feature("OSX"):
+		OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
+		OS.execute("mv", [ProjectSettings.globalize_path("user://versions/Godot.app"), app_full_path], true, output)
+		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
 	print(output)
 	
 	download_button.disabled = false
 	download_button.text = "Download"
-
-	_add_version(_selection.name,filename.rstrip(".zip"))
 
 # Adds a downloaded version of Godot to the list of 
 # installed versions
