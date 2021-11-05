@@ -20,6 +20,15 @@ Unzip and double-click. Extraction of downloaded versions requires `unzip` which
 - Colorful icons to easily distinguish stable, rc, beta, alpha and master builds. 
 - Right click to remove entry entry from the list
 
+## F.A.Q
+**Q: Where are the downloaded binaries saved to?**
+
+A: They are saved to `user://versions` which varies depending on your platform. On windows it's %appdata%/Godot/app_serdata/Godot Version Manager/versions
+
+**Q: How is this different from Hourglass?**
+
+A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project which also does project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :)
+
 ## TODO
 - [x] Linux support
 - [x] OSX support
