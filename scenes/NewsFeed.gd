@@ -1,44 +1,53 @@
-extends RichTextLabel
+extends ScrollContainer
 
-const news_item = """
-[url={link}]{title}[/url]
+var news_item_scene = preload("res://scenes/NewsItem.tscn")
 
-{author} - {date}
+const news_cache_file = "user://news_cache.bin"
 
-{contents}
-
-[url={link}]{link}[/url]
-
-======
-"""
-
-var images: Dictionary
-var local_images : Dictionary
-
-signal images_downloaded()
+onready var feed_vbox = $Feed
+onready var loading_text = $Feed/Loading
 
 func _ready():
-	#connect("images_downloaded", self, "_on_images_downloaded")
 	_refresh_news()
 
 # Updates display of news
 func _refresh_news():
+	loading_text.show()
+	_update_news_feed(_get_news_cache())
+	
 	$req.request("https://godotengine.org/news")
 	var response = yield($req,"request_completed")
-	_update_news_feed(_get_news(response[3]))
+	
+	loading_text.hide()
+	var news = _get_news(response[3])
+	_save_news_cache(news)
+	_update_news_feed(news)
 
 # Generates text bases on an array of dictionaries containing strings to 
 # interpolate
 func _update_news_feed(feed : Array):
-	bbcode_text = "[center] === GODOTENGINE.ORG/NEWS ===[/center]\n\n"
+	var old_news = feed_vbox.get_children()
+	for i in range(2,old_news.size()):
+		old_news[i].queue_free()
 	for item in feed:
-		bbcode_text += news_item.format(item)
-	# parsing jpg buffer data currently not working.
-	# see https://github.com/godotengine/godot/issues/45523
-	#_download_images()
+		var news_item = news_item_scene.instance()
+		feed_vbox.add_child(news_item)
+		news_item.set_info(item)
 
-func _on_images_downloaded():
-	bbcode_text = bbcode_text.format(local_images)
+func _get_news_cache() -> Array:
+	var ret = []
+	var file = File.new()
+	if file.file_exists(news_cache_file):
+		file.open(news_cache_file, File.READ)
+		ret = file.get_var()
+		file.close()
+	return ret
+
+func _save_news_cache(news : Array):
+	var file = File.new()
+	file.open(news_cache_file, File.WRITE)
+	file.store_var(news)
+	file.close()
 
 # Analyzes html for <div class="news-item"> elements
 # which will be further parsed by _parse_news_item()
@@ -96,17 +105,12 @@ func _parse_news_item(buffer, begin_ofs, end_ofs):
 						var url_end = image_style.find_last("'")
 						var image_url = image_style.substr(url_start,url_end - url_start)
 						
-						# Images will be downloaded and their bbcode will be 
-						# interpolated in a second pass so for now we store them 
-						# as "{image#<hash of url>}"
-						var image_code = "image#%s" % image_url.hash()
-						parsed_item["image"] = "{%s}" % image_code
-						images[image_code] = image_url
+						parsed_item["image"] = image_url
 						parsed_item["link"] = xml.get_named_attribute_value_safe("href")
 				"h3":
 					if "title" in xml.get_named_attribute_value_safe("class"):
 						xml.read()
-						parsed_item["title"] = xml.get_node_data().strip_edges().to_upper() if xml.get_node_type() == XMLParser.NODE_TEXT else ""
+						parsed_item["title"] = xml.get_node_data().strip_edges() if xml.get_node_type() == XMLParser.NODE_TEXT else ""
 				"h4":
 					if "author" in xml.get_named_attribute_value_safe("class"):
 						xml.read()
@@ -122,42 +126,3 @@ func _parse_news_item(buffer, begin_ofs, end_ofs):
 		
 	# Return the dictionary with the news entry once we are done
 	return parsed_item
-
-# Downloads all image  thumbnails for news snippets
-func _download_images():
-	var dir = Directory.new()
-	dir.make_dir("user://images/")
-	var searches = 0
-	for img_id in images.keys():
-		while searches > 4: #four connections max
-			yield(get_tree().create_timer(0.1),"timeout")
-		searches += 1
-		var req = HTTPRequest.new()
-		add_child(req)
-		
-		var local_path = "user://images/" + img_id
-		local_images[img_id] = "[img=50]%s%s[/img]" % [ local_path, ".tex" ]
-		req.request(images[img_id])
-		var response = yield(req,"request_completed")
-		if response[1] == 200:
-			_save_texture(response[3], local_path)
-		searches -= 1
-		req.queue_free()
-	emit_signal("images_downloaded")
-
-func _save_texture(buffer : PoolByteArray, path: String):
-	var image = Image.new()
-	var error = image.load_jpg_from_buffer(buffer)
-	if error != OK:
-		print("Error %s loading jpg from buffer" % error)
-		return
-	else:
-		var texture = ImageTexture.new()
-		texture.create_from_image(image)
-		ResourceSaver.save(path + "tex",texture)
-
-# Handle clicking on links
-func _on_NewsFeed_meta_clicked(meta):
-	print(str(meta))
-	OS.shell_open(str(meta))
-

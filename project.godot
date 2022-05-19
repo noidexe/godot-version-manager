@@ -21,7 +21,7 @@ config/windows_native_icon="res://windows_icon.ico"
 
 [display]
 
-window/size/width=900
+window/size/width=1066
 window/energy_saving/keep_screen_on=false
 
 [network]
