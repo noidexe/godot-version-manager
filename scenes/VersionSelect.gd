@@ -95,6 +95,10 @@ func _reload():
 		file.close()
 		_update_list()
 
+func _natural_sort(a : String, b: String):
+	return a.naturalnocasecmp_to(b) < 0
+
+
 # Scrapes downloads website and regenerates
 # downloads_db
 func _refresh():
@@ -110,7 +114,8 @@ func _refresh():
 		yield(get_tree().create_timer(1.0),"timeout")
 	
 	# Build download_db
-	download_links.sort()
+	download_links.sort_custom(self, "_natural_sort")
+	
 	download_links.invert()
 	for link in download_links:
 		var entry = {
