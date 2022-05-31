@@ -18,9 +18,6 @@ var download_db : Dictionary
 # on settings
 var filtered_db_view :  Array
 
-# Raw list of download_urls to be sorted and used to generate donwload_db
-var download_links : Array
-
 # Used to regenerate filtered_db_view
 var alpha_included = false
 var beta_included = false
@@ -28,7 +25,6 @@ var rc_included = false
 
 # base_url used for scraping
 var base_url = "https://downloads.tuxfamily.org/godotengine/"
-
 
 # UNUSED FOR NOW
 var platforms = {
@@ -95,47 +91,57 @@ func _reload():
 		file.close()
 		_update_list()
 
-func _natural_sort(a : String, b: String):
+func _version_sort(a : String, b: String):
+	# Conver all to same schema and replace text with numbers so they are sorted in the right order
+	var a_split = a.split("/")
+	var b_split = b.split("/")
+	a = a_split[a_split.size()-1]
+	b = b_split[b_split.size()-1]
+	a = a.replace("_stable", "-stable").replace("alpha", "0.").replace("beta", "1.").replace("rc", "2.").replace("stable", "3.")
+	b = b.replace("_stable", "-stable").replace("alpha", "0.").replace("beta", "1.").replace("rc", "2.").replace("stable", "3.")
+	
 	return a.naturalnocasecmp_to(b) < 0
-
 
 # Scrapes downloads website and regenerates
 # downloads_db
 func _refresh():
-	download_links = []
-	download_db = {
+	var _download_links = []
+	var _download_db = {
 		"last_updated" : OS.get_unix_time(),
 		"versions" : []
 		}
-	_find_links(base_url)
+	_find_links(base_url, _download_links)
 	
 	# Wait for _find_links to finish
 	while requests > 0:
 		yield(get_tree().create_timer(1.0),"timeout")
 	
 	# Build download_db
-	download_links.sort_custom(self, "_natural_sort")
+	_download_links.sort_custom(self, "_version_sort")
 	
-	download_links.invert()
-	for link in download_links:
+	print(_download_links)
+	
+	_download_links.invert()
+	for link in _download_links:
 		var entry = {
 			"name" : link.get_file().trim_suffix(platforms[current_platform].suffix),
 			"path" : link
 		}
-		download_db.versions.append(entry)
+		_download_db.versions.append(entry)
 	
 	# Store download_db as json
 	var file = File.new()
 	file.open("user://download_db.json", File.WRITE)
-	file.store_line(to_json(download_db))
+	file.store_line(to_json(_download_db))
 	file.close()
 	
-	emit_signal("refresh_finished")
+	emit_signal("refresh_finished", _download_db)
 
 # Analyzes a directory listing returned by lighthttpd in search of two things:
 # - download links to Godot versions
 # - folder links to analyze recursively
-func _parsexml(buffer : PoolByteArray, partial_path):
+# output_array stores the results
+func _parsexml(buffer : PoolByteArray, partial_path, output_array : Array):
 	var xml = XMLParser.new()
 	var error = xml.open_buffer(buffer)
 	if error == OK:
@@ -154,7 +160,7 @@ func _parsexml(buffer : PoolByteArray, partial_path):
 				
 				# TODO: make it configurable to support other platforms
 				if href.ends_with(platforms[current_platform].suffix):
-					download_links.append(partial_path + href)
+					output_array.append(partial_path + href)
 
 				# if it is a folder that may contain downloads, recursively parse it
 				elif href.ends_with("/") and (
@@ -163,13 +169,14 @@ func _parsexml(buffer : PoolByteArray, partial_path):
 					or href.begins_with("rc")
 					or (href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
 					):
-					_find_links(partial_path + href)
+					_find_links(partial_path + href, output_array)
 	else:
 		print("Error %s getting download info" % error)
 
 # Gets called recursively. Fetches the next page containing a diretory
 # listing from the download page and sends it to _parsexml for analysis
-func _find_links(url:String):
+# output_array is passed to _parsexml to store the results
+func _find_links(url:String, output_array : Array):
 	while requests > MAX_REQUESTS:
 		yield(get_tree().create_timer(0.1),"timeout")
 	requests += 1
@@ -182,7 +189,7 @@ func _find_links(url:String):
 	
 	var response = yield(req,"request_completed")
 	if response[1] == 200:
-		_parsexml(response[3], url)
+		_parsexml(response[3], url, output_array)
 	
 	req.queue_free()
 	requests -= 1
@@ -206,13 +213,13 @@ func _update_list():
 
 
 func _on_Refresh_pressed():
-	disabled = true
+	#disabled = true
 	_refresh()
 	while requests > 0: 
 		refresh_button.text = "Scraping %s urls%s" % [ requests, [".", "..", "..."][randi() % 3] ]
 		yield(get_tree().create_timer(0.2),"timeout")
 	refresh_button.text = "Refresh"
-	disabled = false
+	#disabled = false
 
 # Downloads and installs the selected version
 func _on_Download_pressed():
@@ -301,5 +308,6 @@ func _on_RC_toggled(button_pressed):
 	rc_included = button_pressed
 	_update_list()
 
-func _on_VersionSelect_refresh_finished():
+func _on_VersionSelect_refresh_finished(new_download_db : Dictionary):
+	download_db = new_download_db
 	_update_list()
