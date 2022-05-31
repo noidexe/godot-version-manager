@@ -1,4 +1,4 @@
-[gd_scene load_steps=1605 format=2]
+[gd_scene load_steps=1606 format=2]
 
 [ext_resource path="res://scenes/Installed.gd" type="Script" id=1]
 [ext_resource path="res://scenes/VersionSelect.gd" type="Script" id=2]
@@ -9,6 +9,7 @@
 [ext_resource path="res://icons/paypal_donate.png" type="Texture" id=7]
 [ext_resource path="res://icons/paypal_donate_hover.png" type="Texture" id=8]
 [ext_resource path="res://scenes/NewsFeed.gd" type="Script" id=9]
+[ext_resource path="res://scenes/Version.gd" type="Script" id=10]
 
 [sub_resource type="StyleBoxFlat" id=1]
 content_margin_left = 4.5
@@ -11905,15 +11906,15 @@ custom_constants/separation = 10
 [node name="Refresh" type="Button" parent="MarginContainer/HBox/MenuBar"]
 unique_name_in_owner = true
 margin_right = 201.0
-margin_bottom = 78.0
+margin_bottom = 72.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Refresh"
 
 [node name="VersionSelect" type="OptionButton" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 88.0
+margin_top = 82.0
 margin_right = 201.0
-margin_bottom = 167.0
+margin_bottom = 155.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Refresh to populate list"
@@ -11924,9 +11925,9 @@ __meta__ = {
 
 [node name="Download" type="Button" parent="MarginContainer/HBox/MenuBar"]
 unique_name_in_owner = true
-margin_top = 177.0
+margin_top = 165.0
 margin_right = 201.0
-margin_bottom = 256.0
+margin_bottom = 238.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Download"
@@ -11935,9 +11936,9 @@ __meta__ = {
 }
 
 [node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 266.0
+margin_top = 248.0
 margin_right = 201.0
-margin_bottom = 345.0
+margin_bottom = 321.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Add from file.."
@@ -11948,38 +11949,38 @@ __meta__ = {
 add_popup = NodePath("../../../../AddNew")
 
 [node name="Include" type="Label" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 355.0
+margin_top = 331.0
 margin_right = 201.0
-margin_bottom = 375.0
+margin_bottom = 351.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Include:"
 
 [node name="Alpha" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 385.0
+margin_top = 361.0
 margin_right = 201.0
-margin_bottom = 407.0
+margin_bottom = 383.0
 size_flags_horizontal = 3
 text = "Alpha"
 
 [node name="Beta" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 417.0
+margin_top = 393.0
 margin_right = 201.0
-margin_bottom = 439.0
+margin_bottom = 415.0
 size_flags_horizontal = 3
 text = "Beta"
 
 [node name="RC" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 449.0
+margin_top = 425.0
 margin_right = 201.0
-margin_bottom = 471.0
+margin_bottom = 447.0
 size_flags_horizontal = 3
 text = "RC"
 
 [node name="Donate" type="TextureButton" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 481.0
+margin_top = 457.0
 margin_right = 201.0
-margin_bottom = 560.0
+margin_bottom = 530.0
 rect_min_size = Vector2( 0, 20 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -11991,6 +11992,27 @@ script = ExtResource( 6 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="Version" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
+margin_top = 540.0
+margin_right = 201.0
+margin_bottom = 560.0
+size_flags_horizontal = 3
+script = ExtResource( 10 )
+
+[node name="tag" type="Label" parent="MarginContainer/HBox/MenuBar/Version"]
+margin_right = 143.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Version Tag: vX.XX"
+
+[node name="update" type="Button" parent="MarginContainer/HBox/MenuBar/Version"]
+margin_left = 146.0
+margin_right = 201.0
+margin_bottom = 20.0
+text = "Update"
+
+[node name="req" type="HTTPRequest" parent="MarginContainer/HBox/MenuBar/Version"]
 
 [node name="Installed" type="ItemList" parent="MarginContainer/HBox"]
 margin_left = 211.0
@@ -12064,7 +12086,6 @@ text = "updating..."
 [node name="req" type="HTTPRequest" parent="MarginContainer/HBox/Scroll"]
 
 [node name="AddNew" type="Popup" parent="."]
-visible = true
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -12209,6 +12230,8 @@ filters = PoolStringArray( "*.exe ; Godot executable files" )
 [connection signal="toggled" from="MarginContainer/HBox/MenuBar/Beta" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_Beta_toggled"]
 [connection signal="toggled" from="MarginContainer/HBox/MenuBar/RC" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_RC_toggled"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
+[connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
+[connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
 [connection signal="item_activated" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_activated"]
 [connection signal="item_rmb_selected" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_rmb_selected"]
 [connection signal="id_pressed" from="MarginContainer/HBox/Installed/ContextMenu" to="MarginContainer/HBox/Installed" method="_on_ContextMenu_id_pressed"]
