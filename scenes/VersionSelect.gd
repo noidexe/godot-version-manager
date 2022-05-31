@@ -66,8 +66,8 @@ var current_platform
 var requests = 0 # Number of concurrent http requests running
 const MAX_REQUESTS = 4
 
-onready var refresh_button = $"../Refresh"
-onready var download_button = $"../Download"
+onready var refresh_button = $"%Refresh"
+onready var download_button = $"%Download"
 
 signal refresh_finished()
 signal version_added()

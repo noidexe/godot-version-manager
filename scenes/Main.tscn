@@ -11903,6 +11903,7 @@ size_flags_stretch_ratio = 0.5
 custom_constants/separation = 10
 
 [node name="Refresh" type="Button" parent="MarginContainer/HBox/MenuBar"]
+unique_name_in_owner = true
 margin_right = 201.0
 margin_bottom = 78.0
 size_flags_horizontal = 3
@@ -11922,6 +11923,7 @@ __meta__ = {
 }
 
 [node name="Download" type="Button" parent="MarginContainer/HBox/MenuBar"]
+unique_name_in_owner = true
 margin_top = 177.0
 margin_right = 201.0
 margin_bottom = 256.0
@@ -12030,6 +12032,7 @@ scroll_horizontal_enabled = false
 script = ExtResource( 9 )
 
 [node name="Feed" type="VBoxContainer" parent="MarginContainer/HBox/Scroll"]
+unique_name_in_owner = true
 margin_left = 10.0
 margin_top = 10.0
 margin_right = 393.0

@@ -2,6 +2,11 @@ extends Popup
 
 export var select_dialog : NodePath
 
+onready var line_edit_path = $Margin/VBox/path/LineEdit
+onready var line_edit_name = $Margin/VBox/name/LineEdit
+onready var line_edit_arguments = $Margin/VBox/arguments/LineEdit
+onready var add_button = $Margin/VBox/Add
+
 signal version_added()
 
 func _ready():
@@ -11,22 +16,22 @@ func _ready():
 func _on_Select_pressed():
 	var popup = get_node(select_dialog) as FileDialog
 	popup.popup()
-	$Margin/VBox/path/LineEdit.text = yield(popup,"file_selected")
-	if $Margin/VBox/name/LineEdit.text == "":
-		$Margin/VBox/name/LineEdit.text = $Margin/VBox/path/LineEdit.text.get_file()
+	line_edit_path.text = yield(popup,"file_selected")
+	if line_edit_name.text == "":
+		line_edit_name.text = line_edit_path.text.get_file()
 	_validate()
 
 # Validate name and path input
 func _validate(_unused = ""):
-	$Margin/VBox/Add.disabled = $Margin/VBox/name/LineEdit.text == "" or not $Margin/VBox/path/LineEdit.text.is_abs_path()
+	add_button.disabled = line_edit_name.text == "" or not line_edit_path.text.is_abs_path()
 
 # Create a entry and add it to the list of 
 # installed versions
 func _on_Add_pressed():
 	var entry = {
-		"name": $Margin/VBox/name/LineEdit.text,
-		"path" :$Margin/VBox/path/LineEdit.text,
-		"arguments" :$Margin/VBox/arguments/LineEdit.text
+		"name": line_edit_name.text,
+		"path" :line_edit_path.text,
+		"arguments" :line_edit_arguments.text
 	}
 	
 	# Ready in config file
@@ -48,6 +53,6 @@ func _on_Add_pressed():
 
 # Initialization
 func _on_AddNew_about_to_show():
-	$Margin/VBox/name/LineEdit.text = ""
-	$Margin/VBox/arguments/LineEdit.text = ""
-	$Margin/VBox/path/LineEdit.text = ""
+	line_edit_name.text = ""
+	line_edit_arguments.text = ""
+	line_edit_path.text = ""
