@@ -4,8 +4,8 @@ var news_item_scene = preload("res://scenes/NewsItem.tscn")
 
 const news_cache_file = "user://news_cache.bin"
 
-onready var feed_vbox = $"%Feed"
-onready var loading_text = $"%Feed/Loading"
+onready var feed_vbox = $"Feed"
+onready var loading_text = $"Feed/Loading"
 
 func _ready():
 	_refresh_news()

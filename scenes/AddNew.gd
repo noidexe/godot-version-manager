@@ -34,19 +34,14 @@ func _on_Add_pressed():
 		"arguments" :line_edit_arguments.text
 	}
 	
-	# Ready in config file
-	var file = File.new()
-	file.open("user://config.json",File.READ)
-	var config = parse_json(file.get_as_text())
-	file.close()
+	# Read the config
+	var config: Dictionary = Globals.read_config()
 	
 	# Modify config file
 	config.versions.append(entry)
 	
 	# Write out contents
-	file.open("user://config.json",File.WRITE)
-	file.store_line(to_json(config))
-	file.close()
+	Globals.write_config(config)
 	
 	emit_signal("version_added")
 	hide()

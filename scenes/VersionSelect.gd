@@ -66,8 +66,8 @@ var current_platform
 var requests = 0 # Number of concurrent http requests running
 const MAX_REQUESTS = 4
 
-onready var refresh_button = $"%Refresh"
-onready var download_button = $"%Download"
+onready var refresh_button = $"../Refresh"
+onready var download_button = $"../Download"
 
 signal refresh_finished()
 signal version_added()
@@ -81,15 +81,18 @@ func _ready():
 		current_platform = "X11"
 	_reload()
 
+	var config = Globals.read_config()
+	if "ui" in config:
+		$"../Alpha".pressed = config.ui.alpha
+		$"../Beta".pressed = config.ui.beta
+		$"../RC".pressed = config.ui.rc
+
+
 # Deserializes json version of download_db and
 # calls _update_list to update display of options
 func _reload():
-	var file = File.new()
-	if file.file_exists("user://download_db.json"):
-		file.open("user://download_db.json",File.READ)
-		download_db = parse_json(file.get_as_text())
-		file.close()
-		_update_list()
+	download_db = Globals.read_download_db()
+	_update_list()
 
 func _version_sort(a : String, b: String):
 	# Conver all to same schema and replace text with numbers so they are sorted in the right order
@@ -119,8 +122,6 @@ func _refresh():
 	# Build download_db
 	_download_links.sort_custom(self, "_version_sort")
 	
-	print(_download_links)
-	
 	_download_links.invert()
 	for link in _download_links:
 		var entry = {
@@ -130,10 +131,7 @@ func _refresh():
 		_download_db.versions.append(entry)
 	
 	# Store download_db as json
-	var file = File.new()
-	file.open("user://download_db.json", File.WRITE)
-	file.store_line(to_json(_download_db))
-	file.close()
+	Globals.write_download_db(_download_db)
 	
 	emit_signal("refresh_finished", _download_db)
 
@@ -264,7 +262,6 @@ func _on_Download_pressed():
 		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
 		OS.execute("mv", [ProjectSettings.globalize_path("user://versions/Godot.app"), app_full_path], true, output)
 		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
-	print(output)
 	
 	download_button.disabled = false
 	download_button.text = "Download"
@@ -281,31 +278,30 @@ func _add_version(v_name : String, path: String):
 	var file = File.new()
 	
 	# Read in the config
-	file.open("user://config.json",File.READ)
-	var config = parse_json(file.get_as_text())
-	file.close()
+	var config = Globals.read_config()
 	
 	# Modify the config
 	config.versions.append(entry)
 	
 	# Write out changes
-	file.open("user://config.json",File.WRITE)
-	file.store_line(to_json(config))
-	file.close()
+	Globals.write_config(config)
 	
 	emit_signal("version_added")
 
 
 func _on_Alpha_toggled(button_pressed):
 	alpha_included = button_pressed
+	Globals.update_ui_flag("alpha", button_pressed)
 	_update_list()
 
 func _on_Beta_toggled(button_pressed):
 	beta_included = button_pressed
+	Globals.update_ui_flag("beta", button_pressed)
 	_update_list()
 
 func _on_RC_toggled(button_pressed):
 	rc_included = button_pressed
+	Globals.update_ui_flag("rc", button_pressed)
 	_update_list()
 
 func _on_VersionSelect_refresh_finished(new_download_db : Dictionary):
