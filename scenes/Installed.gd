@@ -8,7 +8,7 @@ var icons = {
 	"stable" : preload("res://icons/stable.res")
 }
 
-var config : Dictionary = { "versions" : [] }
+var config : Dictionary
 export var context_menu : NodePath
 
 func _ready():
@@ -16,13 +16,7 @@ func _ready():
 
 
 func _reload():
-	var file = File.new()
-	if not file.file_exists("user://config.json"):
-		_save()
-	file.open("user://config.json",File.READ)
-	var content = file.get_as_text()
-	config = parse_json(content)
-	file.close()
+	config = Globals.read_config()
 	_update_list()
 
 
@@ -62,7 +56,7 @@ func _on_ContextMenu_id_pressed(id):
 
 func _delete(idx):
 	config.versions.remove(idx)
-	_save()
+	Globals.write_config(config)
 	_reload()
 
 
@@ -73,10 +67,3 @@ func _on_Installed_item_rmb_selected(_index, at_position):
 	# Compensate
 	menu.set_position(rect_position + at_position)
 	menu.popup()
-	
-
-func _save():
-	var file = File.new()
-	file.open("user://config.json",File.WRITE)
-	file.store_line(to_json(config))
-	file.close()
