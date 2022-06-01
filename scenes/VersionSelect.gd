@@ -100,8 +100,6 @@ func _version_sort(a : String, b: String):
 	var b_split = b.split("/")
 	a = a_split[a_split.size()-1]
 	b = b_split[b_split.size()-1]
-	a = a.replace("_stable", "-stable").replace("alpha", "0.").replace("beta", "1.").replace("rc", "2.").replace("stable", "3.")
-	b = b.replace("_stable", "-stable").replace("alpha", "0.").replace("beta", "1.").replace("rc", "2.").replace("stable", "3.")
 	
 	return a.naturalnocasecmp_to(b) < 0
 
