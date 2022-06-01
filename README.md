@@ -36,5 +36,5 @@ A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featur
 - [ ] General code clean up
 - [ ] Better(i.e some at all) error handling
 - [ ] Inform about available updates for installed versions
-- [ ] Inform about available updates for Godot Version Manager
+- [x] Inform about available updates for Godot Version Manager
 - [x] Show news snippets from godotengine.com/news?
