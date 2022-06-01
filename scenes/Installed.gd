@@ -1,5 +1,8 @@
 extends ItemList
 
+# Shows a slightly different icon for alpha, beta, rc, etc. Will be replaced by
+# official icons when https://github.com/godotengine/godot-proposals/issues/541
+# is approved
 var icons = {
 	"tool" : preload("res://icons/master.res"),
 	"alpha" : preload("res://icons/alpha.res"),
@@ -8,8 +11,11 @@ var icons = {
 	"stable" : preload("res://icons/stable.res")
 }
 
+# TODO: Move the config to Globals.gd and centralize config
+# manipulation
 var config : Dictionary
 export var context_menu : NodePath
+
 
 func _ready():
 	_reload()

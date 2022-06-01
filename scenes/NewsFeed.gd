@@ -10,6 +10,7 @@ onready var loading_text = $"Feed/Loading"
 func _ready():
 	_refresh_news()
 
+
 # Updates display of news
 func _refresh_news():
 	loading_text.show()
@@ -23,6 +24,7 @@ func _refresh_news():
 	_save_news_cache(news)
 	_update_news_feed(news)
 
+
 # Generates text bases on an array of dictionaries containing strings to 
 # interpolate
 func _update_news_feed(feed : Array):
@@ -34,6 +36,7 @@ func _update_news_feed(feed : Array):
 		feed_vbox.add_child(news_item)
 		news_item.set_info(item)
 
+
 func _get_news_cache() -> Array:
 	var ret = []
 	var file = File.new()
@@ -43,11 +46,13 @@ func _get_news_cache() -> Array:
 		file.close()
 	return ret
 
+
 func _save_news_cache(news : Array):
 	var file = File.new()
 	file.open(news_cache_file, File.WRITE)
 	file.store_var(news)
 	file.close()
+
 
 # Analyzes html for <div class="news-item"> elements
 # which will be further parsed by _parse_news_item()
@@ -82,9 +87,9 @@ func _get_news(buffer) -> Array:
 		print("Error %s getting download info" % error)
 	return parsed_news
 
+
 # Extract the necesary info for each news item
 func _parse_news_item(buffer, begin_ofs, end_ofs):
-	
 	var parsed_item = {}
 	var xml = XMLParser.new()
 	var error = xml.open_buffer(buffer)
