@@ -56,12 +56,30 @@ func _on_version_added():
 
 
 func _on_ContextMenu_id_pressed(id):
-	if id == 0 and is_anything_selected():
-		_delete(get_selected_items()[0])
+	if not is_anything_selected():
+		return
+	var item = get_selected_items()[0]
+	match id:
+		0:
+			_delete(item)
+		1:
+			_move(item, -1)
+		2:
+			_move(item, 1)
+	
 
 
 func _delete(idx):
 	config.versions.remove(idx)
+	Globals.write_config(config)
+	_reload()
+
+
+func _move(idx : int, offset: int):
+	var to_move = config.versions[idx]
+	config.versions.remove(idx)
+	var new_idx = clamp(idx + offset, 0, config.versions.size() )
+	config.versions.insert(new_idx, to_move)
 	Globals.write_config(config)
 	_reload()
 

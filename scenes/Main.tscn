@@ -12039,7 +12039,7 @@ context_menu = NodePath("ContextMenu")
 [node name="ContextMenu" type="PopupMenu" parent="MarginContainer/HBox/Installed"]
 margin_right = 55.0
 margin_bottom = 26.0
-items = [ "Delete", null, 0, false, false, 0, 0, null, "", false ]
+items = [ "Remove", null, 0, false, false, 0, 0, null, "", false, "Move Up", null, 0, false, false, 1, 0, null, "", false, "Move Down", null, 0, false, false, 2, 0, null, "", false ]
 __meta__ = {
 "_edit_use_anchors_": false
 }
