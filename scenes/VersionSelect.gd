@@ -278,7 +278,7 @@ func _on_Download_pressed():
 		print("Powershell.exe executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,filename.rstrip(".zip"))
 	elif OS.has_feature("X11"):
-		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
 		print(output.pop_front())
 		print("unzip executed with exit code: %s" % exit_code)
 		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
