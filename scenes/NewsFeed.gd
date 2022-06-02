@@ -93,6 +93,8 @@ func _parse_news_item(buffer, begin_ofs, end_ofs):
 	var parsed_item = {}
 	var xml = XMLParser.new()
 	var error = xml.open_buffer(buffer)
+	if error != OK:
+		printerr("Error parsing news item. Error code: %s" % error)
 	xml.seek(begin_ofs) # automatically does xml.read()
 	
 	# We iterate over every node in the range specified by

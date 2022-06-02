@@ -20,7 +20,9 @@ func _ready():
 
 func _on_gui_input(event):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
-		OS.shell_open(url)
+		var error = OS.shell_open(url)
+		if error != OK:
+			printerr("Error opening browser. Error Code: %s" % error )
 
 func set_info(info : Dictionary):
 	url = info.link

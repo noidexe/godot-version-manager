@@ -180,10 +180,6 @@ func _parsexml(buffer : PoolByteArray, partial_path, output_array : Array):
 				
 				var href = xml.get_named_attribute_value_safe("href")
 				
-				# TODO: make it configurable to support other platforms
-				if href.ends_with(platforms[current_platform].suffix):
-					output_array.append(partial_path + href)
-
 				# if it is a folder that may contain downloads, recursively parse it
 				elif href.ends_with("/") and (
 					href.begins_with("alpha")
@@ -274,20 +270,29 @@ func _on_Download_pressed():
 	download_button.text = "Extracting.."
 	yield(get_tree(),"idle_frame")
 	
-	# TODO: Make this configurable for all platforms. Use tar on unix based systems
-	#OS.execute(ProjectSettings.globalize_path("res://bin/7za.exe"), ["x", "-y", "-o" + ProjectSettings.globalize_path("user://versions/"), ProjectSettings.globalize_path(filename)], true, output) 
 	var output = []
+	var exit_code : int
 	if OS.has_feature("Windows"):
-		OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+		print(output.pop_front())
+		print("Powershell.exe executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,filename.rstrip(".zip"))
 	elif OS.has_feature("X11"):
-		OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
-		OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
+		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		print(output.pop_front())
+		print("unzip executed with exit code: %s" % exit_code)
+		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
+		print(output.pop_front())
+		print("chmod executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,filename.rstrip(".zip"))
 	elif OS.has_feature("OSX"):
-		OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		print(output.pop_front())
+		print("unzip executed with exit code: %s" % exit_code)
 		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
-		OS.execute("mv", [ProjectSettings.globalize_path("user://versions/Godot.app"), app_full_path], true, output)
+		exit_code = OS.execute("mv", [ProjectSettings.globalize_path("user://versions/Godot.app"), app_full_path], true, output)
+		print(output.pop_front())
+		print("mv run with exit code: %s" % exit_code)
 		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
 	
 	download_button.disabled = false
@@ -302,8 +307,6 @@ func _add_version(v_name : String, path: String):
 		"path" : ProjectSettings.globalize_path(path), 
 		"arguments" : ""
 	}
-	
-	var file = File.new()
 	
 	# Read in the config
 	var config = Globals.read_config()

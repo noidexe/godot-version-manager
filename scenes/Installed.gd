@@ -40,16 +40,17 @@ func _get_correct_icon(v_name : String):
 
 
 func _on_Installed_item_activated(index):
+	var pid :int
 	var path : String =  config.versions[index].path
 	var args : PoolStringArray = config.versions[index].arguments.split(" ")
 	args.append("-p")
 	if OS.has_feature("OSX"):
 		var osx_args := PoolStringArray([ProjectSettings.globalize_path(path), "--args"])
 		osx_args.append_array(args)
-		OS.execute("open", osx_args, false)
+		pid = OS.execute("open", osx_args, false)
 	else:
-		OS.execute(ProjectSettings.globalize_path(path), args, false)
-
+		pid = OS.execute(ProjectSettings.globalize_path(path), args, false)
+	print( "Running \"%s\" with pid %s" % [ path, pid ] )
 
 func _on_version_added():
 	_reload()
