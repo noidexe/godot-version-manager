@@ -10,7 +10,7 @@ extends OptionButton
 # depending on the detected platform
 const platforms = {
 	"X11": {
-		"suffix": "_x11.64.zip",
+		"suffixes": ["_x11.64.zip", "_linux.64.zip"],
 		"extraction-command" : [
 			"unzip",
 			[
@@ -21,7 +21,7 @@ const platforms = {
 		]
 	},
 	"OSX": {
-		"suffix": "_osx.universal.zip",
+		"suffixes": ["_osx.universal.zip"],
 		"extraction-command" : [
 			"unzip",
 			[
@@ -32,7 +32,7 @@ const platforms = {
 		]
 	},
 	"Windows": {
-		"suffix": "_win64.exe.zip",
+		"suffixes": ["_win64.exe.zip"],
 		"extraction-command" : [
 			"powershell.exe",
 			[
@@ -147,8 +147,12 @@ func _refresh():
 	
 	_download_links.invert()
 	for link in _download_links:
+		var suffixes = platforms[current_platform].suffixes
+		var _entry_name = link.get_file()
+		for suffix in suffixes:
+			_entry_name = _entry_name.trim_suffix(suffix)
 		var entry = {
-			"name" : link.get_file().trim_suffix(platforms[current_platform].suffix),
+			"name" : _entry_name,
 			"path" : link
 		}
 		_download_db.versions.append(entry)
@@ -163,7 +167,7 @@ func _refresh():
 # - download links to Godot versions
 # - folder links to analyze recursively
 # output_array stores the results
-func _parsexml(buffer : PoolByteArray, partial_path, output_array : Array):
+func _parsexml(buffer : PoolByteArray, partial_path : String, output_array : Array):
 	var xml = XMLParser.new()
 	var error = xml.open_buffer(buffer)
 	if error == OK:
@@ -180,18 +184,22 @@ func _parsexml(buffer : PoolByteArray, partial_path, output_array : Array):
 				
 				var href = xml.get_named_attribute_value_safe("href")
 				
-				# TODO: make it configurable to support other platforms
-				if href.ends_with(platforms[current_platform].suffix):
-					output_array.append(partial_path + href)
-
 				# if it is a folder that may contain downloads, recursively parse it
-				elif href.ends_with("/") and (
+				if href.ends_with("/") and (
 					href.begins_with("alpha")
 					or href.begins_with("beta")
 					or href.begins_with("rc")
 					or (href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
 					):
 					_find_links(partial_path + href, output_array)
+				else:
+					# Handle linux having a different suffix on 4.x
+					var suffixes = platforms[current_platform].suffixes
+					for suffix in suffixes:
+						if href.ends_with(suffix):
+							output_array.append(partial_path + href)
+
+				
 	else:
 		print("Error %s getting download info" % error)
 
@@ -213,6 +221,8 @@ func _find_links(url:String, output_array : Array):
 	var response = yield(req,"request_completed")
 	if response[1] == 200:
 		_parsexml(response[3], url, output_array)
+	else:
+		printerr("Error scraping link. Response code: %s" % response[1])
 	
 	req.queue_free()
 	requests -= 1
@@ -259,7 +269,7 @@ func _on_Download_pressed():
 	download_button.disabled = true
 	
 	# TODO: make it work with other platforms
-	var filename =  "user://versions/" + _selection.name + platforms[current_platform].suffix
+	var filename =  "user://versions/" + _selection.path.get_file()
 	var url = _selection.path
 	
 	var req = HTTPRequest.new()
@@ -274,20 +284,29 @@ func _on_Download_pressed():
 	download_button.text = "Extracting.."
 	yield(get_tree(),"idle_frame")
 	
-	# TODO: Make this configurable for all platforms. Use tar on unix based systems
-	#OS.execute(ProjectSettings.globalize_path("res://bin/7za.exe"), ["x", "-y", "-o" + ProjectSettings.globalize_path("user://versions/"), ProjectSettings.globalize_path(filename)], true, output) 
 	var output = []
+	var exit_code : int
 	if OS.has_feature("Windows"):
-		OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+		print(output.pop_front())
+		print("Powershell.exe executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,filename.rstrip(".zip"))
 	elif OS.has_feature("X11"):
-		OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
-		OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
+		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		print(output.pop_front())
+		print("unzip executed with exit code: %s" % exit_code)
+		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
+		print(output.pop_front())
+		print("chmod executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,filename.rstrip(".zip"))
 	elif OS.has_feature("OSX"):
-		OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		print(output.pop_front())
+		print("unzip executed with exit code: %s" % exit_code)
 		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
-		OS.execute("mv", [ProjectSettings.globalize_path("user://versions/Godot.app"), app_full_path], true, output)
+		exit_code = OS.execute("mv", [ProjectSettings.globalize_path("user://versions/Godot.app"), app_full_path], true, output)
+		print(output.pop_front())
+		print("mv run with exit code: %s" % exit_code)
 		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
 	
 	download_button.disabled = false
@@ -302,8 +321,6 @@ func _add_version(v_name : String, path: String):
 		"path" : ProjectSettings.globalize_path(path), 
 		"arguments" : ""
 	}
-	
-	var file = File.new()
 	
 	# Read in the config
 	var config = Globals.read_config()

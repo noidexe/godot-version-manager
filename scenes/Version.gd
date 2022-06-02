@@ -7,7 +7,7 @@ const api_endpoint = "https://api.github.com/repos/noidexe/godot-version-manager
 # Add '-devel' for versions not intended for release
 # Remove '-devel' when commiting a build to be tagged as release
 # Remember to update version in export settings before exporting
-const version_tag = "v1.5"
+const version_tag = "v1.5.1-devel"
 
 # Initialized to the release list page as a fallback in case it fails to 
 # get the link to the latest release for some reason
@@ -47,4 +47,6 @@ func _on_request_completed(_result, response_code : int, _headers, body : PoolBy
 
 
 func _on_update_pressed():
-	OS.shell_open(download_url)
+	var error = OS.shell_open(download_url)
+	if error != OK:
+		printerr("Error opening browser. Error Code: %s" % error )
