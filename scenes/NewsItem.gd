@@ -3,6 +3,8 @@ extends VBoxContainer
 
 var url = "https://example.com"
 
+const BASE_DIR = "user://images/"
+
 onready var title = $title
 onready var author = $author
 onready var thumb = $body/thumb_container/thumb
@@ -32,12 +34,14 @@ func set_info(info : Dictionary):
 	contents.text = info.contents
 	_load_image(info.image)
 
-func _load_image(url):
-	var local_path = "user://images/" + url.get_file()
+func _load_image(_url):
+	var local_path = BASE_DIR + _url.get_file()
 	var dir = Directory.new()
+	if not dir.dir_exists(BASE_DIR):
+		dir.make_dir(BASE_DIR)
 	if not dir.file_exists(local_path):
 		$req.download_file = local_path
-		$req.request(url)
+		$req.request(_url)
 		var response = yield($req,"request_completed")
 		if not response[1] == 200:
 			printerr("Could not find or download image")
