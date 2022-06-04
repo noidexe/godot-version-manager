@@ -1,6 +1,6 @@
 <table><tr width=64px><td><img height=64px src="https://user-images.githubusercontent.com/526829/169241046-3087a41d-9606-43ab-90ae-ee0055bef039.png"/></td><td><h1>godot-version-manager</h1></td></tr></table>
   
-Download, Instal and Manage any vesion of Godot Engine from a simple app. 
+Download, install and manage any version of Godot Engine from a simple app. 
 
 ![image](https://user-images.githubusercontent.com/526829/169240992-08fe1939-4d97-4577-b989-dda0901aa731.png)
 
