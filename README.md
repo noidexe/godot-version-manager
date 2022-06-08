@@ -2,7 +2,7 @@
   
 Download, install and manage any version of Godot Engine from a simple app. 
 
-![image](https://user-images.githubusercontent.com/526829/169240992-08fe1939-4d97-4577-b989-dda0901aa731.png)
+![image](https://user-images.githubusercontent.com/526829/172542254-1a76a5a9-cd01-435f-a462-31a4979b510a.png)
 
 ## Installation
 ### Windows:
