@@ -78,8 +78,17 @@ var alpha_included = false
 var beta_included = false
 var rc_included = false
 
-onready var refresh_button = $"../Refresh"
-onready var download_button = $"../Download"
+export var refresh_button_path : NodePath 
+export var download_button_path : NodePath
+export var alpha_button_path : NodePath
+export var beta_button_path : NodePath
+export var rc_button_path : NodePath
+
+onready var refresh_button = get_node(refresh_button_path)
+onready var download_button = get_node(download_button_path)
+onready var alpha_button = get_node(alpha_button_path)
+onready var beta_button = get_node(beta_button_path)
+onready var rc_button = get_node(rc_button_path)
 
 # Emitted when the download_db has been updated
 signal refresh_finished()
@@ -89,6 +98,12 @@ signal version_added()
 
 
 func _ready():
+	# VALIDATE BUTTON PATHS ( Will use scene unique names when 3.5 reaches stable)
+	for button in [refresh_button, download_button, alpha_button, beta_button, rc_button]:
+		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
+	
+	
+	
 	# DETECT PLATFORM
 	if OS.has_feature("Windows"):
 		current_platform = "Windows"
@@ -103,9 +118,9 @@ func _ready():
 	# RESTORE UI FLAGS
 	var config = Globals.read_config()
 	if "ui" in config:
-		$"../Alpha".pressed = config.ui.alpha
-		$"../Beta".pressed = config.ui.beta
-		$"../RC".pressed = config.ui.rc
+		alpha_button.pressed = config.ui.alpha
+		beta_button.pressed = config.ui.beta
+		rc_button.pressed = config.ui.rc
 
 
 # Deserializes json version of download_db and

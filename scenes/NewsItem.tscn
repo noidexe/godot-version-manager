@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scenes/NewsItem.gd" type="Script" id=1]
+[ext_resource path="res://theme/installed.tres" type="DynamicFont" id=2]
 
 [sub_resource type="StyleBoxFlat" id=1]
 content_margin_left = 10.0
@@ -33,25 +34,26 @@ uppercase = true
 [node name="author" type="Label" parent="."]
 margin_top = 38.0
 margin_right = 1066.0
-margin_bottom = 52.0
+margin_bottom = 59.0
+custom_fonts/font = ExtResource( 2 )
 text = "Author"
 autowrap = true
 
 [node name="body" type="HBoxContainer" parent="."]
-margin_top = 56.0
+margin_top = 63.0
 margin_right = 1066.0
 margin_bottom = 600.0
 size_flags_vertical = 3
 
 [node name="thumb_container" type="CenterContainer" parent="body"]
 margin_right = 100.0
-margin_bottom = 544.0
+margin_bottom = 537.0
 rect_min_size = Vector2( 100, 100 )
 
 [node name="thumb" type="TextureRect" parent="body/thumb_container"]
-margin_top = 222.0
+margin_top = 218.0
 margin_right = 100.0
-margin_bottom = 322.0
+margin_bottom = 318.0
 grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 100, 100 )
@@ -63,7 +65,7 @@ stretch_mode = 7
 [node name="contents" type="Label" parent="body"]
 margin_left = 104.0
 margin_right = 1066.0
-margin_bottom = 544.0
+margin_bottom = 537.0
 rect_min_size = Vector2( 300, 0 )
 size_flags_horizontal = 3
 size_flags_vertical = 7

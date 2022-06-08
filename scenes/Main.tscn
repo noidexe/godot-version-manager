@@ -44,26 +44,22 @@ margin_bottom = 580.0
 custom_constants/separation = 10
 
 [node name="MenuBar" type="VBoxContainer" parent="MarginContainer/HBox"]
-margin_right = 201.0
+margin_right = 250.0
 margin_bottom = 560.0
-rect_min_size = Vector2( 0, 50 )
+rect_min_size = Vector2( 250, 50 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.5
 custom_constants/separation = 10
 
-[node name="Refresh" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_right = 201.0
-margin_bottom = 68.0
-hint_tooltip = "Refresh the database to show new available versions"
-size_flags_horizontal = 3
+[node name="Version&Refresh" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
+margin_right = 250.0
+margin_bottom = 87.0
 size_flags_vertical = 3
-text = "Refresh"
 
-[node name="VersionSelect" type="OptionButton" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 78.0
-margin_right = 201.0
-margin_bottom = 146.0
+[node name="VersionSelect" type="OptionButton" parent="MarginContainer/HBox/MenuBar/Version&Refresh"]
+margin_right = 193.0
+margin_bottom = 87.0
 hint_tooltip = "Select a Godot version to download"
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -73,11 +69,26 @@ script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+refresh_button_path = NodePath("../Refresh")
+download_button_path = NodePath("../../Download")
+alpha_button_path = NodePath("../../Alpha")
+beta_button_path = NodePath("../../Beta")
+rc_button_path = NodePath("../../RC")
+
+[node name="Refresh" type="Button" parent="MarginContainer/HBox/MenuBar/Version&Refresh"]
+margin_left = 196.0
+margin_right = 250.0
+margin_bottom = 87.0
+hint_tooltip = "Refresh the database to show new available versions"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.01
+text = "Refresh"
 
 [node name="Download" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 156.0
-margin_right = 201.0
-margin_bottom = 224.0
+margin_top = 97.0
+margin_right = 250.0
+margin_bottom = 185.0
 hint_tooltip = "Download the selected version"
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -87,9 +98,9 @@ __meta__ = {
 }
 
 [node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 234.0
-margin_right = 201.0
-margin_bottom = 302.0
+margin_top = 195.0
+margin_right = 250.0
+margin_bottom = 283.0
 hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -101,38 +112,38 @@ __meta__ = {
 add_popup = NodePath("../../../../AddNew")
 
 [node name="Include" type="Label" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 312.0
-margin_right = 201.0
-margin_bottom = 339.0
+margin_top = 293.0
+margin_right = 250.0
+margin_bottom = 320.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Include:"
 
 [node name="Alpha" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 349.0
-margin_right = 201.0
-margin_bottom = 374.0
+margin_top = 330.0
+margin_right = 250.0
+margin_bottom = 355.0
 size_flags_horizontal = 3
 text = "Alpha"
 
 [node name="Beta" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 384.0
-margin_right = 201.0
-margin_bottom = 409.0
+margin_top = 365.0
+margin_right = 250.0
+margin_bottom = 390.0
 size_flags_horizontal = 3
 text = "Beta"
 
 [node name="RC" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 419.0
-margin_right = 201.0
-margin_bottom = 444.0
+margin_top = 400.0
+margin_right = 250.0
+margin_bottom = 425.0
 size_flags_horizontal = 3
 text = "RC"
 
 [node name="Donate" type="TextureButton" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 454.0
-margin_right = 201.0
-margin_bottom = 522.0
+margin_top = 435.0
+margin_right = 250.0
+margin_bottom = 523.0
 rect_min_size = Vector2( 0, 20 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -146,31 +157,31 @@ __meta__ = {
 }
 
 [node name="Version" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 532.0
-margin_right = 201.0
-margin_bottom = 559.0
+margin_top = 533.0
+margin_right = 250.0
+margin_bottom = 560.0
 size_flags_horizontal = 3
 script = ExtResource( 10 )
 
 [node name="tag" type="Label" parent="MarginContainer/HBox/MenuBar/Version"]
-margin_right = 148.0
+margin_right = 197.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 text = "Version Tag: vX.XX"
 
 [node name="update" type="Button" parent="MarginContainer/HBox/MenuBar/Version"]
-margin_left = 151.0
-margin_right = 201.0
+margin_left = 200.0
+margin_right = 250.0
 margin_bottom = 27.0
 text = "Update"
 
 [node name="req" type="HTTPRequest" parent="MarginContainer/HBox/MenuBar/Version"]
 
 [node name="Installed" type="ItemList" parent="MarginContainer/HBox"]
-margin_left = 211.0
-margin_right = 613.0
+margin_left = 260.0
+margin_right = 638.0
 margin_bottom = 560.0
-rect_min_size = Vector2( 335, 0 )
+rect_min_size = Vector2( 320, 0 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_colors/font_color_selected = Color( 0.27451, 0.54902, 0.74902, 1 )
@@ -197,7 +208,7 @@ __meta__ = {
 }
 
 [node name="Scroll" type="ScrollContainer" parent="MarginContainer/HBox"]
-margin_left = 623.0
+margin_left = 648.0
 margin_right = 1026.0
 margin_bottom = 560.0
 size_flags_horizontal = 3
@@ -208,16 +219,17 @@ script = ExtResource( 9 )
 [node name="Feed" type="VBoxContainer" parent="MarginContainer/HBox/Scroll"]
 margin_left = 10.0
 margin_top = 10.0
-margin_right = 393.0
+margin_right = 368.0
 margin_bottom = 37.0
 size_flags_horizontal = 3
 custom_constants/separation = 20
 
 [node name="Title" type="Label" parent="MarginContainer/HBox/Scroll/Feed"]
-margin_right = 383.0
+margin_right = 358.0
 margin_bottom = 27.0
-text = "NEWS"
+text = "godotengine.org news feed"
 align = 1
+uppercase = true
 
 [node name="Loading" type="RichTextLabel" parent="MarginContainer/HBox/Scroll/Feed"]
 visible = false
@@ -373,15 +385,17 @@ window_title = "Open a File"
 mode = 0
 access = 2
 filters = PoolStringArray( "*.exe ; Godot executable files" )
+current_dir = "/Users/lisan/Documents/GitHub/godot-version-manager"
+current_path = "/Users/lisan/Documents/GitHub/godot-version-manager/"
 
-[connection signal="pressed" from="MarginContainer/HBox/MenuBar/Refresh" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_Refresh_pressed"]
-[connection signal="refresh_finished" from="MarginContainer/HBox/MenuBar/VersionSelect" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_VersionSelect_refresh_finished"]
-[connection signal="version_added" from="MarginContainer/HBox/MenuBar/VersionSelect" to="MarginContainer/HBox/Installed" method="_on_version_added"]
-[connection signal="pressed" from="MarginContainer/HBox/MenuBar/Download" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_Download_pressed"]
+[connection signal="refresh_finished" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_VersionSelect_refresh_finished"]
+[connection signal="version_added" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/Installed" method="_on_version_added"]
+[connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version&Refresh/Refresh" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Refresh_pressed"]
+[connection signal="pressed" from="MarginContainer/HBox/MenuBar/Download" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Download_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Alpha" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_Alpha_toggled"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Beta" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_Beta_toggled"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/RC" to="MarginContainer/HBox/MenuBar/VersionSelect" method="_on_RC_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Alpha" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Alpha_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Beta" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Beta_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/RC" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_RC_toggled"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
