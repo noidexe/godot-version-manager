@@ -287,7 +287,7 @@ func _on_Download_pressed():
 	var output = []
 	var exit_code : int
 	if OS.has_feature("Windows"):
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\"" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
 		print(output.pop_front())
 		print("Powershell.exe executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,filename.rstrip(".zip"))
