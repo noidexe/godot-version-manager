@@ -8,6 +8,7 @@ onready var feed_vbox = $"Feed"
 onready var loading_text = $"Feed/Loading"
 
 func _ready():
+	get_tree().connect("screen_resized", self, "_on_screen_resized")
 	_refresh_news()
 
 
@@ -133,3 +134,7 @@ func _parse_news_item(buffer, begin_ofs, end_ofs):
 		
 	# Return the dictionary with the news entry once we are done
 	return parsed_item
+	
+func _on_screen_resized():
+	visible = get_viewport_rect().size.x > 1046
+		
