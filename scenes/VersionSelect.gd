@@ -277,8 +277,10 @@ func _on_Download_pressed():
 	req.download_file = filename
 	req.request(url, [], false)
 	
+	var divisor : float = 1024 * 1024
+	
 	while req.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:	
-		download_button.text = "Downloading... %d%% %d/%d" % [100.0 * req.get_downloaded_bytes() / req.get_body_size(), req.get_downloaded_bytes() / 1024, req.get_body_size() / 1024]
+		download_button.text = "Downloading... %d%% [%.2f/%.2fMB]" % [100.0 * req.get_downloaded_bytes() / req.get_body_size(), req.get_downloaded_bytes() / divisor, req.get_body_size() / divisor]
 		yield(get_tree().create_timer(1.0),"timeout")
 	
 	download_button.text = "Extracting.."
