@@ -10,7 +10,7 @@ extends OptionButton
 # depending on the detected platform
 const platforms = {
 	"X11": {
-		"suffixes": ["_x11.64.zip", "_linux.64.zip"],
+		"suffixes": ["_x11.64.zip", "_linux.64.zip", "_linux.x86_64.zip"],
 		"extraction-command" : [
 			"unzip",
 			[
