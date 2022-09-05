@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://scenes/Installed.gd" type="Script" id=1]
 [ext_resource path="res://scenes/VersionSelect.gd" type="Script" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://scenes/Version.gd" type="Script" id=10]
 [ext_resource path="res://theme/main.theme" type="Theme" id=11]
 [ext_resource path="res://theme/round_and_shaded.stylebox" type="StyleBox" id=12]
+[ext_resource path="res://scenes/OpenFolder.gd" type="Script" id=13]
 
 [sub_resource type="StyleBoxEmpty" id=3052]
 
@@ -111,39 +112,53 @@ __meta__ = {
 }
 add_popup = NodePath("../../../../AddNew")
 
-[node name="Include" type="Label" parent="MarginContainer/HBox/MenuBar"]
+[node name="OpenFolder" type="Button" parent="MarginContainer/HBox/MenuBar"]
 margin_top = 293.0
 margin_right = 250.0
-margin_bottom = 320.0
+margin_bottom = 381.0
+hint_tooltip = "Add a custom version or another tool from an .exe"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Open Download Folder"
+script = ExtResource( 13 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Include" type="Label" parent="MarginContainer/HBox/MenuBar"]
+margin_top = 391.0
+margin_right = 250.0
+margin_bottom = 418.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Include:"
 
 [node name="Alpha" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 330.0
+margin_top = 428.0
 margin_right = 250.0
-margin_bottom = 355.0
+margin_bottom = 453.0
 size_flags_horizontal = 3
 text = "Alpha"
 
 [node name="Beta" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 365.0
+margin_top = 463.0
 margin_right = 250.0
-margin_bottom = 390.0
+margin_bottom = 488.0
 size_flags_horizontal = 3
 text = "Beta"
 
 [node name="RC" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 400.0
+margin_top = 498.0
 margin_right = 250.0
-margin_bottom = 425.0
+margin_bottom = 523.0
 size_flags_horizontal = 3
 text = "RC"
 
 [node name="Donate" type="TextureButton" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 435.0
+visible = false
+margin_top = 454.0
 margin_right = 250.0
-margin_bottom = 523.0
+margin_bottom = 522.0
 rect_min_size = Vector2( 0, 20 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -385,14 +400,13 @@ window_title = "Open a File"
 mode = 0
 access = 2
 filters = PoolStringArray( "*.exe ; Godot executable files" )
-current_dir = "/Users/lisan/Documents/GitHub/godot-version-manager"
-current_path = "/Users/lisan/Documents/GitHub/godot-version-manager/"
 
 [connection signal="refresh_finished" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_VersionSelect_refresh_finished"]
 [connection signal="version_added" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/Installed" method="_on_version_added"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version&Refresh/Refresh" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Refresh_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Download" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Download_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]
+[connection signal="pressed" from="MarginContainer/HBox/MenuBar/OpenFolder" to="MarginContainer/HBox/MenuBar/OpenFolder" method="_on_OpenFolder_pressed"]
 [connection signal="toggled" from="MarginContainer/HBox/MenuBar/Alpha" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Alpha_toggled"]
 [connection signal="toggled" from="MarginContainer/HBox/MenuBar/Beta" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Beta_toggled"]
 [connection signal="toggled" from="MarginContainer/HBox/MenuBar/RC" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_RC_toggled"]
