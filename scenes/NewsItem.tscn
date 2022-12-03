@@ -39,34 +39,35 @@ custom_fonts/font = ExtResource( 2 )
 text = "Author"
 autowrap = true
 
-[node name="body" type="HBoxContainer" parent="."]
+[node name="body" type="VBoxContainer" parent="."]
 margin_top = 63.0
 margin_right = 1066.0
 margin_bottom = 600.0
+mouse_filter = 2
 size_flags_vertical = 3
 
 [node name="thumb_container" type="CenterContainer" parent="body"]
-margin_right = 100.0
-margin_bottom = 537.0
-rect_min_size = Vector2( 100, 100 )
+margin_right = 1066.0
+margin_bottom = 213.0
+mouse_filter = 2
 
 [node name="thumb" type="TextureRect" parent="body/thumb_container"]
-margin_top = 218.0
-margin_right = 100.0
-margin_bottom = 318.0
+margin_left = 343.0
+margin_right = 723.0
+margin_bottom = 213.0
 grow_horizontal = 2
 grow_vertical = 2
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 380, 213 )
+mouse_filter = 2
 size_flags_horizontal = 13
 size_flags_vertical = 13
 expand = true
-stretch_mode = 7
+stretch_mode = 6
 
 [node name="contents" type="Label" parent="body"]
-margin_left = 104.0
+margin_top = 217.0
 margin_right = 1066.0
 margin_bottom = 537.0
-rect_min_size = Vector2( 300, 0 )
 size_flags_horizontal = 3
 size_flags_vertical = 7
 autowrap = true
