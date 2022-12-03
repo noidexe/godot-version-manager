@@ -30,7 +30,7 @@ func set_info(info : Dictionary):
 	url = info.link
 	hint_tooltip = url
 	title.text = info.title
-	author.text = "%s (%s)" % [info.author, info.date]
+	author.text = "%s - %s" % [info.author, info.date]
 	contents.text = info.contents
 	_load_image(info.image)
 
