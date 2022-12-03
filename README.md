@@ -30,6 +30,10 @@ A: They are saved to `user://versions` which varies depending on your platform. 
 
 A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project which also does project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :)
 
+**Q: Why do you scrape godotengine.org/news instead or fetching the RSS feed?**
+
+A: The rss doesn't have links to thumbnails or excerpts, only the full text. Also the rss feed contains every entry in the history of Godot News. It's currently a 17MB download.
+
 ## TODO
 - [x] Linux support
 - [x] OSX support
