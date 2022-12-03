@@ -43,11 +43,20 @@ func _update_news_feed(feed : Array):
 
 func _get_news_cache() -> Array:
 	var ret = []
-	var file = File.new()
-	if file.file_exists(news_cache_file):
-		file.open(news_cache_file, File.READ)
-		ret = file.get_var()
-		file.close()
+	var file : File = File.new()
+	if not file.file_exists(news_cache_file):
+		push_warning("News cache not found")
+	else:
+		var err = file.open(news_cache_file, File.READ)
+		if err != OK:
+			push_error("Error opening file")
+		else:
+			var data = file.get_var()
+			if typeof(data) == TYPE_ARRAY:
+				ret = data
+			else:
+				push_error("News cache format invalid")
+			file.close()
 	return ret
 
 
@@ -130,6 +139,9 @@ func _parse_news_item(buffer, begin_ofs, end_ofs):
 			match xml.get_node_name():
 				"a":
 					parsed_item["link"] = xml.get_named_attribute_value_safe("href")
+				"img":
+					if "avatar" in xml.get_named_attribute_value_safe("class"):
+						parsed_item["avatar"] = xml.get_named_attribute_value_safe("src")
 				"div":
 					if "thumbnail" in xml.get_named_attribute_value_safe("class"):
 						var image_style = xml.get_named_attribute_value_safe("style")
