@@ -33,7 +33,9 @@ func set_info(info : Dictionary):
 	title.text = info.get("title", "[No Title]")
 	author.text = "%s - %s" % [info.get("author", "[No Author]"), info.get("date", "[No Date]")]
 	contents.text = info.get("contents", "[No Content]")
-	_load_image(info.get("image", ""), thumb)
+	var thumb_load = _load_image(info.get("image", ""), thumb)
+	if thumb_load is GDScriptFunctionState:
+		yield(thumb_load, "completed")
 	_load_image(info.get("avatar", ""), avatar)
 
 func _load_image(_url : String, target : TextureRect):
