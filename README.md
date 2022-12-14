@@ -37,8 +37,9 @@ A: The rss doesn't have links to thumbnails or excerpts, only the full text. Als
 ## TODO
 - [x] Linux support
 - [x] OSX support
-- [ ] General code clean up
-- [ ] Better(i.e some at all) error handling
+- [ ] Complete refactor
+- [ ] Better ~~(i.e some at all)~~ error handling
+- [ ] Autorefresh, use HEAD for faster scraping, ignore folders without updates.
 - [ ] Inform about available updates for installed versions
 - [x] Inform about available updates for Godot Version Manager
 - [x] Show news snippets from godotengine.com/news?
