@@ -9,6 +9,8 @@ onready var add_button = $Margin/VBox/Add
 
 signal version_added()
 
+var edited_entry : int = -1  # -1 adding new
+
 func _ready():
 	_validate()
 
@@ -38,7 +40,10 @@ func _on_Add_pressed():
 	var config: Dictionary = Globals.read_config()
 	
 	# Modify config file
-	config.versions.append(entry)
+	if edited_entry == -1:
+		config.versions.append(entry)
+	else:
+		config.versions[edited_entry] = entry
 	
 	# Write out contents
 	Globals.write_config(config)
@@ -48,6 +53,25 @@ func _on_Add_pressed():
 
 # Initialization
 func _on_AddNew_about_to_show():
-	line_edit_name.text = ""
-	line_edit_arguments.text = ""
-	line_edit_path.text = ""
+	if edited_entry == -1:
+		line_edit_name.text = ""
+		line_edit_arguments.text = ""
+		line_edit_path.text = ""
+		$Margin/VBox/Add.text = "Add"
+	else:
+		var config: Dictionary = Globals.read_config()
+		var entry = config.versions[edited_entry]
+		line_edit_name.text = entry.name
+		line_edit_arguments.text = entry.arguments
+		line_edit_path.text = entry.path
+		$Margin/VBox/Add.text = "Save"
+
+func edit(config_idx):
+	print("Editing %s" % config_idx)
+	edited_entry = config_idx
+	popup_centered()
+
+
+func _on_AddNew_popup_hide():
+	# Reset edited entry to default vaule
+	edited_entry = -1

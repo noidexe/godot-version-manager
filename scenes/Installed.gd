@@ -29,10 +29,29 @@ func _reload():
 func _update_list():
 	clear()
 	for version in config.versions:
-		add_item(version.name, _get_correct_icon(version.name))
+		add_item(version.name, _get_correct_icon(version.name, version.arguments))
 
 
-func _get_correct_icon(v_name : String):
+func _get_correct_icon(v_name : String, v_args : String):
+	if "--path" in v_args:
+		var args = v_args.split(" ")
+		var path : String = args[ args.find("--path") + 1 ]
+		path = path.lstrip("\\\"").rstrip("\\\"") + "\\icon.png"
+		
+		var file = File.new()
+		if file.open(path,File.READ) != OK:
+			return preload("res://icon.png")
+
+		var buffer = file.get_buffer(file.get_len())
+		file.close()
+		
+		var icon_image = Image.new()
+		if icon_image.load_png_from_buffer(buffer) != OK:
+			return preload("res://icon.png")
+
+		var icon_texture = ImageTexture.new()
+		icon_texture.create_from_image(icon_image)
+		return icon_texture
 	for test in ["tool", "alpha", "beta", "rc", "stable"]:
 		if test in v_name:
 			return icons[test]
@@ -42,8 +61,9 @@ func _get_correct_icon(v_name : String):
 func _on_Installed_item_activated(index):
 	var pid :int
 	var path : String =  config.versions[index].path
+	var is_game_project = "--path" in config.versions[index].arguments
 	var args : PoolStringArray = config.versions[index].arguments.split(" ")
-	args.append("-p")
+	args.append("-e" if is_game_project else "-p")
 	if OS.has_feature("OSX"):
 		var osx_args := PoolStringArray([ProjectSettings.globalize_path(path), "--args"])
 		osx_args.append_array(args)
@@ -67,6 +87,8 @@ func _on_ContextMenu_id_pressed(id):
 			_move(item, -1)
 		2:
 			_move(item, 1)
+		3:
+			_edit(item)
 	
 
 
@@ -84,6 +106,8 @@ func _move(idx : int, offset: int):
 	Globals.write_config(config)
 	_reload()
 
+func _edit(idx):
+	$"%AddNew".edit(idx)
 
 func _on_Installed_item_rmb_selected(_index, at_position):
 	var menu = get_node(context_menu) as PopupMenu
