@@ -105,7 +105,7 @@ margin_bottom = 283.0
 hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Add from file.."
+text = "Add version/project from file.."
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -271,9 +271,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 margin_left = -151.0
-margin_top = -71.0
-margin_right = 373.0
-margin_bottom = 129.0
+margin_top = -120.0
+margin_right = 424.0
+margin_bottom = 151.0
 script = ExtResource( 3 )
 select_dialog = NodePath("../SelectPath")
 
@@ -283,9 +283,6 @@ anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/panel = ExtResource( 12 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Margin" type="MarginContainer" parent="AddNew"]
 anchor_right = 1.0
@@ -301,8 +298,8 @@ __meta__ = {
 [node name="VBox" type="VBoxContainer" parent="AddNew/Margin"]
 margin_left = 20.0
 margin_top = 20.0
-margin_right = 504.0
-margin_bottom = 180.0
+margin_right = 555.0
+margin_bottom = 251.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 __meta__ = {
@@ -310,78 +307,86 @@ __meta__ = {
 }
 
 [node name="Title" type="Label" parent="AddNew/Margin/VBox"]
-margin_right = 484.0
+margin_right = 535.0
 margin_bottom = 27.0
-text = "Add new version.."
+text = "Add new version or project.."
 align = 1
 
 [node name="path" type="HBoxContainer" parent="AddNew/Margin/VBox"]
 margin_top = 30.0
-margin_right = 484.0
+margin_right = 535.0
 margin_bottom = 57.0
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="AddNew/Margin/VBox/path"]
-margin_right = 85.0
+margin_right = 95.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 text = "Path"
 
 [node name="LineEdit" type="LineEdit" parent="AddNew/Margin/VBox/path"]
-margin_left = 88.0
-margin_right = 430.0
+margin_left = 98.0
+margin_right = 482.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 4.0
 
 [node name="Select" type="Button" parent="AddNew/Margin/VBox/path"]
-margin_left = 433.0
-margin_right = 483.0
+margin_left = 485.0
+margin_right = 535.0
 margin_bottom = 27.0
 text = "Select.."
 
 [node name="name" type="HBoxContainer" parent="AddNew/Margin/VBox"]
 margin_top = 60.0
-margin_right = 484.0
+margin_right = 535.0
 margin_bottom = 87.0
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="AddNew/Margin/VBox/name"]
-margin_right = 96.0
+margin_right = 106.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 text = "Name"
 
 [node name="LineEdit" type="LineEdit" parent="AddNew/Margin/VBox/name"]
-margin_left = 99.0
-margin_right = 484.0
+margin_left = 109.0
+margin_right = 535.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 4.0
 
 [node name="arguments" type="HBoxContainer" parent="AddNew/Margin/VBox"]
 margin_top = 90.0
-margin_right = 484.0
+margin_right = 535.0
 margin_bottom = 117.0
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="AddNew/Margin/VBox/arguments"]
-margin_right = 96.0
+margin_right = 106.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 text = "Arguments"
 
 [node name="LineEdit" type="LineEdit" parent="AddNew/Margin/VBox/arguments"]
-margin_left = 99.0
-margin_right = 484.0
+margin_left = 109.0
+margin_right = 535.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 4.0
 
-[node name="Add" type="Button" parent="AddNew/Margin/VBox"]
+[node name="Tip" type="Label" parent="AddNew/Margin/VBox"]
 margin_top = 120.0
-margin_right = 484.0
-margin_bottom = 160.0
+margin_right = 535.0
+margin_bottom = 147.0
+custom_colors/font_color = Color( 0.921569, 0.921569, 0.921569, 1 )
+text = "Tip: to launch a project directly add to arguments: --path \"path/to/project_folder\""
+autowrap = true
+
+[node name="Add" type="Button" parent="AddNew/Margin/VBox"]
+margin_top = 150.0
+margin_right = 535.0
+margin_bottom = 231.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Add"
