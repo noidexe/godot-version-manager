@@ -16,8 +16,11 @@ var icons = {
 var config : Dictionary
 export var context_menu : NodePath
 
+var version_regex : RegEx
 
 func _ready():
+	version_regex = RegEx.new()
+	version_regex.compile("v[0-9].+_")
 	_reload()
 
 
@@ -29,8 +32,19 @@ func _reload():
 func _update_list():
 	clear()
 	for version in config.versions:
-		add_item(version.name, _get_correct_icon(version.name, version.arguments))
+		add_item(_get_name(version), _get_correct_icon(version.name, version.arguments))
 
+
+func _get_name(version):
+	var ret = version.name
+	if "--path" in version.arguments:
+		var version_number = "  [ %s ]"
+		var regex_match = version_regex.search(version.path)
+		if regex_match is RegExMatch:
+			ret += version_number % regex_match.get_string().rstrip("_")
+		else:
+			ret += version_number % "custom ver."
+	return ret
 
 func _get_correct_icon(v_name : String, v_args : String):
 	if "--path" in v_args:
