@@ -26,9 +26,9 @@ Unzip and double-click. Extraction of downloaded versions requires `unzip` which
 
 A: They are saved to `user://versions` which varies depending on your platform. On windows it's %appdata%/Godot/app_serdata/Godot Version Manager/versions
 
-**Q: How is this different from Hourglass?**
+**Q: How is this different from Hourglass or Godot Manager?**
 
-A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project which also does project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :)
+A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project which also does project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :) [Godot Manager](https://github.com/eumario/godot-manager) seems to be a pretty mature and featureful alternative too.
 
 **Q: Why do you scrape godotengine.org/news instead or fetching the RSS feed?**
 
