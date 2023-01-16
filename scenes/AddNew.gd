@@ -16,7 +16,8 @@ func _ready():
 
 # Selection of binary to add
 func _on_Select_pressed():
-	var popup = get_node(select_dialog) as FileDialog
+	var popup := get_node(select_dialog) as FileDialog
+	popup.current_dir = ProjectSettings.globalize_path("user://versions")
 	popup.popup()
 	line_edit_path.text = yield(popup,"file_selected")
 	if line_edit_name.text == "":
