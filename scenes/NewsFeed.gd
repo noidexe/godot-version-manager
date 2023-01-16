@@ -2,7 +2,8 @@ extends ScrollContainer
 
 var news_item_scene = preload("res://scenes/NewsItem.tscn")
 
-const news_cache_file = "user://news_cache.bin"
+const NEWS_CACHE_FILE = "user://news_cache.bin"
+const BASE_URL = "https://godotengine.org"
 
 const  VOID_HTML_ELEMENTS = ["area", "base", "br", "col", "command", "embed", "hr",
 		"img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"]
@@ -20,7 +21,7 @@ func _refresh_news():
 	loading_text.show()
 	_update_news_feed(_get_news_cache())
 	
-	$req.request("https://godotengine.org/news")
+	$req.request(BASE_URL + "/blog/")
 	var response = yield($req,"request_completed")
 	
 	loading_text.hide()
@@ -44,10 +45,10 @@ func _update_news_feed(feed : Array):
 func _get_news_cache() -> Array:
 	var ret = []
 	var file : File = File.new()
-	if not file.file_exists(news_cache_file):
+	if not file.file_exists(NEWS_CACHE_FILE):
 		push_warning("News cache not found")
 	else:
-		var err = file.open(news_cache_file, File.READ)
+		var err = file.open(NEWS_CACHE_FILE, File.READ)
 		if err != OK:
 			push_error("Error opening file")
 		else:
@@ -62,7 +63,7 @@ func _get_news_cache() -> Array:
 
 func _save_news_cache(news : Array):
 	var file = File.new()
-	file.open(news_cache_file, File.WRITE)
+	file.open(NEWS_CACHE_FILE, File.WRITE)
 	file.store_var(news)
 	file.close()
 
@@ -138,17 +139,17 @@ func _parse_news_item(buffer, begin_ofs, end_ofs):
 		if xml.get_node_type() == XMLParser.NODE_ELEMENT:
 			match xml.get_node_name():
 				"a":
-					parsed_item["link"] = xml.get_named_attribute_value_safe("href")
+					parsed_item["link"] = BASE_URL + xml.get_named_attribute_value_safe("href")
 				"img":
 					if "avatar" in xml.get_named_attribute_value_safe("class"):
-						parsed_item["avatar"] = xml.get_named_attribute_value_safe("src")
+						parsed_item["avatar"] = BASE_URL + xml.get_named_attribute_value_safe("src")
 				"div":
 					if "thumbnail" in xml.get_named_attribute_value_safe("class"):
 						var image_style = xml.get_named_attribute_value_safe("style")
 						var url_start = image_style.find("'") + 1
 						var url_end = image_style.find_last("'")
 						var image_url = image_style.substr(url_start,url_end - url_start)
-						parsed_item["image"] = image_url
+						parsed_item["image"] = BASE_URL + image_url
 				"h3":
 					xml.read()
 					parsed_item["title"] = xml.get_node_data().strip_edges() if xml.get_node_type() == XMLParser.NODE_TEXT else ""
