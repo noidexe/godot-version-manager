@@ -1,18 +1,20 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
-[ext_resource path="res://scenes/Installed.gd" type="Script" id=1]
-[ext_resource path="res://scenes/VersionSelect.gd" type="Script" id=2]
-[ext_resource path="res://scenes/AddNew.gd" type="Script" id=3]
-[ext_resource path="res://scenes/Add.gd" type="Script" id=4]
+[ext_resource path="res://scenes/OpenFolder.gd" type="Script" id=1]
+[ext_resource path="res://scenes/Add.gd" type="Script" id=2]
+[ext_resource path="res://scenes/VersionSelect.gd" type="Script" id=3]
+[ext_resource path="res://scenes/Version.gd" type="Script" id=4]
 [ext_resource path="res://icons/alpha.res" type="Texture" id=5]
-[ext_resource path="res://scenes/Donate.gd" type="Script" id=6]
+[ext_resource path="res://scenes/AddNew.gd" type="Script" id=6]
 [ext_resource path="res://icons/paypal_donate.png" type="Texture" id=7]
 [ext_resource path="res://icons/paypal_donate_hover.png" type="Texture" id=8]
-[ext_resource path="res://scenes/NewsFeed.gd" type="Script" id=9]
-[ext_resource path="res://scenes/Version.gd" type="Script" id=10]
+[ext_resource path="res://scenes/Installed.gd" type="Script" id=9]
+[ext_resource path="res://scenes/Donate.gd" type="Script" id=10]
 [ext_resource path="res://theme/main.theme" type="Theme" id=11]
 [ext_resource path="res://theme/round_and_shaded.stylebox" type="StyleBox" id=12]
-[ext_resource path="res://scenes/OpenFolder.gd" type="Script" id=13]
+[ext_resource path="res://scenes/NewsFeed.gd" type="Script" id=13]
+
+[sub_resource type="StyleBoxEmpty" id=3054]
 
 [sub_resource type="StyleBoxEmpty" id=3052]
 
@@ -66,7 +68,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Refresh to populate list"
 align = 1
-script = ExtResource( 2 )
+script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -106,7 +108,7 @@ hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Add version/project from file.."
-script = ExtResource( 4 )
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -120,7 +122,7 @@ hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Open Download Folder"
-script = ExtResource( 13 )
+script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -166,7 +168,7 @@ texture_normal = ExtResource( 7 )
 texture_hover = ExtResource( 8 )
 expand = true
 stretch_mode = 3
-script = ExtResource( 6 )
+script = ExtResource( 10 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -176,7 +178,7 @@ margin_top = 533.0
 margin_right = 250.0
 margin_bottom = 560.0
 size_flags_horizontal = 3
-script = ExtResource( 10 )
+script = ExtResource( 4 )
 
 [node name="tag" type="Label" parent="MarginContainer/HBox/MenuBar/Version"]
 margin_right = 197.0
@@ -208,7 +210,7 @@ custom_constants/hseparation = 10
 items = [ "Item 0", ExtResource( 5 ), false ]
 allow_rmb_select = true
 fixed_icon_size = Vector2( 64, 64 )
-script = ExtResource( 1 )
+script = ExtResource( 9 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -222,6 +224,16 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="CloseOnLaunch" type="CheckButton" parent="MarginContainer/HBox/Installed"]
+unique_name_in_owner = true
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -128.0
+margin_bottom = 25.0
+grow_horizontal = 0
+custom_styles/focus = SubResource( 3054 )
+text = "Close on launch"
+
 [node name="Scroll" type="ScrollContainer" parent="MarginContainer/HBox"]
 margin_left = 648.0
 margin_right = 1026.0
@@ -229,7 +241,7 @@ margin_bottom = 560.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
-script = ExtResource( 9 )
+script = ExtResource( 13 )
 
 [node name="Feed" type="VBoxContainer" parent="MarginContainer/HBox/Scroll"]
 margin_left = 10.0
@@ -274,7 +286,7 @@ margin_left = -151.0
 margin_top = -120.0
 margin_right = 424.0
 margin_bottom = 151.0
-script = ExtResource( 3 )
+script = ExtResource( 6 )
 select_dialog = NodePath("../SelectPath")
 
 [node name="Panel" type="Panel" parent="AddNew"]

@@ -85,6 +85,10 @@ func _on_Installed_item_activated(index):
 	else:
 		pid = OS.execute(ProjectSettings.globalize_path(path), args, false)
 	print( "Running \"%s\" with pid %s" % [ path, pid ] )
+	if $"%CloseOnLaunch".pressed:
+		print("Close on launch enabled. Quitting.." )
+		get_tree().quit(0)
+		
 
 func _on_version_added():
 	_reload()
