@@ -414,7 +414,7 @@ rect_min_size = Vector2( 150, 52.5 )
 window_title = "Open a File"
 mode = 0
 access = 2
-filters = PoolStringArray( "*.exe ; Godot executable files" )
+filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Application" )
 
 [connection signal="refresh_finished" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_VersionSelect_refresh_finished"]
 [connection signal="version_added" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/Installed" method="_on_version_added"]
