@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Reference",
+"class": "HTMLObject",
+"language": "GDScript",
+"path": "res://scenes/HTMLObject.gd"
+} ]
+_global_script_class_icons={
+"HTMLObject": ""
+}
+
 [application]
 
 config/name="Godot Version Manager"
