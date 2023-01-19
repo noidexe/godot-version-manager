@@ -66,6 +66,13 @@ var requests = 0
 # 		},
 # 		...
 # 	]
+#	"directories" : {
+#		"1.1/beta/" : "Mon 31 Feb 1942"
+#	},
+#	"links" : {
+#		"http://asdfasdfasdf/" : true  # Dict as Set
+#	}
+
 # }
 var download_db : Dictionary 
 
@@ -146,18 +153,15 @@ func _version_sort(a : String, b: String):
 # Scrapes downloads website and regenerates
 # downloads_db
 func _refresh():
-	var _download_links = []
-	var _download_db = {
-		"last_updated" : OS.get_unix_time(),
-		"versions" : []
-		}
-	_find_links(base_url, _download_links)
+	_find_links(base_url)
 	
 	# Wait for _find_links to finish
 	while requests > 0:
 		yield(get_tree().create_timer(1.0),"timeout")
 	
 	# Build download_db
+	var _download_links = download_db.cache.download_links.keys()
+	var _versions = []
 	_download_links.sort_custom(self, "_version_sort")
 	
 	_download_links.invert()
@@ -170,59 +174,66 @@ func _refresh():
 			"name" : _entry_name,
 			"path" : link
 		}
-		_download_db.versions.append(entry)
+		_versions.append(entry)
+	
+	download_db.versions = _versions
 	
 	# Store download_db as json
-	Globals.write_download_db(_download_db)
+	Globals.write_download_db(download_db)
 	
-	emit_signal("refresh_finished", _download_db)
+	emit_signal("refresh_finished", download_db)
 
+func _is_version_directory( href: String) -> bool:
+	return ( 
+		href.begins_with("alpha") or
+		href.begins_with("beta") or
+		href.begins_with("rc") or
+		(href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
+		)
+
+func _is_dir_changed( path : String, mtime) -> bool:
+	return download_db.cache.directories.get(path, "") != mtime
 
 # Analyzes a directory listing returned by lighthttpd in search of two things:
 # - download links to Godot versions
 # - folder links to analyze recursively
-# output_array stores the results
-func _parsexml(buffer : PoolByteArray, partial_path : String, output_array : Array):
-	var xml = XMLParser.new()
-	var error = xml.open_buffer(buffer)
-	if error == OK:
-		while(true):
-			var err = xml.read()
-			
-			if err != OK:
-				if err != ERR_FILE_EOF:
-					print("Error %s reading XML" % err)
-				break
-			
-			# look for <a> tags
-			if xml.get_node_type() == XMLParser.NODE_ELEMENT and xml.get_node_name() == "a":
-				
-				var href = xml.get_named_attribute_value_safe("href")
-				
-				# if it is a folder that may contain downloads, recursively parse it
-				if href.ends_with("/") and (
-					href.begins_with("alpha")
-					or href.begins_with("beta")
-					or href.begins_with("rc")
-					or (href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
-					):
-					_find_links(partial_path + href, output_array)
-				else:
-					# Handle linux having a different suffix on 4.x
-					var suffixes = platforms[current_platform].suffixes
-					for suffix in suffixes:
-						if href.ends_with(suffix):
-							output_array.append(partial_path + href)
+func _parsexml(buffer : PoolByteArray, partial_path : String):
+	var html := HTMLObject.new()
+	html.load_from_buffer(buffer)
+	var list : = html.with_name("tr").with_parent_name("tbody")
 
-				
-	else:
-		print("Error %s getting download info" % error)
+	for tr in list:
+		var href = ""
+		var mtime = ""
+		var is_directory = false
+		for td in tr.children:
+			match td.attributes.get("class"):
+				"n":
+					href = td.children.first().attributes.href
+				"m":
+					mtime = td.children.first().value
+				"t":
+					is_directory = td.children.first().value == "Directory"
+		
+		var full_path = partial_path + href
+		
+		# Handle directories
+		if is_directory:
+			if _is_version_directory( href) and _is_dir_changed(full_path, mtime ):
+				download_db.cache.directories[full_path] = mtime
+				_find_links(full_path)
+		# Handle files
+		else:
+			var suffixes = platforms[current_platform].suffixes
+			for suffix in suffixes:
+				if href.ends_with(suffix):
+					download_db.cache.download_links[full_path] = true
 
 
 # Gets called recursively. Fetches the next page containing a diretory
 # listing from the download page and sends it to _parsexml for analysis
 # output_array is passed to _parsexml to store the results
-func _find_links(url:String, output_array : Array):
+func _find_links(url:String):
 	while requests > MAX_REQUESTS:
 		yield(get_tree().create_timer(0.1),"timeout")
 	requests += 1
@@ -235,7 +246,8 @@ func _find_links(url:String, output_array : Array):
 	
 	var response = yield(req,"request_completed")
 	if response[1] == 200:
-		_parsexml(response[3], url, output_array)
+		_parsexml(response[3], url)
+		
 	else:
 		printerr("Error scraping link. Response code: %s" % response[1])
 	

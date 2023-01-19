@@ -41,12 +41,22 @@ func update_ui_flag(flag: String, switch: bool):
 # Read the download db from file
 func read_download_db() -> Dictionary:
 	var file = File.new()
+	var download_db
 	
-	if not file.file_exists(download_db_file_path):
-		return {}
 	
-	file.open(download_db_file_path, File.READ)
-	var download_db = parse_json(file.get_as_text())
+	if file.file_exists(download_db_file_path):
+		file.open(download_db_file_path, File.READ)
+		download_db = parse_json(file.get_as_text())
+	if typeof(download_db) != TYPE_DICTIONARY:
+		download_db = {}
+	if not download_db.has("versions"):
+		download_db["versions"] = []
+	if not download_db.has("last_updated"):
+		download_db["last_updated"] = 0
+	if not download_db.has("cache"):
+		download_db["cache"] = {}
+		download_db["cache"]["directories"] = {}
+		download_db["cache"]["download_links"] = {}
 	file.close()
 	return download_db
 
