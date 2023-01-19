@@ -431,6 +431,7 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="item_activated" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_activated"]
 [connection signal="item_rmb_selected" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_rmb_selected"]
 [connection signal="id_pressed" from="MarginContainer/HBox/Installed/ContextMenu" to="MarginContainer/HBox/Installed" method="_on_ContextMenu_id_pressed"]
+[connection signal="toggled" from="MarginContainer/HBox/Installed/CloseOnLaunch" to="MarginContainer/HBox/Installed" method="_on_CloseOnLaunch_toggled"]
 [connection signal="about_to_show" from="AddNew" to="AddNew" method="_on_AddNew_about_to_show"]
 [connection signal="popup_hide" from="AddNew" to="AddNew" method="_on_AddNew_popup_hide"]
 [connection signal="version_added" from="AddNew" to="MarginContainer/HBox/Installed" method="_on_version_added"]

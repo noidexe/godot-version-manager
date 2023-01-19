@@ -26,6 +26,8 @@ func _ready():
 
 func _reload():
 	config = Globals.read_config()
+	if "ui" in config:
+		$"%CloseOnLaunch".pressed = config.ui.get("close_on_launch", false)
 	_update_list()
 
 
@@ -134,3 +136,8 @@ func _on_Installed_item_rmb_selected(_index, at_position):
 	# Compensate
 	menu.set_position(rect_position + at_position)
 	menu.popup()
+
+
+func _on_CloseOnLaunch_toggled(button_pressed):
+	Globals.update_ui_flag("close_on_launch", button_pressed)
+	pass # Replace with function body.
