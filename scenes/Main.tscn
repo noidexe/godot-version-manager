@@ -78,6 +78,10 @@ alpha_button_path = NodePath("../../Alpha")
 beta_button_path = NodePath("../../Beta")
 rc_button_path = NodePath("../../RC")
 
+[node name="autoupdate" type="Timer" parent="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect"]
+wait_time = 300.0
+one_shot = true
+
 [node name="Refresh" type="Button" parent="MarginContainer/HBox/MenuBar/Version&Refresh"]
 margin_left = 196.0
 margin_right = 250.0
@@ -418,6 +422,7 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 
 [connection signal="refresh_finished" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_VersionSelect_refresh_finished"]
 [connection signal="version_added" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/Installed" method="_on_version_added"]
+[connection signal="timeout" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect/autoupdate" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_autoupdate_timeout"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version&Refresh/Refresh" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Refresh_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Download" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Download_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]

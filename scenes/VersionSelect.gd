@@ -128,6 +128,10 @@ func _ready():
 		alpha_button.pressed = config.ui.alpha
 		beta_button.pressed = config.ui.beta
 		rc_button.pressed = config.ui.rc
+		
+	yield(get_tree(),"idle_frame")
+	_on_autoupdate_timeout()
+
 
 
 # Deserializes json version of download_db and
@@ -274,12 +278,18 @@ func _update_list():
 
 
 func _on_Refresh_pressed():
+	if refresh_button.disabled:
+		return
+	$autoupdate.stop()
 	#disabled = true
+	refresh_button.disabled = true
 	_refresh()
 	while requests > 0: 
 		refresh_button.text = "Scraping %s urls%s" % [ requests, [".", "..", "..."][randi() % 3] ]
 		yield(get_tree().create_timer(0.2),"timeout")
 	refresh_button.text = "Refresh"
+	refresh_button.disabled = false
+	$autoupdate.start()
 	#disabled = false
 
 
@@ -393,3 +403,7 @@ func _on_RC_toggled(button_pressed):
 func _on_VersionSelect_refresh_finished(new_download_db : Dictionary):
 	download_db = new_download_db
 	_update_list()
+
+
+func _on_autoupdate_timeout():
+	_on_Refresh_pressed()
