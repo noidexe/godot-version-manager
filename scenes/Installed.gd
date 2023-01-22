@@ -20,6 +20,7 @@ var version_regex : RegEx
 
 func _ready():
 	version_regex = RegEx.new()
+# warning-ignore:return_value_discarded
 	version_regex.compile("v[0-9].+_")
 	_reload()
 

@@ -12,6 +12,7 @@ onready var feed_vbox = $"Feed"
 onready var loading_text = $"Feed/Loading"
 
 func _ready():
+# warning-ignore:return_value_discarded
 	get_tree().connect("screen_resized", self, "_on_screen_resized")
 	_refresh_news()
 
