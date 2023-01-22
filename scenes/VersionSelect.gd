@@ -157,14 +157,15 @@ func _version_sort(a : String, b: String):
 # Scrapes downloads website and regenerates
 # downloads_db
 func _refresh():
-	_find_links(base_url)
+	var new_db = download_db.duplicate(true)
+	_find_links(base_url, new_db)
 	
 	# Wait for _find_links to finish
 	while requests > 0:
 		yield(get_tree().create_timer(1.0),"timeout")
 	
 	# Build download_db
-	var _download_links = download_db.cache.download_links.keys()
+	var _download_links = new_db.cache.download_links.keys()
 	var _versions = []
 	_download_links.sort_custom(self, "_version_sort")
 	
@@ -180,12 +181,12 @@ func _refresh():
 		}
 		_versions.append(entry)
 	
-	download_db.versions = _versions
+	new_db.versions = _versions
 	
 	# Store download_db as json
-	Globals.write_download_db(download_db)
+	Globals.write_download_db(new_db)
 	
-	emit_signal("refresh_finished", download_db)
+	emit_signal("refresh_finished", new_db)
 
 func _is_version_directory( href: String) -> bool:
 	return ( 
@@ -201,7 +202,7 @@ func _is_dir_changed( path : String, mtime) -> bool:
 # Analyzes a directory listing returned by lighthttpd in search of two things:
 # - download links to Godot versions
 # - folder links to analyze recursively
-func _parsexml(buffer : PoolByteArray, partial_path : String):
+func _parsexml(buffer : PoolByteArray, partial_path : String, db: Dictionary):
 	var html := HTMLObject.new()
 	var err = html.load_from_buffer(buffer)
 	if err != OK:
@@ -228,20 +229,20 @@ func _parsexml(buffer : PoolByteArray, partial_path : String):
 		# Handle directories
 		if is_directory:
 			if _is_version_directory( href) and _is_dir_changed(full_path, mtime ):
-				download_db.cache.directories[full_path] = mtime
-				_find_links(full_path)
+				db.cache.directories[full_path] = mtime
+				_find_links(full_path, db)
 		# Handle files
 		else:
 			var suffixes = platforms[current_platform].suffixes
 			for suffix in suffixes:
 				if href.ends_with(suffix):
-					download_db.cache.download_links[full_path] = true
+					db.cache.download_links[full_path] = true
 
 
 # Gets called recursively. Fetches the next page containing a diretory
 # listing from the download page and sends it to _parsexml for analysis
 # output_array is passed to _parsexml to store the results
-func _find_links(url:String):
+func _find_links(url:String, db : Dictionary):
 	while requests > MAX_REQUESTS:
 		yield(get_tree().create_timer(0.1),"timeout")
 	requests += 1
@@ -254,7 +255,7 @@ func _find_links(url:String):
 	
 	var response = yield(req,"request_completed")
 	if response[1] == 200:
-		_parsexml(response[3], url)
+		_parsexml(response[3], url, db)
 		
 	else:
 		printerr("Error scraping link. Response code: %s" % response[1])
