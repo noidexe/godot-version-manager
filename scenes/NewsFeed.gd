@@ -77,7 +77,7 @@ func _get_news(buffer) -> Array:
 	var html = HTMLObject.new()
 	html.load_from_buffer(buffer)
 	
-	var posts : HTMLObject.HTMLNodeList = html.of_class("posts").first().children.with_name("a")
+	var posts : HTMLObject.HTMLNodeList = html.of_class("posts").children.all_with_name("a")
 	for post in posts:
 		post = post as HTMLObject.HTMLNode
 		var parsed_item = {}
@@ -85,20 +85,20 @@ func _get_news(buffer) -> Array:
 		parsed_item["link"] = BASE_URL + post.attributes.get("href")
 		
 		# IMAGE
-		var divs : HTMLObject.HTMLNodeList = post.children.with_name("article").first().children.with_name("div")
-		var image_style = divs.of_class("thumbnail").first().attributes.get("style")
+		var divs : HTMLObject.HTMLNodeList = post.children.with_name("article").children.all_with_name("div")
+		var image_style = divs.of_class("thumbnail").attributes.get("style")
 		var url_start = image_style.find("'") + 1
 		var url_end = image_style.find_last("'")
 		var image_url = image_style.substr(url_start,url_end - url_start)
 		parsed_item["image"] = BASE_URL + image_url
 		
-		var content : HTMLObject.HTMLNode = divs.of_class("content").first()
+		var content : HTMLObject.HTMLNode = divs.of_class("content")
 		# CONTENTS
-		parsed_item["contents"] = content.children.with_name("p").first().children.first().value.strip_edges()
+		parsed_item["contents"] = content.children.with_name("p").first_child.value.strip_edges()
 		
 		# TITLE
-		parsed_item["title"] = content.children.with_name("h3").first().children.first().value.strip_edges()
-		var info : HTMLObject.HTMLNodeList = content.children.of_class("info").first().children
+		parsed_item["title"] = content.children.with_name("h3").first_child.value.strip_edges()
+		var info : HTMLObject.HTMLNodeList = content.children.of_class("info").children
 		
 		# AVATAR, AUTHOR, DATE
 		for node in info:
@@ -107,9 +107,9 @@ func _get_news(buffer) -> Array:
 				"avatar":
 					parsed_item["avatar"] = BASE_URL + node.attributes.get("src")
 				"by":
-					parsed_item["author"] = node.children.first().value.strip_edges()
+					parsed_item["author"] = node.first_child.value.strip_edges()
 				"date":
-					parsed_item["date"] = node.children.first().value.strip_edges().lstrip("&nbsp;-&nbsp;")
+					parsed_item["date"] = node.first_child.value.strip_edges().lstrip("&nbsp;-&nbsp;")
 
 		parsed_news.append(parsed_item)
 	return parsed_news

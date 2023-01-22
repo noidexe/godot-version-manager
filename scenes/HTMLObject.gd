@@ -13,6 +13,7 @@ class HTMLNode:
 	var parent : HTMLNode = null setget _set_parent, _get_parent
 	var _parent_weakref : WeakRef
 	var children := HTMLNodeList.new()
+	var first_child : HTMLNode = null setget , _get_first_child
 	var name : String= ""
 	var type : int = -1
 	var value : String= ""
@@ -26,6 +27,9 @@ class HTMLNode:
 			return _parent_weakref.get_ref()
 		else:
 			return HTMLNullNode.new()
+
+	func _get_first_child():
+		return children.first()
 
 class HTMLNullNode extends HTMLNode:
 	func _init():
@@ -70,7 +74,7 @@ class HTMLNodeList:
 		list.append_array( node_list.list )
 
 
-	func with_parent( parent : HTMLNode) -> HTMLNodeList:
+	func all_with_parent( parent : HTMLNode) -> HTMLNodeList:
 		var ret := HTMLNodeList.new()
 		for node in list:
 			if node.parent == parent:
@@ -78,7 +82,7 @@ class HTMLNodeList:
 		return ret
 
 
-	func with_parent_name( parent_name : String ) -> HTMLNodeList:
+	func all_with_parent_name( parent_name : String ) -> HTMLNodeList:
 		var ret := HTMLNodeList.new()
 		for node in list:
 			if node.parent.name == parent_name:
@@ -86,7 +90,14 @@ class HTMLNodeList:
 		return ret
 
 
-	func with_name( name : String ) -> HTMLNodeList:
+	func with_name( name : String ) -> HTMLNode:
+		for node in list:
+			if node.name == name:
+				return node
+		return HTMLNullNode.new()
+
+
+	func all_with_name( name : String ) -> HTMLNodeList:
 		var ret := HTMLNodeList.new()
 		for node in list:
 			if node.name == name:
@@ -94,7 +105,14 @@ class HTMLNodeList:
 		return ret
 
 
-	func of_class( node_class : String ) -> HTMLNodeList:
+	func of_class( node_class : String ) -> HTMLNode:
+		for node in list:
+			if node.attributes.get("class") == node_class:
+				return node
+		return HTMLNullNode.new()
+
+
+	func all_of_class( node_class : String ) -> HTMLNodeList:
 		var ret := HTMLNodeList.new()
 		for node in list:
 			if node.attributes.get("class") == node_class:
@@ -102,7 +120,14 @@ class HTMLNodeList:
 		return ret
 
 
-	func with_id (id : String ) -> HTMLNodeList:
+	func with_id( id : String ) -> HTMLNode:
+		for node in list:
+			if node.attributes.get("id") == id:
+				return node
+		return HTMLNullNode.new()
+
+
+	func all_with_id (id : String ) -> HTMLNodeList:
 		var ret := HTMLNodeList.new()
 		for node in list:
 			if node.attributes.get("id") == id:
@@ -201,14 +226,22 @@ func _parse(xml : XMLParser) -> int: # -> Error
 
 	return err
 
+func with_name( name : String ) -> HTMLNode:
+	return all_with_name(name).first()
 
-func with_name( name : String ) -> HTMLNodeList:
+func all_with_name( name : String ) -> HTMLNodeList:
 	return grouped_by.name.get(name, HTMLNodeList.new())
 
+func of_class( node_class : String ) -> HTMLNode:
+	return all_of_class(node_class).first()
 
-func of_class( node_class : String ) -> HTMLNodeList:
+func all_of_class( node_class : String ) -> HTMLNodeList:
 	return grouped_by.class.get(node_class, HTMLNodeList.new())
 
+func with_id( id : String ) -> HTMLNode:
+	return all_with_id(id).first()
 
-func with_id (id : String ) -> HTMLNodeList:
+func all_with_id(id : String ) -> HTMLNodeList:
 	return grouped_by.id.get(id, HTMLNodeList.new())
+
+

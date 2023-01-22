@@ -203,8 +203,12 @@ func _is_dir_changed( path : String, mtime) -> bool:
 # - folder links to analyze recursively
 func _parsexml(buffer : PoolByteArray, partial_path : String):
 	var html := HTMLObject.new()
-	html.load_from_buffer(buffer)
-	var list : = html.with_name("tr").with_parent_name("tbody")
+	var err = html.load_from_buffer(buffer)
+	if err != OK:
+		push_error("Error parsing xml in path: %s" % partial_path)
+		return
+
+	var list : = html.all_with_name("tr").all_with_parent_name("tbody")
 
 	for tr in list:
 		var href = ""
@@ -213,11 +217,11 @@ func _parsexml(buffer : PoolByteArray, partial_path : String):
 		for td in tr.children:
 			match td.attributes.get("class"):
 				"n":
-					href = td.children.first().attributes.href
+					href = td.first_child.attributes.href
 				"m":
-					mtime = td.children.first().value
+					mtime = td.first_child.value
 				"t":
-					is_directory = td.children.first().value == "Directory"
+					is_directory = td.first_child.value == "Directory"
 		
 		var full_path = partial_path + href
 		
