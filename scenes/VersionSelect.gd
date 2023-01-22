@@ -81,18 +81,21 @@ var download_db : Dictionary
 var filtered_db_view :  Array
 
 # Used to regenerate filtered_db_view
+var stable_included = true
 var alpha_included = false
 var beta_included = false
 var rc_included = false
 
 export var refresh_button_path : NodePath 
 export var download_button_path : NodePath
+export var stable_button_path : NodePath
 export var alpha_button_path : NodePath
 export var beta_button_path : NodePath
 export var rc_button_path : NodePath
 
 onready var refresh_button = get_node(refresh_button_path)
 onready var download_button = get_node(download_button_path)
+onready var stable_button = get_node(stable_button_path)
 onready var alpha_button = get_node(alpha_button_path)
 onready var beta_button = get_node(beta_button_path)
 onready var rc_button = get_node(rc_button_path)
@@ -106,7 +109,7 @@ signal version_added()
 
 func _ready():
 	# VALIDATE BUTTON PATHS ( Will use scene unique names when 3.5 reaches stable)
-	for button in [refresh_button, download_button, alpha_button, beta_button, rc_button]:
+	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button]:
 		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
 	
 	
@@ -119,16 +122,18 @@ func _ready():
 	elif OS.has_feature("X11"):
 		current_platform = "X11"
 		
-	# RELOAD
-	_reload()
 	
 	# RESTORE UI FLAGS
 	var config = Globals.read_config()
 	if "ui" in config:
-		alpha_button.pressed = config.ui.alpha
-		beta_button.pressed = config.ui.beta
-		rc_button.pressed = config.ui.rc
-		
+		stable_button.pressed = config.ui.get("stable", stable_button.pressed )
+		alpha_button.pressed = config.ui.get("alpha", alpha_button.pressed )
+		beta_button.pressed = config.ui.get("beta", beta_button.pressed )
+		rc_button.pressed = config.ui.get("rc", rc_button.pressed )
+	
+	# RELOAD
+	_reload()
+
 	yield(get_tree(),"idle_frame")
 	_on_autoupdate_timeout()
 
@@ -266,12 +271,15 @@ func _find_links(url:String, db : Dictionary):
 
 # Recreates the drop-down menu for download options
 func _update_list():
+	if not download_db.has("versions"):
+		return
+	
 	clear()
 	filtered_db_view = []
 	
 	for entry in download_db.versions:
 		if (
-			"stable" in entry.name
+			(stable_included and "stable" in entry.name)
 			or (rc_included and "rc" in entry.name)
 			or (beta_included and "beta" in entry.name)
 			or (alpha_included and "alpha" in entry.name) 
@@ -385,6 +393,12 @@ func _add_version(v_name : String, path: String):
 	Globals.write_config(config)
 	
 	emit_signal("version_added")
+
+func _on_Stable_toggled(button_pressed):
+	stable_included = button_pressed
+	Globals.update_ui_flag("stable", button_pressed)
+	_update_list()
+
 
 
 func _on_Alpha_toggled(button_pressed):
