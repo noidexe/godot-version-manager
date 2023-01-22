@@ -17,10 +17,10 @@ class HTMLNode:
 	var type : int = -1
 	var value : String= ""
 	var attributes := {}
-	
+
 	func _set_parent( node : HTMLNode ):
 		_parent_weakref = weakref(node)
-	
+
 	func _get_parent():
 		if _parent_weakref != null and _parent_weakref.get_ref() != null:
 			return _parent_weakref.get_ref()
@@ -34,31 +34,31 @@ class HTMLNullNode extends HTMLNode:
 class HTMLNodeList:
 	var list : Array = []
 	var current : int
-	
-	func _iter_init(arg):
+
+	func _iter_init(_arg):
 		current = 0
 		return current < list.size()
-	
-	func _iter_next(arg):
+
+	func _iter_next(_arg):
 		current += 1
 		return current < list.size()
-	
-	func _iter_get(arg):
+
+	func _iter_get(_arg):
 		return list[current]
-	
+
 	func append( node : HTMLNode):
 		list.append(node)
 
 	func idx( i : int ) -> HTMLNode:
 		return list[i]
-	
+
 	func first() -> HTMLNode:
 		if list.empty():
 			push_error("Attempting to return first node in empty HTMLNodeList")
 			return HTMLNullNode.new()
 		else:
 			return list.front()
-	
+
 	func last() -> HTMLNode:
 		if list.empty():
 			push_error("Attempting to return last node in empty HTMLNodeList")
@@ -116,12 +116,12 @@ var grouped_by : Dictionary
 func load_from_buffer( buffer : PoolByteArray) -> int: # -> Error
 	return load_from_text(buffer.get_string_from_utf8())
 
-func load_from_text( file : String) -> int: # -> Error 
+func load_from_text( file : String) -> int: # -> Error
 	file = _sanitize_cdata(file)
-	
+
 	root = null
 	grouped_by = CacheDict.duplicate(true)
-	
+
 	var err = ERR_BUG
 	var xml = XMLParser.new()
 	err = xml.open_buffer(file.to_utf8())
@@ -139,14 +139,14 @@ func _sanitize_cdata( file : String ):
 	file = re.sub(file, "<style>\n// <![CDATA[", true)
 	re.compile("</style>")
 	file = re.sub(file, "// ]]>\n</style>", true)
-	
+
 	return file
-	
+
 
 func _parse(xml : XMLParser) -> int: # -> Error
 	var err = ERR_BUG
 	var stack = []
-	
+
 	while(true):
 		err = xml.read()
 		if err != OK:
@@ -162,7 +162,7 @@ func _parse(xml : XMLParser) -> int: # -> Error
 				if not grouped_by.name.has(node.name):
 					grouped_by.name[node.name] = HTMLNodeList.new()
 				grouped_by.name[node.name].append(node)
-				
+
 				for i in xml.get_attribute_count():
 					var attr_name = xml.get_attribute_name(i)
 					var attr_value = xml.get_attribute_value(i)
@@ -176,7 +176,7 @@ func _parse(xml : XMLParser) -> int: # -> Error
 				if not stack.empty():
 					node.parent = stack.back()
 					node.parent.children.append(node)
-				
+
 				# void elements don't have a matching close tag and can't have contents
 				if not (node.name in VOID_HTML_ELEMENTS or xml.is_empty()):
 					stack.append(node)
@@ -191,7 +191,7 @@ func _parse(xml : XMLParser) -> int: # -> Error
 				node.type = type
 				node.name = "#text"
 				node.value = xml.get_node_data()
-				
+
 				# Add as child of parent
 				if not stack.empty():
 					node.parent = stack.back()
