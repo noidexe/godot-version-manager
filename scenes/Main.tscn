@@ -260,16 +260,15 @@ size_flags_horizontal = 3
 script = ExtResource( 4 )
 
 [node name="tag" type="Label" parent="MarginContainer/HBox/MenuBar/Version"]
-margin_right = 247.0
+margin_right = 120.0
 margin_bottom = 27.0
-size_flags_horizontal = 3
 text = "Version Tag: vX.XX"
 
 [node name="update" type="Button" parent="MarginContainer/HBox/MenuBar/Version"]
-margin_left = 250.0
-margin_right = 300.0
+margin_left = 123.0
+margin_right = 228.0
 margin_bottom = 27.0
-text = "Update"
+text = "Update Available"
 
 [node name="req" type="HTTPRequest" parent="MarginContainer/HBox/MenuBar/Version"]
 
