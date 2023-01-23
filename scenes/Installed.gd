@@ -51,10 +51,12 @@ func _get_name(version):
 
 func _get_correct_icon(v_name : String, v_args : String):
 	if "--path" in v_args:
-		var args = v_args.split(" ")
+		var args = _args_string_to_array(v_args)
 		var path : String = args[ args.find("--path") + 1 ]
-		path = path.lstrip("\\\"").rstrip("\\\"") + "\\icon.png"
-		
+		if OS.has_feature("Windows"):
+			path = path.lstrip("\\\"").rstrip("\\\"") + "\\icon.png"
+		else:
+			path = path.lstrip("\"").rstrip("/\"") + "/icon.png"
 		var file = File.new()
 		if file.open(path,File.READ) != OK:
 			return preload("res://icon.png")
@@ -79,7 +81,7 @@ func _on_Installed_item_activated(index):
 	var pid :int
 	var path : String =  config.versions[index].path
 	var is_game_project = "--path" in config.versions[index].arguments
-	var args : PoolStringArray = config.versions[index].arguments.split(" ")
+	var args : PoolStringArray = _args_string_to_array(config.versions[index].arguments)
 	args.append("-e" if is_game_project else "-p")
 	if OS.has_feature("OSX"):
 		var osx_args := PoolStringArray([ProjectSettings.globalize_path(path), "--args"])
@@ -91,7 +93,29 @@ func _on_Installed_item_activated(index):
 	if $"%CloseOnLaunch".pressed:
 		print("Close on launch enabled. Quitting.." )
 		get_tree().quit(0)
-		
+
+func _args_string_to_array( args : String ) -> PoolStringArray:
+	var ret = PoolStringArray()
+	var quoting = false
+	var tmp = String()
+	for c in args:
+		if c == " " and not quoting:
+			ret.append(tmp)
+			tmp = String()
+		elif c == "\"":
+			tmp += c
+			if not quoting:
+				quoting = true
+			else:
+				quoting = false
+				#no quotes needed
+				ret.append(tmp.rstrip("\"").lstrip("\""))
+				tmp = String()
+		else:
+			tmp += c
+	if not tmp.empty():
+		ret.append(tmp)
+	return ret
 
 func _on_version_added():
 	_reload()
