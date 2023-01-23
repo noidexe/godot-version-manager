@@ -7,7 +7,7 @@ const api_endpoint = "https://api.github.com/repos/noidexe/godot-version-manager
 # Add '-devel' for versions not intended for release
 # Remove '-devel' when commiting a build to be tagged as release
 # Remember to update version in export settings before exporting
-const version_tag = "v1.10"
+const version_tag = "v1.10.1-devel"
 
 # Initialized to the release list page as a fallback in case it fails to 
 # get the link to the latest release for some reason
