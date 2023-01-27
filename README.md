@@ -2,7 +2,7 @@
   
 Download, install and manage any version of Godot Engine from a simple app. 
 
-![image](https://user-images.githubusercontent.com/526829/172542254-1a76a5a9-cd01-435f-a462-31a4979b510a.png)
+![image](https://user-images.githubusercontent.com/526829/213944428-2b2d1ffa-8656-4efa-9bf4-dc32f793a6a7.png)
 
 ## Installation
 ### Windows:
@@ -39,7 +39,7 @@ A: The rss doesn't have links to thumbnails or excerpts, only the full text. Als
 - [x] OSX support
 - [ ] Complete refactor
 - [ ] Better ~~(i.e some at all)~~ error handling
-- [ ] Autorefresh, use HEAD for faster scraping, ignore folders without updates.
+- [x] Autorefresh, use HEAD for faster scraping, ignore folders without updates.
 - [ ] Inform about available updates for installed versions
 - [x] Inform about available updates for Godot Version Manager
 - [x] Show news snippets from godotengine.com/news?
