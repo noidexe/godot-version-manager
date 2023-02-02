@@ -11,6 +11,8 @@ signal version_added()
 
 var edited_entry : int = -1  # -1 adding new
 
+var is_mac = OS.has_feature("OSX")
+
 func _ready():
 	_validate()
 
@@ -18,15 +20,26 @@ func _ready():
 func _on_Select_pressed():
 	var popup := get_node(select_dialog) as FileDialog
 	popup.current_dir = ProjectSettings.globalize_path("user://versions")
-	popup.popup()
-	line_edit_path.text = yield(popup,"file_selected")
+	popup.mode = FileDialog.MODE_OPEN_DIR if is_mac else FileDialog.MODE_OPEN_FILE
+	popup.popup()	
+	line_edit_path.text = yield(popup,"dir_selected" if is_mac else "file_selected")
 	if line_edit_name.text == "":
 		line_edit_name.text = line_edit_path.text.get_file()
 	_validate()
 
 # Validate name and path input
 func _validate(_unused = ""):
-	add_button.disabled = line_edit_name.text == "" or not line_edit_path.text.is_abs_path()
+	add_button.disabled = true
+	if line_edit_name.text == "":
+		print_debug("Name cannot be empty")
+		return
+	if not line_edit_path.text.is_abs_path():
+		print_debug("Path must be absolute")
+		return
+	if is_mac and not line_edit_path.text.ends_with(".app"):
+		print_debug("Folder must end in .app")
+		return
+	add_button.disabled = false
 
 # Create a entry and add it to the list of 
 # installed versions
