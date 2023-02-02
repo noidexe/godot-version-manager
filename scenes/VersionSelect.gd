@@ -162,6 +162,7 @@ func _version_sort(a : String, b: String):
 # Scrapes downloads website and regenerates
 # downloads_db
 func _refresh():
+	_reload() # in case download_db.json was modified on disk
 	var new_db = download_db.duplicate(true)
 	_find_links(base_url, new_db)
 	
