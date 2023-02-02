@@ -21,7 +21,7 @@ const platforms = {
 		]
 	},
 	"OSX": {
-		"suffixes": ["_osx.universal.zip"],
+		"suffixes": ["_osx.universal.zip", "_macos.universal.zip"],
 		"extraction-command" : [
 			"unzip",
 			[
