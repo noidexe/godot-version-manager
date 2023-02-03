@@ -161,7 +161,9 @@ func _version_sort(a : String, b: String):
 
 # Scrapes downloads website and regenerates
 # downloads_db
-func _refresh():
+func _refresh( is_full : bool = false ):
+	if is_full:
+		Globals.delete_download_db()
 	_reload() # in case download_db.json was modified on disk
 	var new_db = download_db.duplicate(true)
 	_find_links(base_url, new_db)
@@ -305,13 +307,23 @@ func _update_list():
 		add_item(entry.name)
 
 
+func _unhandled_key_input(event):
+	if refresh_button.disabled:
+		return
+	if event is InputEventKey and event.physical_scancode == KEY_SHIFT:
+		if event.pressed:
+			refresh_button.text = "Full Refresh"
+		else:
+			refresh_button.text = "Refresh"
+
 func _on_Refresh_pressed():
 	if refresh_button.disabled:
 		return
 	$autoupdate.stop()
 	#disabled = true
 	refresh_button.disabled = true
-	_refresh()
+	var is_full = Input.is_key_pressed(KEY_SHIFT)
+	_refresh( is_full )
 	while requests > 0: 
 		refresh_button.text = "Scraping %s urls%s" % [ requests, [".", "..", "..."][randi() % 3] ]
 		yield(get_tree().create_timer(0.2),"timeout")

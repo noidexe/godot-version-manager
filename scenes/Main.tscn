@@ -96,7 +96,9 @@ margin_left = 200.0
 margin_right = 300.0
 margin_bottom = 50.0
 rect_min_size = Vector2( 100, 0 )
-hint_tooltip = "Refresh the database to show new available versions"
+hint_tooltip = "Refreshes the database to show new available versions.
+Hold SHIFT for full refresh if you think anything is missing.
+"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.01

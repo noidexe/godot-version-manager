@@ -65,3 +65,8 @@ func write_download_db(download_db):
 	file.open(DOWNLOAD_DB_FILE_PATH, File.WRITE)
 	file.store_line(to_json(download_db))
 	file.close()
+
+func delete_download_db():
+	var err = OS.move_to_trash(ProjectSettings.globalize_path(DOWNLOAD_DB_FILE_PATH))
+	if err != OK:
+		print_debug(err)
