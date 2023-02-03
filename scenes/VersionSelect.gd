@@ -312,8 +312,15 @@ func _unhandled_key_input(event):
 		return
 	if event is InputEventKey and event.physical_scancode == KEY_SHIFT:
 		if event.pressed:
+			var warning = preload("res://theme/warning_button.tres")
+			(refresh_button as Button).add_stylebox_override("normal", warning)
+			(refresh_button as Button).add_stylebox_override("focus", warning)
+			(refresh_button as Button).add_stylebox_override("hover", warning)
 			refresh_button.text = "Full Refresh"
 		else:
+			(refresh_button as Button).remove_stylebox_override("normal")
+			(refresh_button as Button).remove_stylebox_override("focus")
+			(refresh_button as Button).remove_stylebox_override("hover")
 			refresh_button.text = "Refresh"
 
 func _on_Refresh_pressed():
