@@ -166,6 +166,19 @@ func _refresh():
 	var new_db = download_db.duplicate(true)
 	_find_links(base_url, new_db)
 	
+	# Check for missing downloads on already cached dirs
+	var dir_cache = download_db.cache.directories.keys()
+	var links_cache = download_db.cache.download_links.keys()
+	for dir in dir_cache:
+		var found = false
+		for link in links_cache:
+			if dir in link:
+				found = true
+				break
+		if !found:
+			_find_links(dir, new_db)
+
+
 	# Wait for _find_links to finish
 	while requests > 0:
 		yield(get_tree().create_timer(1.0),"timeout")
