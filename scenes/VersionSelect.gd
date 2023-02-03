@@ -199,6 +199,7 @@ func _is_version_directory( href: String) -> bool:
 		href.begins_with("alpha") or
 		href.begins_with("beta") or
 		href.begins_with("rc") or
+		href.begins_with("20200815") or # Handle 2.1.7 rc odd naming scheme
 		(href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
 		)
 
