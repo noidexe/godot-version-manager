@@ -1,19 +1,19 @@
 extends Node
 
-const config_file_path: String = "user://config.json"
-const download_db_file_path: String = "user://download_db.json"
+const CONFIG_FILE_PATH: String = "user://config.json"
+const DOWNLOAD_DB_FILE_PATH: String = "user://download_db.json"
 
-const default_config : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
+const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
 
 # Read the config from file
 func read_config() -> Dictionary:
 	var file = File.new()
 	
 	# Initialise config file if it doesn't exist
-	if not file.file_exists(config_file_path):
-		write_config(default_config)
+	if not file.file_exists(CONFIG_FILE_PATH):
+		write_config(DEFAULT_CONFIG)
 
-	file.open(config_file_path,File.READ)
+	file.open(CONFIG_FILE_PATH,File.READ)
 	var config = parse_json(file.get_as_text())
 	file.close()
 	return config
@@ -23,7 +23,7 @@ func read_config() -> Dictionary:
 func write_config(config: Dictionary):
 	var file = File.new()
 
-	file.open(config_file_path,File.WRITE)
+	file.open(CONFIG_FILE_PATH,File.WRITE)
 	file.store_line(to_json(config))
 	file.close()
 
@@ -44,8 +44,8 @@ func read_download_db() -> Dictionary:
 	var download_db
 	
 	
-	if file.file_exists(download_db_file_path):
-		file.open(download_db_file_path, File.READ)
+	if file.file_exists(DOWNLOAD_DB_FILE_PATH):
+		file.open(DOWNLOAD_DB_FILE_PATH, File.READ)
 		download_db = parse_json(file.get_as_text())
 	if typeof(download_db) != TYPE_DICTIONARY:
 		download_db = {}
@@ -62,6 +62,6 @@ func read_download_db() -> Dictionary:
 
 func write_download_db(download_db):
 	var file = File.new()
-	file.open(download_db_file_path, File.WRITE)
+	file.open(DOWNLOAD_DB_FILE_PATH, File.WRITE)
 	file.store_line(to_json(download_db))
 	file.close()
