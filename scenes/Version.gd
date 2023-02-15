@@ -10,9 +10,17 @@ const api_endpoint = "https://api.github.com/repos/noidexe/godot-version-manager
 const version_tag = "v1.11.1"
 var user_agent : String
 
+const DOWNLOAD_SUFFIXES = {
+	"OSX" : "osx.zip",
+	"Windows": "win.zip",
+	"X11": "x11.zip",
+}
+
+
 # Initialized to the release list page as a fallback in case it fails to 
 # get the link to the latest release for some reason
-var download_url = "https://github.com/noidexe/godot-version-manager/releases/"
+const RELEASES_URL = "https://github.com/noidexe/godot-version-manager/releases/"
+var download_url = RELEASES_URL
 
 
 func _ready():
@@ -44,7 +52,15 @@ func _on_request_completed(_result, response_code : int, _headers, body : PoolBy
 		$tag.text = "Version Tag: " + version_tag + " (up to date)"
 	else:
 		$update.hint_tooltip = last_tag.get("name", "") # Show title of new release as tooltip
-		download_url = last_tag.get("html_url", download_url)
+		
+		var assets = last_tag.get("assets", [])
+		var suffix = DOWNLOAD_SUFFIXES.get(OS.get_name(), "none")
+		for asset in assets:
+			var url : String = asset.get("browser_download_url", "")
+			if url.ends_with(suffix):
+				download_url = url
+				break
+		#download_url = last_tag.get("html_url", download_url)
 		$update.show()
 
 
@@ -52,3 +68,11 @@ func _on_update_pressed():
 	var error = OS.shell_open(download_url)
 	if error != OK:
 		printerr("Error opening browser. Error Code: %s" % error )
+
+
+func _on_LogoContainer_gui_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		var error = OS.shell_open(RELEASES_URL)
+		if error != OK:
+			printerr("Error opening browser. Error Code: %s" % error )
+	pass # Replace with function body.

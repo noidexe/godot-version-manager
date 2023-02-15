@@ -204,6 +204,7 @@ __meta__ = {
 margin_top = 302.0
 margin_right = 300.0
 margin_bottom = 523.0
+hint_tooltip = "Click to go to releases webpage"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/margin_right = 35
@@ -216,6 +217,7 @@ margin_left = 35.0
 margin_top = 30.0
 margin_right = 265.0
 margin_bottom = 191.0
+mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/panel = SubResource( 3055 )
@@ -223,6 +225,7 @@ custom_styles/panel = SubResource( 3055 )
 [node name="HBox" type="VBoxContainer" parent="MarginContainer/HBox/MenuBar/LogoContainer/Panel"]
 margin_right = 230.0
 margin_bottom = 161.0
+mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -239,6 +242,7 @@ margin_top = 30.0
 margin_right = 230.0
 margin_bottom = 130.0
 rect_min_size = Vector2( 0, 100 )
+mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 texture = ExtResource( 14 )
@@ -506,6 +510,7 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/OpenFolder" to="MarginContainer/HBox/MenuBar/OpenFolder" method="_on_OpenFolder_pressed"]
+[connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer" to="MarginContainer/HBox/MenuBar/Version" method="_on_LogoContainer_gui_input"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
 [connection signal="item_activated" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_activated"]
