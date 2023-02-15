@@ -255,6 +255,7 @@ text = "Copyright ©2022 Red Mage Games"
 align = 1
 
 [node name="Version" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
+unique_name_in_owner = true
 margin_top = 533.0
 margin_right = 300.0
 margin_bottom = 560.0

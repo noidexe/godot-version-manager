@@ -7,7 +7,8 @@ const api_endpoint = "https://api.github.com/repos/noidexe/godot-version-manager
 # Add '-devel' for versions not intended for release
 # Remove '-devel' when commiting a build to be tagged as release
 # Remember to update version in export settings before exporting
-const version_tag = "v1.11"
+const version_tag = "v1.11.1"
+var user_agent : String
 
 # Initialized to the release list page as a fallback in case it fails to 
 # get the link to the latest release for some reason
@@ -15,6 +16,7 @@ var download_url = "https://github.com/noidexe/godot-version-manager/releases/"
 
 
 func _ready():
+	user_agent = "Godot Version Manager/%s (%s) Godot/%s" % [version_tag.lstrip("v"), OS.get_name(), Engine.get_version_info().string ] 
 	$update.hide()
 	$tag.text = "Version Tag: " + version_tag
 	

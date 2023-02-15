@@ -22,7 +22,7 @@ func _refresh_news():
 	loading_text.show()
 	_update_news_feed(_get_news_cache())
 	
-	$req.request(BASE_URL + "/blog/")
+	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % $"%Version".user_agent])
 	var response = yield($req,"request_completed")
 	
 	loading_text.hide()
