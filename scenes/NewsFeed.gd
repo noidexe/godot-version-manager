@@ -3,6 +3,7 @@ extends ScrollContainer
 var news_item_scene = preload("res://scenes/NewsItem.tscn")
 
 const NEWS_CACHE_FILE = "user://news_cache.bin"
+const NEWS_ETAG_FILE = "user://news_etag.bin"
 const BASE_URL = "https://godotengine.org"
 
 const  VOID_HTML_ELEMENTS = ["area", "base", "br", "col", "command", "embed", "hr",
@@ -22,14 +23,29 @@ func _refresh_news():
 	loading_text.show()
 	_update_news_feed(_get_news_cache())
 	
-	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % $"%Version".user_agent])
-	var response = yield($req,"request_completed")
+	var up_to_date := false
+	var new_etag := "" 
+	
+	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % $"%Version".user_agent], true, HTTPClient.METHOD_HEAD)
+	var head_response = yield($req,"request_completed")
+	for header in head_response[2]:
+		# No ETag being returned by the server as of 2023/02/15
+		# Using Last-Modified instead
+		if header.begins_with("Last-Modified:"):
+			up_to_date = header == _get_news_etag()
+			new_etag = header
+			break
+	
+	if not up_to_date:
+		$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % $"%Version".user_agent])
+		var response = yield($req,"request_completed")
+		var news = _get_news(response[3])
+	
+		_save_news_cache(news)
+		_save_news_etag(new_etag)
+		_update_news_feed(news)
 	
 	loading_text.hide()
-	var news = _get_news(response[3])
-	
-	_save_news_cache(news)
-	_update_news_feed(news)
 
 
 # Generates text bases on an array of dictionaries containing strings to 
@@ -68,6 +84,33 @@ func _save_news_cache(news : Array):
 	file.open(NEWS_CACHE_FILE, File.WRITE)
 	file.store_var(news)
 	file.close()
+
+
+func _get_news_etag() -> String:
+	var ret : String = ""
+	var file : File = File.new()
+	if not file.file_exists(NEWS_ETAG_FILE):
+		push_warning("News etag not found")
+	else:
+		var err = file.open(NEWS_ETAG_FILE, File.READ)
+		if err != OK:
+			push_error("Error opening file")
+		else:
+			var data = file.get_var()
+			if typeof(data) == TYPE_STRING:
+				ret = data
+			else:
+				push_error("News etag format invalid")
+			file.close()
+	return ret
+
+
+func _save_news_etag(etag : String):
+	var file = File.new()
+	file.open(NEWS_ETAG_FILE, File.WRITE)
+	file.store_var(etag)
+	file.close()
+
 
 
 # Analyzes html for <div class="news-item"> elements
