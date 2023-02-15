@@ -2,14 +2,6 @@ extends HBoxContainer
 
 const api_endpoint = "https://api.github.com/repos/noidexe/godot-version-manager/releases"
 
-# Update before commiting
-# Use semver
-# Add '-devel' for versions not intended for release
-# Remove '-devel' when commiting a build to be tagged as release
-# Remember to update version in export settings before exporting
-const version_tag = "v1.11.1"
-var user_agent : String
-
 const DOWNLOAD_SUFFIXES = {
 	"OSX" : "osx.zip",
 	"Windows": "win.zip",
@@ -24,11 +16,10 @@ var download_url = RELEASES_URL
 
 
 func _ready():
-	user_agent = "Godot Version Manager/%s (%s) Godot/%s" % [version_tag.lstrip("v"), OS.get_name(), Engine.get_version_info().string ] 
 	$update.hide()
-	$tag.text = "Version Tag: " + version_tag
+	$tag.text = "Version Tag: " + Globals.version_tag
 	
-	$req.request(api_endpoint, ["Accept: application/vnd.github.v3+json"])
+	$req.request(api_endpoint, ["Accept: application/vnd.github.v3+json", "User-Agent: %s" % Globals.user_agent])
 
 
 func _on_request_completed(_result, response_code : int, _headers, body : PoolByteArray):
@@ -44,12 +35,12 @@ func _on_request_completed(_result, response_code : int, _headers, body : PoolBy
 		printerr("Invalid data received when requesting release list")
 
 	var last_tag : Dictionary = json[0]
-	var last_version_tag : String = last_tag.get("tag_name", version_tag)
+	var last_version_tag : String = last_tag.get("tag_name", Globals.version_tag)
 	
 	# The update button SHOULD always appear if the local version tag doesn't
 	# match tag for the latest official release, even if it is a lower version
-	if last_version_tag == version_tag:
-		$tag.text = "Version Tag: " + version_tag + " (up to date)"
+	if last_version_tag == Globals.version_tag:
+		$tag.text = "Version Tag: " + Globals.version_tag + " (up to date)"
 	else:
 		$update.hint_tooltip = last_tag.get("name", "") # Show title of new release as tooltip
 		

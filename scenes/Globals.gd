@@ -5,6 +5,17 @@ const DOWNLOAD_DB_FILE_PATH: String = "user://download_db.json"
 
 const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
 
+# Update before commiting
+# Use semver
+# Add '-devel' for versions not intended for release
+# Remove '-devel' when commiting a build to be tagged as release
+# Remember to update version in export settings before exporting
+const version_tag = "v1.11.1"
+var user_agent : String
+
+func _ready():
+	user_agent = "Godot Version Manager/%s (%s) Godot/%s" % [version_tag.lstrip("v"), OS.get_name(), Engine.get_version_info().string ] 
+
 # Read the config from file
 func read_config() -> Dictionary:
 	var file = File.new()

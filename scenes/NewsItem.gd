@@ -47,7 +47,7 @@ func _load_image(_url : String, target : TextureRect):
 		dir.make_dir(BASE_DIR)
 	if not dir.file_exists(local_path):
 		$req.download_file = local_path
-		$req.request(_url)
+		$req.request(_url, ["User-Agent: %s" % Globals.user_agent])
 		var response = yield($req,"request_completed")
 		if not response[1] == 200:
 			printerr("Could not find or download image")

@@ -271,7 +271,7 @@ func _find_links(url:String, db : Dictionary):
 	
 	var req = HTTPRequest.new()
 	add_child(req)
-	req.request(url, ["User-Agent: %s" % $"%Version".user_agent] )
+	req.request(url, ["User-Agent: %s" % Globals.user_agent] )
 	
 	refresh_button.text = "Scraping%s %s" % [ [".", "..", "..."][randi() % 3] ,url.rsplit("/",true,2)[1] ]
 	
@@ -359,7 +359,7 @@ func _on_Download_pressed():
 	var req = HTTPRequest.new()
 	add_child(req)
 	req.download_file = filename
-	req.request(url, ["User-Agent: %s" % $"%Version".user_agent], false)
+	req.request(url, ["User-Agent: %s" % Globals.user_agent], false)
 	
 	var divisor : float = 1024 * 1024
 	

@@ -26,7 +26,7 @@ func _refresh_news():
 	var up_to_date := false
 	var new_etag := "" 
 	
-	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % $"%Version".user_agent], true, HTTPClient.METHOD_HEAD)
+	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % Globals.user_agent], true, HTTPClient.METHOD_HEAD)
 	var head_response = yield($req,"request_completed")
 	for header in head_response[2]:
 		# No ETag being returned by the server as of 2023/02/15
@@ -37,7 +37,7 @@ func _refresh_news():
 			break
 	
 	if not up_to_date:
-		$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % $"%Version".user_agent])
+		$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % Globals.user_agent])
 		var response = yield($req,"request_completed")
 		var news = _get_news(response[3])
 	
