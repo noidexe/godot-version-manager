@@ -62,7 +62,7 @@ func _on_update_pressed():
 
 
 func _on_LogoContainer_gui_input(event):
-	if event is InputEventMouseButton and event.pressed:
+	if event is InputEventMouseButton and event.pressed and event.button_index == BUTTON_LEFT:
 		var error = OS.shell_open(RELEASES_URL)
 		if error != OK:
 			printerr("Error opening browser. Error Code: %s" % error )
