@@ -85,6 +85,7 @@ var stable_included = true
 var alpha_included = false
 var beta_included = false
 var rc_included = false
+var dev_included = false
 
 export var refresh_button_path : NodePath 
 export var download_button_path : NodePath
@@ -92,6 +93,7 @@ export var stable_button_path : NodePath
 export var alpha_button_path : NodePath
 export var beta_button_path : NodePath
 export var rc_button_path : NodePath
+export var dev_button_path : NodePath
 
 onready var refresh_button = get_node(refresh_button_path)
 onready var download_button = get_node(download_button_path)
@@ -99,6 +101,7 @@ onready var stable_button = get_node(stable_button_path)
 onready var alpha_button = get_node(alpha_button_path)
 onready var beta_button = get_node(beta_button_path)
 onready var rc_button = get_node(rc_button_path)
+onready var dev_button = get_node(dev_button_path)
 
 # Emitted when the download_db has been updated
 signal refresh_finished()
@@ -109,7 +112,7 @@ signal version_added()
 
 func _ready():
 	# VALIDATE BUTTON PATHS ( Will use scene unique names when 3.5 reaches stable)
-	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button]:
+	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button, dev_button]:
 		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
 	
 	
@@ -130,6 +133,8 @@ func _ready():
 		alpha_button.pressed = config.ui.get("alpha", alpha_button.pressed )
 		beta_button.pressed = config.ui.get("beta", beta_button.pressed )
 		rc_button.pressed = config.ui.get("rc", rc_button.pressed )
+		dev_button.pressed = config.ui.get("dev", dev_button.pressed )
+		
 	
 	# RELOAD
 	_reload()
@@ -214,6 +219,7 @@ func _is_version_directory( href: String) -> bool:
 		href.begins_with("alpha") or
 		href.begins_with("beta") or
 		href.begins_with("rc") or
+		href.begins_with("dev") or # New in 4.x
 		href.begins_with("20200815") or # Handle 2.1.7 rc odd naming scheme
 		(href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
 		)
@@ -299,7 +305,8 @@ func _update_list():
 			(stable_included and "stable" in entry.name)
 			or (rc_included and "rc" in entry.name)
 			or (beta_included and "beta" in entry.name)
-			or (alpha_included and "alpha" in entry.name) 
+			or (alpha_included and "alpha" in entry.name)
+			or (dev_included and "dev" in entry.name) 
 			):
 			filtered_db_view.append(entry)
 
@@ -451,6 +458,13 @@ func _on_RC_toggled(button_pressed):
 	rc_included = button_pressed
 	Globals.update_ui_flag("rc", button_pressed)
 	_update_list()
+	
+func _on_Dev_toggled(button_pressed):
+	dev_included = button_pressed
+	Globals.update_ui_flag("dev", button_pressed)
+	_update_list()
+	pass # Replace with function body.
+
 
 
 func _on_VersionSelect_refresh_finished(new_download_db : Dictionary):

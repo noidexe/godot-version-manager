@@ -10,7 +10,7 @@ const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc":
 # Add '-devel' for versions not intended for release
 # Remove '-devel' when commiting a build to be tagged as release
 # Remember to update version in export settings before exporting
-const version_tag = "v1.11.2"
+const version_tag = "v1.12"
 var user_agent : String
 
 func _ready():
@@ -39,15 +39,16 @@ func write_config(config: Dictionary):
 	file.close()
 
 # Update the ui_flag
-func update_ui_flag(flag: String, switch: bool):
+func update_ui_flag(flag: String, value): #switch: bool):
 	var config = read_config()
 
 	if not "ui" in config:
 		# There should be a better way to define this
-		config["ui"] = {"alpha": false, "beta": false, "rc": false}
+		config["ui"] = {"alpha": false, "beta": false, "rc": false, "dev": false, "scale": 1.0 }
 
-	config.ui[flag] = switch
+	config.ui[flag] = value
 	write_config(config)
+
 
 # Read the download db from file
 func read_download_db() -> Dictionary:
