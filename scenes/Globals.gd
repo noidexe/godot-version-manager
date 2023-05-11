@@ -10,7 +10,7 @@ const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc":
 # Add '-devel' for versions not intended for release
 # Remove '-devel' when commiting a build to be tagged as release
 # Remember to update version in export settings before exporting
-const version_tag = "v1.12"
+const version_tag = "v1.12.1-devel"
 var user_agent : String
 
 func _ready():
