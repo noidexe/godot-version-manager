@@ -127,13 +127,13 @@ func _on_ContextMenu_id_pressed(id):
 	var item = get_selected_items()[0]
 	match id:
 		0:
-			_delete(item)
+			_edit(item)
 		1:
 			_move(item, -1)
 		2:
 			_move(item, 1)
 		3:
-			_edit(item)
+			_delete(item)
 	
 
 
@@ -159,7 +159,7 @@ func _on_Installed_item_rmb_selected(_index, at_position):
 	# The top_left is at the beginning of the container
 	# So we need to add the rect_position of the parent node to 
 	# Compensate
-	menu.set_position(rect_position + at_position)
+	menu.set_position(rect_global_position + at_position + Vector2(0, 20))
 	menu.popup()
 
 
