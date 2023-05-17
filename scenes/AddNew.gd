@@ -89,3 +89,8 @@ func edit(config_idx):
 func _on_AddNew_popup_hide():
 	# Reset edited entry to default vaule
 	edited_entry = -1
+
+
+func _on_Close_pressed():
+	hide()
+	pass # Replace with function body.
