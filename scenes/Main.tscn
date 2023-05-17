@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://scenes/OpenFolder.gd" type="Script" id=1]
 [ext_resource path="res://scenes/Add.gd" type="Script" id=2]
@@ -22,6 +22,22 @@ corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id=3056]
+content_margin_left = 20.0
+content_margin_right = 20.0
+content_margin_top = 30.0
+content_margin_bottom = 20.0
+bg_color = Color( 0.92, 0.92, 0.92, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.84, 0.84, 0.84, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxEmpty" id=3054]
 
@@ -319,6 +335,7 @@ custom_constants/vseparation = 10
 custom_constants/line_separation = 10
 custom_constants/icon_margin = 10
 custom_constants/hseparation = 10
+custom_styles/bg = SubResource( 3056 )
 items = [ "Item 0", ExtResource( 5 ), false ]
 allow_rmb_select = true
 fixed_icon_size = Vector2( 64, 64 )
