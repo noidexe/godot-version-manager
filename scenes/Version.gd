@@ -56,9 +56,83 @@ func _on_request_completed(_result, response_code : int, _headers, body : PoolBy
 
 
 func _on_update_pressed():
-	var error = OS.shell_open(download_url)
-	if error != OK:
-		printerr("Error opening browser. Error Code: %s" % error )
+	# Autoupdate currently not supported on OSX
+	if OS.has_feature("OSX"):
+		var error = OS.shell_open(download_url)
+		if error != OK:
+			printerr("Error opening browser. Error Code: %s" % error )
+		return
+	
+	var dir_path = "user://updates"
+	var file_path = dir_path + download_url.get_file()
+	
+	# Make sure dir exist
+	var dir = Directory.new()
+	dir.make_dir(dir_path)
+	
+	# Downlad file
+	var req = HTTPRequest.new()
+	add_child(req)
+	req.download_file = file_path
+	req.request(download_url, ["User-Agent: %s" % Globals.user_agent], false)
+	
+	var divisor : float = 1024 * 1024
+	
+	while req.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:	
+		$update.text = "%d%% [%.2f/%.2fMB]" % [100.0 * req.get_downloaded_bytes() / req.get_body_size(), req.get_downloaded_bytes() / divisor, req.get_body_size() / divisor]
+		yield(get_tree().create_timer(1.0),"timeout")
+	
+	$update.text = "Extracting.."
+	yield(get_tree(),"idle_frame")
+	
+	var output = []
+	var exit_code : int
+	
+	# TODO: Improve, remove repetition
+	if OS.has_feature("Windows"):
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(file_path), ProjectSettings.globalize_path(dir_path) ] ], true, output) 
+		print(output.pop_front())
+		print("Powershell.exe executed with exit code: %s" % exit_code)
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(file_path) ], true, output) 
+		print(output.pop_front())
+		print("Powershell.exe executed with exit code: %s" % exit_code)
+		# Only for release builds. Avoid renaming the Godot Editor executable
+		if OS.has_feature("release"):
+			var current_version_path = OS.get_executable_path()
+			var current_version_name = current_version_path.get_file()
+			print("Opening %s.. " % current_version_path.get_base_dir() )
+			print( dir.open(current_version_path.get_base_dir()) )
+			print("Renaming %s into %s.." % [current_version_name, current_version_name + ".old"])
+			print( dir.rename(current_version_name, current_version_name + ".old") )
+			print("Copying new version from %s to %s" % [dir_path + "/gvm.exe", current_version_path])
+			print( dir.copy(dir_path + "/gvm.exe", current_version_path) )
+			print("Opening new version with pid: %s" % OS.execute(current_version_path, [], false))
+			get_tree().quit()
+			
+	elif OS.has_feature("X11"):
+		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(file_path), "-d", "%s" % ProjectSettings.globalize_path(dir_path)], true, output)
+		print(output.pop_front())
+		print("unzip executed with exit code: %s" % exit_code)
+		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(file_path)], true, output)
+		print(output.pop_front())
+		print("rm executed with exit code: %s" % exit_code)
+		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(dir_path + "/gvm.x86_64") ], true, output )
+		print(output.pop_front())
+		print("chmod executed with exit code: %s" % exit_code)
+		if OS.has_feature("release"):
+			var current_version_path = OS.get_executable_path()
+			var current_version_name = current_version_path.get_file()
+			print("Opening %s.. " % current_version_path.get_base_dir() )
+			dir.open(current_version_path.get_base_dir())
+			print("Renaming %s into %s.." % [current_version_name, current_version_name + ".old"])
+			dir.rename(current_version_name, current_version_name + ".old")
+			print("Copying new version from %s to %s" % [dir_path + "/gvm.x86_64", current_version_path])
+			dir.copy(dir_path + "/gvm.x86_64", current_version_path)
+			print("Opening new version with pid: %s" % OS.execute(current_version_path, [], false))
+			get_tree().quit()
+	
+	$update.text = "Restart to update"
+	$update.disabled = true
 
 
 func _on_LogoContainer_gui_input(event):
