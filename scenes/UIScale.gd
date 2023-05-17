@@ -9,12 +9,16 @@ onready var base_window_size := Vector2(
 	ProjectSettings.get_setting("display/window/size/height"))
 
 func _ready():
+	# wait a couple of frames to avoid showing a black background during resize
+	# AFAIK it's not possible to know when the splash is gone
+	for i in 2:
+		yield(get_tree(), "idle_frame")
 	var shrink = target_device_dpi / host_device_dpi
 	var config = Globals.read_config()
 	if "ui" in config:
 		shrink = config.ui.get("scale", shrink )
 	$SpinBox.value = shrink
-	
+
 
 func _rescale_ui(scale: float):
 	get_tree().set_screen_stretch(stretch_mode, stretch_aspect, Vector2.ZERO, scale)
