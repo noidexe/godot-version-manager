@@ -2,6 +2,7 @@ extends Node
 
 const CONFIG_FILE_PATH: String = "user://config.json"
 const DOWNLOAD_DB_FILE_PATH: String = "user://download_db.json"
+const APP_ICONS_PATH: String = "user://app_icons"
 
 const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
 
