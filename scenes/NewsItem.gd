@@ -53,7 +53,8 @@ func _load_image(_url : String, target : TextureRect):
 			printerr("Could not find or download image")
 			return
 	var img = Image.new()
-	img.load(local_path)
+	var img_err = img.load(local_path)
 	var tex = ImageTexture.new()
-	tex.create_from_image(img)
+	if img_err == OK:
+		tex.create_from_image(img)
 	target.texture = tex
