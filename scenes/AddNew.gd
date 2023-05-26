@@ -19,6 +19,8 @@ var is_mac = OS.has_feature("OSX")
 func _ready():
 	(get_node(modal_blur) as ColorRect).hide()
 	_validate()
+	var err = get_tree().connect("files_dropped", self, "_on_files_dropped")
+	assert(err == OK)
 
 # Selection of binary to add
 func _on_Select_pressed():
@@ -100,3 +102,26 @@ func _on_AddNew_popup_hide():
 func _on_Close_pressed():
 	hide()
 	pass # Replace with function body.
+
+
+func _on_files_dropped(files : PoolStringArray, _screen ):
+	if files.empty():
+		return
+	var path : String = files[0]
+	if not path.get_extension():
+		var dir = Directory.new()
+		var project_path = path.plus_file("project.godot")
+		if dir.file_exists(project_path):
+			path = project_path
+		else:
+			return
+	
+	popup_centered()
+	if path.get_file() == "project.godot":
+		line_edit_arguments.text = '--path %s' % path.get_base_dir()
+		line_edit_name.text = path.get_base_dir().get_file()
+	else:
+		line_edit_path.text = path
+		line_edit_name.text = path.get_file().trim_suffix("." + path.get_extension())
+	_validate()
+	pass
