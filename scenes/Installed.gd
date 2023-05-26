@@ -174,7 +174,7 @@ func _on_CloseOnLaunch_toggled(button_pressed):
 	pass # Replace with function body.
 
 
-func can_drop_data(position, data):
+func can_drop_data(position, _data):
 	return get_item_at_position(position) != -1
 	
 func get_drag_data(position):
@@ -188,7 +188,7 @@ func drop_data(position, data):
 	_move(old_pos, new_pos - old_pos)
 
 func _create_preview( item_id : int ) -> HBoxContainer:
-	assert(item_id >0 and item_id < get_item_count())
+	assert(item_id >= 0 and item_id < get_item_count())
 	var ret = PanelContainer.new()
 	var hbox = HBoxContainer.new()
 	var label = Label.new()
