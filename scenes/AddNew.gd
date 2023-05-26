@@ -1,11 +1,14 @@
 extends Popup
 
 export var select_dialog : NodePath
+export var modal_blur : NodePath
 
-onready var line_edit_path = $Margin/VBox/path/LineEdit
-onready var line_edit_name = $Margin/VBox/name/LineEdit
-onready var line_edit_arguments = $Margin/VBox/arguments/LineEdit
-onready var add_button = $Margin/VBox/Add
+
+onready var line_edit_path : LineEdit = $Margin/VBox/path/LineEdit
+onready var line_edit_name : LineEdit = $Margin/VBox/name/LineEdit
+onready var line_edit_arguments : LineEdit = $Margin/VBox/arguments/LineEdit
+onready var add_button : Button = $Margin/VBox/Add
+
 
 signal version_added()
 
@@ -14,6 +17,7 @@ var edited_entry : int = -1  # -1 adding new
 var is_mac = OS.has_feature("OSX")
 
 func _ready():
+	(get_node(modal_blur) as ColorRect).hide()
 	_validate()
 
 # Selection of binary to add
@@ -67,6 +71,7 @@ func _on_Add_pressed():
 
 # Initialization
 func _on_AddNew_about_to_show():
+	(get_node(modal_blur) as ColorRect).show()
 	if edited_entry == -1:
 		line_edit_name.text = ""
 		line_edit_arguments.text = ""
@@ -87,6 +92,7 @@ func edit(config_idx):
 
 
 func _on_AddNew_popup_hide():
+	(get_node(modal_blur) as ColorRect).hide()
 	# Reset edited entry to default vaule
 	edited_entry = -1
 

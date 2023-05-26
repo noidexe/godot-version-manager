@@ -405,6 +405,13 @@ text = "updating..."
 
 [node name="req" type="HTTPRequest" parent="MarginContainer/HBox/Scroll"]
 
+[node name="ModalBlur" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0.126, 0.149433, 0.2, 0.784314 )
+
 [node name="AddNew" type="Popup" parent="."]
 unique_name_in_owner = true
 visible = true
@@ -416,8 +423,10 @@ margin_left = -151.0
 margin_top = -120.0
 margin_right = 424.0
 margin_bottom = 151.0
+popup_exclusive = true
 script = ExtResource( 6 )
 select_dialog = NodePath("../SelectPath")
+modal_blur = NodePath("../ModalBlur")
 
 [node name="Panel" type="Panel" parent="AddNew"]
 anchor_right = 1.0
@@ -546,6 +555,7 @@ margin_top = 75.0
 margin_right = -128.0
 margin_bottom = -75.0
 rect_min_size = Vector2( 150, 52.5 )
+popup_exclusive = true
 window_title = "Open a File"
 mode = 0
 access = 2
