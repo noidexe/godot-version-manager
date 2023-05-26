@@ -103,8 +103,14 @@ onready var beta_button = get_node(beta_button_path)
 onready var rc_button = get_node(rc_button_path)
 onready var dev_button = get_node(dev_button_path)
 
+signal refresh_started()
 # Emitted when the download_db has been updated
 signal refresh_finished()
+var is_refreshing := false
+
+signal download_started()
+signal download_finished()
+var is_downloading := false
 
 # Emitted when a version is added to the list of installed versions
 signal version_added() 
@@ -167,6 +173,8 @@ func _version_sort(a : String, b: String):
 # Scrapes downloads website and regenerates
 # downloads_db
 func _refresh( is_full : bool = false ):
+	emit_signal("refresh_started")
+	is_refreshing = true
 	if is_full:
 		Globals.delete_download_db()
 	_reload() # in case download_db.json was modified on disk
@@ -212,6 +220,7 @@ func _refresh( is_full : bool = false ):
 	# Store download_db as json
 	Globals.write_download_db(new_db)
 	
+	is_refreshing = false
 	emit_signal("refresh_finished", new_db)
 
 func _is_version_directory( href: String) -> bool:
@@ -351,7 +360,9 @@ func _on_Refresh_pressed():
 func _on_Download_pressed():
 	if selected == -1:
 		return false
-		
+	
+	is_downloading = true
+	emit_signal("download_started")
 	# Make sure the directory exists
 	var dir = Directory.new()
 	dir.make_dir("user://versions/")
@@ -413,7 +424,9 @@ func _on_Download_pressed():
 	
 	download_button.disabled = false
 	download_button.text = "Download"
-
+	
+	is_downloading = false
+	emit_signal("download_finished")
 
 # Adds a downloaded version of Godot to the list of 
 # installed versions

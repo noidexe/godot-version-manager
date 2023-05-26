@@ -20,6 +20,7 @@ func _ready():
 	$tag.text = "Version Tag: " + Globals.version_tag
 	
 	$req.request(api_endpoint, ["Accept: application/vnd.github.v3+json", "User-Agent: %s" % Globals.user_agent])
+	
 
 
 func _on_request_completed(_result, response_code : int, _headers, body : PoolByteArray):
@@ -42,6 +43,7 @@ func _on_request_completed(_result, response_code : int, _headers, body : PoolBy
 	if last_version_tag == Globals.version_tag:
 		$tag.text = "Version Tag: " + Globals.version_tag + " (up to date)"
 	else:
+		$update.text = "Update to " + last_version_tag
 		$update.hint_tooltip = last_tag.get("name", "") # Show title of new release as tooltip
 		
 		var assets = last_tag.get("assets", [])
@@ -62,6 +64,18 @@ func _on_update_pressed():
 		if error != OK:
 			printerr("Error opening browser. Error Code: %s" % error )
 		return
+	
+	$update.disabled = true
+	
+	# Wait till there are no version refresh or downloads pending..
+	var version_select = $"%VersionSelect"
+	while version_select.is_refreshing or version_select.is_downloading:
+		if version_select.is_refreshing:
+			$update.text = "Waiting for refresh.."
+			yield(version_select,"refresh_finished")
+		else:
+			$update.text = "Waiting for download.."
+			yield(version_select,"download_finished")
 	
 	var dir_path = "user://updates"
 	var file_path = dir_path + download_url.get_file()
