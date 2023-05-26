@@ -196,3 +196,10 @@ func _create_preview( item_id : int ) -> HBoxContainer:
 	icon.expand = true
 	ret.add_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
 	return ret
+
+func _gui_input(event):
+	if event is InputEventKey:
+		var e = event as InputEventKey
+		if e.pressed and e.physical_scancode == KEY_DELETE:
+			for id in get_selected_items():
+				_delete(id)
