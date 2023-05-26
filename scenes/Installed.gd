@@ -166,3 +166,33 @@ func _on_Installed_item_rmb_selected(_index, at_position):
 func _on_CloseOnLaunch_toggled(button_pressed):
 	Globals.update_ui_flag("close_on_launch", button_pressed)
 	pass # Replace with function body.
+
+
+func can_drop_data(position, data):
+	return get_item_at_position(position) != -1
+	
+func get_drag_data(position):
+	var item_id := get_item_at_position(position)
+	set_drag_preview(_create_preview(item_id))
+	return item_id
+	
+func drop_data(position, data):
+	var old_pos : int = data
+	var new_pos : int = get_item_at_position(position)
+	_move(old_pos, new_pos - old_pos)
+
+func _create_preview( item_id : int ) -> HBoxContainer:
+	assert(item_id >0 and item_id < get_item_count())
+	var ret = PanelContainer.new()
+	var hbox = HBoxContainer.new()
+	var label = Label.new()
+	var icon = TextureRect.new()
+	hbox.add_child(icon)
+	hbox.add_child(label)
+	ret.add_child(hbox)
+	label.text = get_item_text(item_id)
+	icon.texture = get_item_icon(item_id)
+	icon.rect_min_size = Vector2(64,64)
+	icon.expand = true
+	ret.add_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
+	return ret
