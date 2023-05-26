@@ -74,8 +74,13 @@ func _get_correct_icon(v_name : String, v_args : String):
 			if dir.file_exists(candidate):
 				icon_path = candidate
 				break
+		# If found try loading the icon
 		if icon_path:
-			return _load_icon_from_file(icon_path)
+			return _load_icon_from_file(icon_path, preload("res://icons/external_tool.png"))
+		# Otherwise return a generic app icon
+		else:
+			return preload("res://icons/external_tool.png")
+	# If nothing worked return the app icon
 	return preload("res://icon.png")
 
 
@@ -211,7 +216,7 @@ func _gui_input(event):
 				_delete(id)
 
 
-func _load_icon_from_file(path: String) -> Texture: 
+func _load_icon_from_file(path: String, default : Texture = preload("res://icon.png")) -> Texture: 
 	var file = File.new()
 	if file.open(path,File.READ) != OK:
 		return preload("res://icon.png")
@@ -230,7 +235,7 @@ func _load_icon_from_file(path: String) -> Texture:
 			err = icon_image.load_jpg_from_buffer(buffer)
 
 	if err:
-		return preload("res://icon.png")
+		return default
 
 	var icon_texture = ImageTexture.new()
 	icon_texture.create_from_image(icon_image)

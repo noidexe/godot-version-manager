@@ -43,3 +43,10 @@ A: The rss doesn't have links to thumbnails or excerpts, only the full text. Als
 - [ ] Inform about available updates for installed versions
 - [x] Inform about available updates for Godot Version Manager
 - [x] Show news snippets from godotengine.com/news?
+
+## LICENSE
+MIT Licensed (see LICENSE.md)
+Copyright ©️2022 Lisandro Lorea
+
+Lilita One Font ©️2011 Juan Montoreano
+<a href="https://www.flaticon.com/free-icons/exe" title="exe icons">Exe icons created by Freepik - Flaticon</a>
