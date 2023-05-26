@@ -4,7 +4,8 @@ extends ItemList
 # official icons when https://github.com/godotengine/godot-proposals/issues/541
 # is approved
 var icons = {
-	"tool" : preload("res://icons/master.res"),
+	"tools" : preload("res://icons/master.res"),
+	"dev" : preload("res://icons/master.res"),
 	"alpha" : preload("res://icons/alpha.res"),
 	"beta" : preload("res://icons/beta.res"),
 	"rc" : preload("res://icons/rc.res"),
@@ -50,6 +51,7 @@ func _get_name(version):
 	return ret
 
 func _get_correct_icon(v_name : String, v_args : String):
+	# Handle Godot projects
 	if "--path" in v_args:
 		var args = _args_string_to_array(v_args)
 		var path : String = args[ args.find("--path") + 1 ]
@@ -57,23 +59,23 @@ func _get_correct_icon(v_name : String, v_args : String):
 			path = path.lstrip("\\\"").rstrip("\\\"") + "\\icon.png"
 		else:
 			path = path.lstrip("\"").rstrip("/\"") + "/icon.png"
-		var file = File.new()
-		if file.open(path,File.READ) != OK:
-			return preload("res://icon.png")
-
-		var buffer = file.get_buffer(file.get_len())
-		file.close()
-		
-		var icon_image = Image.new()
-		if icon_image.load_png_from_buffer(buffer) != OK:
-			return preload("res://icon.png")
-
-		var icon_texture = ImageTexture.new()
-		icon_texture.create_from_image(icon_image)
-		return icon_texture
-	for test in ["tool", "alpha", "beta", "rc", "stable"]:
-		if test in v_name:
-			return icons[test]
+		return _load_icon_from_file(path)
+	# Handle Godot versions
+	if "godot" in v_name.to_lower():
+		for test in ["tools", "dev", "alpha", "beta", "rc", "stable"]:
+			if test in v_name:
+				return icons[test]
+	# Handle custom app with icon in app_icons folder
+	var dir = Directory.new()
+	if dir.dir_exists(Globals.APP_ICONS_PATH):
+		var icon_path := ""
+		for ext in ["png", "webp", "jpg"]:
+			var candidate = Globals.APP_ICONS_PATH.plus_file("%s.%s" % [v_name, ext])
+			if dir.file_exists(candidate):
+				icon_path = candidate
+				break
+		if icon_path:
+			return _load_icon_from_file(icon_path)
 	return preload("res://icon.png")
 
 
@@ -81,8 +83,12 @@ func _on_Installed_item_activated(index):
 	var pid :int
 	var path : String =  config.versions[index].path
 	var is_game_project = "--path" in config.versions[index].arguments
+	var is_godot = "godot" in path.to_lower()
 	var args : PoolStringArray = _args_string_to_array(config.versions[index].arguments)
-	args.append("-e" if is_game_project else "-p")
+	if is_game_project:
+		args.append("-e")
+	elif is_godot:
+		args.append("-p")
 	if OS.has_feature("OSX"):
 		var osx_args := PoolStringArray([ProjectSettings.globalize_path(path), "--args"])
 		osx_args.append_array(args)
@@ -203,3 +209,29 @@ func _gui_input(event):
 		if e.pressed and e.physical_scancode == KEY_DELETE:
 			for id in get_selected_items():
 				_delete(id)
+
+
+func _load_icon_from_file(path: String) -> Texture: 
+	var file = File.new()
+	if file.open(path,File.READ) != OK:
+		return preload("res://icon.png")
+
+	var buffer = file.get_buffer(file.get_len())
+	file.close()
+	
+	var icon_image = Image.new()
+	var err = ERR_BUG
+	match path.get_extension():
+		"png":
+			err = icon_image.load_png_from_buffer(buffer)
+		"webp":
+			err = icon_image.load_webp_from_buffer(buffer)
+		"jpg":
+			err = icon_image.load_jpg_from_buffer(buffer)
+
+	if err:
+		return preload("res://icon.png")
+
+	var icon_texture = ImageTexture.new()
+	icon_texture.create_from_image(icon_image)
+	return icon_texture
