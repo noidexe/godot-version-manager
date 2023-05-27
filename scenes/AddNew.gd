@@ -107,9 +107,10 @@ func _on_Close_pressed():
 func _on_files_dropped(files : PoolStringArray, _screen ):
 	if files.empty():
 		return
+	var dir = Directory.new()
 	var path : String = files[0]
-	if not path.get_extension():
-		var dir = Directory.new()
+	
+	if dir.dir_exists(path):
 		var project_path = path.plus_file("project.godot")
 		if dir.file_exists(project_path):
 			path = project_path
