@@ -142,6 +142,8 @@ func _on_update_pressed():
 			dir.rename(current_version_name, current_version_name + ".old")
 			print("Copying new version from %s to %s" % [dir_path + "/gvm.x86_64", current_version_path])
 			dir.copy(dir_path + "/gvm.x86_64", current_version_path)
+			exit_code = OS.execute("chmod", ["+x", "%s" % current_version_path], true, output )
+			print("chmod executed with exit code: %s" % exit_code)
 			print("Opening new version with pid: %s" % OS.execute(current_version_path, [], false))
 			get_tree().quit()
 	
