@@ -67,21 +67,19 @@ func _get_correct_icon(v_name : String, v_args : String):
 				return icons[test]
 	# Handle custom app with icon in app_icons folder
 	var dir = Directory.new()
-	if dir.dir_exists(Globals.APP_ICONS_PATH):
-		var icon_path := ""
-		for ext in ["png", "webp", "jpg"]:
-			var candidate = Globals.APP_ICONS_PATH.plus_file("%s.%s" % [v_name, ext])
-			if dir.file_exists(candidate):
-				icon_path = candidate
-				break
-		# If found try loading the icon
-		if icon_path:
-			return _load_icon_from_file(icon_path, preload("res://icons/external_tool.png"))
-		# Otherwise return a generic app icon
-		else:
-			return preload("res://icons/external_tool.png")
-	# If nothing worked return the app icon
-	return preload("res://icon.png")
+	if not dir.dir_exists(Globals.APP_ICONS_PATH):
+		dir.make_dir(Globals.APP_ICONS_PATH)
+	var icon_path := ""
+	for ext in ["png", "webp", "jpg"]:
+		var candidate = Globals.APP_ICONS_PATH.plus_file("%s.%s" % [v_name, ext])
+		if dir.file_exists(candidate):
+			icon_path = candidate
+			break
+	# If found try loading the icon
+	if icon_path:
+		return _load_icon_from_file(icon_path, preload("res://icons/external_tool.png"))
+	# If nothing worked return a generic app icon
+	return preload("res://icons/external_tool.png")
 
 
 func _on_Installed_item_activated(index):
