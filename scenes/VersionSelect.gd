@@ -10,7 +10,7 @@ extends OptionButton
 # depending on the detected platform
 const platforms = {
 	"X11": {
-		"suffixes": ["_x11.64.zip", "_linux.64.zip", "_linux.x86_64.zip"],
+		"suffixes": ["_x11.64.zip", "_linux.64.zip", "_linux.x86_64.zip", "_x11_64.zip"],
 		"extraction-command" : [
 			"unzip",
 			[
@@ -21,7 +21,7 @@ const platforms = {
 		]
 	},
 	"OSX": {
-		"suffixes": ["_osx.universal.zip", "_macos.universal.zip"],
+		"suffixes": ["_osx.universal.zip", "_macos.universal.zip", "_osx64.zip", "_osx.64.zip"],
 		"extraction-command" : [
 			"unzip",
 			[
@@ -32,7 +32,7 @@ const platforms = {
 		]
 	},
 	"Windows": {
-		"suffixes": ["_win64.exe.zip"],
+		"suffixes": ["_win64.exe.zip", "_win64.zip"],
 		"extraction-command" : [
 			"powershell.exe",
 			[
@@ -86,6 +86,7 @@ var alpha_included = false
 var beta_included = false
 var rc_included = false
 var dev_included = false
+var mono_included = false
 
 export var refresh_button_path : NodePath 
 export var download_button_path : NodePath
@@ -94,6 +95,7 @@ export var alpha_button_path : NodePath
 export var beta_button_path : NodePath
 export var rc_button_path : NodePath
 export var dev_button_path : NodePath
+export var mono_button_path : NodePath
 
 onready var refresh_button = get_node(refresh_button_path)
 onready var download_button = get_node(download_button_path)
@@ -102,6 +104,7 @@ onready var alpha_button = get_node(alpha_button_path)
 onready var beta_button = get_node(beta_button_path)
 onready var rc_button = get_node(rc_button_path)
 onready var dev_button = get_node(dev_button_path)
+onready var mono_button = get_node(mono_button_path)
 
 signal refresh_started()
 # Emitted when the download_db has been updated
@@ -118,7 +121,7 @@ signal version_added()
 
 func _ready():
 	# VALIDATE BUTTON PATHS ( Will use scene unique names when 3.5 reaches stable)
-	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button, dev_button]:
+	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button, dev_button, mono_button]:
 		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
 	
 	
@@ -140,6 +143,7 @@ func _ready():
 		beta_button.pressed = config.ui.get("beta", beta_button.pressed )
 		rc_button.pressed = config.ui.get("rc", rc_button.pressed )
 		dev_button.pressed = config.ui.get("dev", dev_button.pressed )
+		mono_button.pressed = config.ui.get("mono", mono_button.pressed )
 		
 	
 	# RELOAD
@@ -225,6 +229,7 @@ func _refresh( is_full : bool = false ):
 
 func _is_version_directory( href: String) -> bool:
 	return ( 
+		href.begins_with("mono") or
 		href.begins_with("alpha") or
 		href.begins_with("beta") or
 		href.begins_with("rc") or
@@ -232,6 +237,19 @@ func _is_version_directory( href: String) -> bool:
 		href.begins_with("20200815") or # Handle 2.1.7 rc odd naming scheme
 		(href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
 		)
+
+
+func _is_link_mono_version( href: String) -> bool:
+	# "/mono/" should be somewhere in the url
+	if not "/mono/" in href:
+		return false
+	var split = href.split("/")
+	# this should never happen but let's check anyways
+	if split.size() < 2:
+		return false
+	# return whether the containing folder is named mono
+	return split[-2] == "mono"
+
 
 func _is_dir_changed( path : String, mtime) -> bool:
 	return download_db.cache.directories.get(path, "") != mtime
@@ -310,6 +328,10 @@ func _update_list():
 	filtered_db_view = []
 	
 	for entry in download_db.versions:
+		# if mono entry should include "mono" and vice versa
+		if mono_included != ("mono" in entry.name):
+			continue
+
 		if (
 			(stable_included and "stable" in entry.name)
 			or (rc_included and "rc" in entry.name)
@@ -327,17 +349,21 @@ func _unhandled_key_input(event):
 	if refresh_button.disabled:
 		return
 	if event is InputEventKey and event.physical_scancode == KEY_SHIFT:
-		if event.pressed:
-			var warning = preload("res://theme/warning_button.tres")
-			(refresh_button as Button).add_stylebox_override("normal", warning)
-			(refresh_button as Button).add_stylebox_override("focus", warning)
-			(refresh_button as Button).add_stylebox_override("hover", warning)
-			refresh_button.text = "Full Refresh"
-		else:
-			(refresh_button as Button).remove_stylebox_override("normal")
-			(refresh_button as Button).remove_stylebox_override("focus")
-			(refresh_button as Button).remove_stylebox_override("hover")
-			refresh_button.text = "Refresh"
+		_set_full_refresh_mode(event.pressed)
+
+func _set_full_refresh_mode(enabled : bool):
+	if enabled:
+		var warning = preload("res://theme/warning_button.tres")
+		(refresh_button as Button).add_stylebox_override("normal", warning)
+		(refresh_button as Button).add_stylebox_override("focus", warning)
+		(refresh_button as Button).add_stylebox_override("hover", warning)
+		refresh_button.text = "Full Refresh"
+	else:
+		(refresh_button as Button).remove_stylebox_override("normal")
+		(refresh_button as Button).remove_stylebox_override("focus")
+		(refresh_button as Button).remove_stylebox_override("hover")
+		refresh_button.text = "Refresh"
+
 
 func _on_Refresh_pressed():
 	if refresh_button.disabled:
@@ -397,7 +423,10 @@ func _on_Download_pressed():
 		exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename) ], true, output) 
 		print(output.pop_front())
 		print("Powershell.exe executed with exit code: %s" % exit_code)
-		_add_version(_selection.name,filename.rstrip(".zip"))
+		var run_path = filename.trim_suffix(".zip")
+		if "_mono_" in filename:
+			run_path += "/" + _selection.path.get_file().trim_suffix(".zip") + ".exe"
+		_add_version(_selection.name,run_path)
 	elif OS.has_feature("X11"):
 		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
 		print(output.pop_front())
@@ -405,10 +434,13 @@ func _on_Download_pressed():
 		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
 		print(output.pop_front())
 		print("rm executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(filename).rstrip(".zip") ], true, output )
+		var run_path = filename.trim_suffix(".zip")
+		if "_mono_" in filename:
+			run_path += "/" + _selection.name + "_x11.64"
+		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], true, output )
 		print(output.pop_front())
 		print("chmod executed with exit code: %s" % exit_code)
-		_add_version(_selection.name,filename.rstrip(".zip"))
+		_add_version(_selection.name,run_path)
 	elif OS.has_feature("OSX"):
 		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
 		print(output.pop_front())
@@ -417,7 +449,8 @@ func _on_Download_pressed():
 		print(output.pop_front())
 		print("rm executed with exit code: %s" % exit_code)
 		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
-		exit_code = OS.execute("mv", [ProjectSettings.globalize_path("user://versions/Godot.app"), app_full_path], true, output)
+		var original_path = "user://versions/Godot_mono.app" if "_mono_" in filename else "user://versions/Godot.app"
+		exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_path), app_full_path], true, output)
 		print(output.pop_front())
 		print("mv run with exit code: %s" % exit_code)
 		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
@@ -476,11 +509,16 @@ func _on_Dev_toggled(button_pressed):
 	dev_included = button_pressed
 	Globals.update_ui_flag("dev", button_pressed)
 	_update_list()
-	pass # Replace with function body.
 
+
+func _on_Mono_toggled(button_pressed):
+	mono_included = button_pressed
+	Globals.update_ui_flag("mono", button_pressed)
+	_update_list()
 
 
 func _on_VersionSelect_refresh_finished(new_download_db : Dictionary):
+	_set_full_refresh_mode(false)
 	download_db = new_download_db
 	_update_list()
 

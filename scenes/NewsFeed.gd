@@ -160,7 +160,7 @@ func _get_news(buffer) -> Array:
 
 
 func _on_screen_resized():
-	visible = get_viewport_rect().size.x > 1070
+	visible = get_viewport_rect().size.x > 1100
 		
 
 
