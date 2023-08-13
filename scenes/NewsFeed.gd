@@ -12,14 +12,26 @@ const  VOID_HTML_ELEMENTS = ["area", "base", "br", "col", "command", "embed", "h
 onready var feed_vbox = $"Feed"
 onready var loading_text = $"Feed/Loading"
 
+var refreshing = false
+
 func _ready():
 # warning-ignore:return_value_discarded
 	get_tree().connect("screen_resized", self, "_on_screen_resized")
 	_refresh_news()
+	# Check for news every 5 minutes
+	var timer = Timer.new()
+	add_child(timer)
+	timer.wait_time = 5 * 60 # 5 minutes
+	timer.connect("timeout", self, "_refresh_news")
+	timer.start()
+	
 
 
 # Updates display of news
 func _refresh_news():
+	if refreshing:
+		return
+	refreshing = true
 	loading_text.show()
 	_update_news_feed(_get_news_cache())
 	
@@ -46,6 +58,7 @@ func _refresh_news():
 		_update_news_feed(news)
 	
 	loading_text.hide()
+	refreshing = false
 
 
 # Generates text bases on an array of dictionaries containing strings to 
@@ -164,7 +177,7 @@ func _on_screen_resized():
 		
 
 
-# This is line by line a gdscript implementation of XMLParser
+# This is line by line a gdscript implementation of XMLParser::_skip_section
 # the only difference is that void html elements do not increase
 # tagcount
 func _skip_section_handle_void_elements(xml : XMLParser ):
