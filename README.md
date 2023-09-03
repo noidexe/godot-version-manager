@@ -28,7 +28,7 @@ A: They are saved to `user://versions` which varies depending on your platform. 
 
 **Q: How is this different from Hourglass or Godot Manager?**
 
-A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project which also does project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :) [Godot Manager](https://github.com/eumario/godot-manager) seems to be a pretty mature and featureful alternative too.
+A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project which also does project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :) [Godot Manager](https://github.com/eumario/godot-manager) seems to be a pretty mature and featureful alternative too. A new (Aug 2023) alternative is [Godots](https://github.com/MakovWait/godots)
 
 **Q: Why do you scrape godotengine.org/news instead or fetching the RSS feed?**
 
