@@ -320,6 +320,7 @@ text = "Update"
 [node name="req" type="HTTPRequest" parent="MarginContainer/HBox/MenuBar/Version"]
 
 [node name="Installed" type="ItemList" parent="MarginContainer/HBox"]
+unique_name_in_owner = true
 margin_left = 339.0
 margin_right = 699.0
 margin_bottom = 560.0
@@ -474,11 +475,18 @@ margin_bottom = 27.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 4.0
 
+[node name="AddVersionSelect" type="MenuButton" parent="AddNew/Margin/VBox/path"]
+unique_name_in_owner = true
+margin_left = 468.0
+margin_right = 481.0
+margin_bottom = 27.0
+text = "[Select]"
+
 [node name="Select" type="Button" parent="AddNew/Margin/VBox/path"]
 margin_left = 485.0
 margin_right = 535.0
 margin_bottom = 27.0
-text = "Select.."
+text = "Load.."
 
 [node name="name" type="HBoxContainer" parent="AddNew/Margin/VBox"]
 margin_top = 60.0

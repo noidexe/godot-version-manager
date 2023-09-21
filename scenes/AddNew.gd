@@ -9,10 +9,14 @@ onready var line_edit_name : LineEdit = $Margin/VBox/name/LineEdit
 onready var line_edit_arguments : LineEdit = $Margin/VBox/arguments/LineEdit
 onready var add_button : Button = $Margin/VBox/Add
 
+onready var installed : ItemList = get_node("%Installed")
+onready var version_popup = get_node("%AddVersionSelect").get_popup()
+
 
 signal version_added()
 
 var edited_entry : int = -1  # -1 adding new
+var available_versions : Dictionary
 
 var is_mac = OS.has_feature("OSX")
 
@@ -20,6 +24,8 @@ func _ready():
 	(get_node(modal_blur) as ColorRect).hide()
 	_validate()
 	var err = get_tree().connect("files_dropped", self, "_on_files_dropped")
+	assert(err == OK)
+	err = version_popup.connect("index_pressed", self, "_on_version_selected")
 	assert(err == OK)
 
 # Selection of binary to add
@@ -86,6 +92,8 @@ func _on_AddNew_about_to_show():
 		line_edit_arguments.text = entry.arguments
 		line_edit_path.text = entry.path
 		$Margin/VBox/Add.text = "Save"
+	_populate_version_list()
+
 
 func edit(config_idx):
 	print("Editing %s" % config_idx)
@@ -126,3 +134,18 @@ func _on_files_dropped(files : PoolStringArray, _screen ):
 		line_edit_name.text = path.get_file().trim_suffix("." + path.get_extension())
 	_validate()
 	pass
+
+
+func _populate_version_list():
+	var index = 0
+	version_popup.clear()
+	for version in installed.config.versions:
+		if version["arguments"].find("--path") == -1:
+			version_popup.add_item(version["name"])
+			available_versions[index] = version["path"]
+			index += 1
+
+
+func _on_version_selected(index:int):
+	line_edit_path.text = available_versions[index]
+	_validate()
