@@ -160,7 +160,13 @@ func _reload():
 	download_db = Globals.read_download_db()
 	_update_list()
 
-
+const TAGS = {
+	"dev" : "a",
+	"alpha" : "b",
+	"beta" : "c",
+	"rc" : "d",
+	"stable" : "e",
+}
 # Uses natural order sort to sort based on semver
 func _version_sort(a : String, b: String):
 	# Get the name of the file from the url
@@ -170,7 +176,9 @@ func _version_sort(a : String, b: String):
 	var b_split = b.split("/")
 	a = a_split[a_split.size()-1]
 	b = b_split[b_split.size()-1]
-	
+	for tag in TAGS:
+		a = a.replace(tag, TAGS[tag])
+		b = b.replace(tag, TAGS[tag])
 	return a.naturalnocasecmp_to(b) < 0
 
 
