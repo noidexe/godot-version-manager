@@ -47,10 +47,7 @@ const platforms = {
 var current_platform
 
 # base_url used for scraping
-const base_url = "https://downloads.tuxfamily.org/godotengine/"
-
-# Maximum concurrent HTTP requests when refreshing version list
-const MAX_REQUESTS = 6
+const base_url = "https://api.github.com/repos/godotengine/godot-builds/releases?per_page=100&page=%d"
 
 # Number of concurrent http requests running
 var requests = 0
@@ -237,13 +234,9 @@ func _is_link_mono_version( href: String) -> bool:
 	# return whether the containing folder is named mono
 	return split[-2] == "mono"
 
-
-func _is_dir_changed( path : String, mtime) -> bool:
-	return download_db.cache.directories.get(path, "") != mtime
-
 func _scrap_github(db: Dictionary):
 	requests += 1
-	var url = "https://api.github.com/repos/godotengine/godot-builds/releases?per_page=100&page=%d"
+
 	var page = 0;
 	var results = []
 
@@ -251,7 +244,7 @@ func _scrap_github(db: Dictionary):
 		var req = HTTPRequest.new()
 		add_child(req)
 		page += 1
-		req.request(url % page, ["User-Agent: %s" % Globals.user_agent, "Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2022-11-28"] )
+		req.request(base_url % page, ["User-Agent: %s" % Globals.user_agent, "Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2022-11-28"] )
 		
 		var response = yield(req,"request_completed")
 		if response[1] == 200:
