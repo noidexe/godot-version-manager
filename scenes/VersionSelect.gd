@@ -238,14 +238,17 @@ func _is_link_mono_version( href: String) -> bool:
 	return split[-2] == "mono"
 
 
-func _scrap_github_url(page: int, per_page: int):
+func _scrap_github_url(page: int, per_page: int, url: String):
 	var req = HTTPRequest.new()
 	add_child(req)
 
 	var headers = ["User-Agent: %s" % Globals.user_agent, "Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2022-11-28"]
 	if Globals.github_auth_bearer_token != "":
 		headers.append("Authorization: Bearer %s" % Globals.github_auth_bearer_token)
-	req.request(base_url % [per_page, page], headers )
+	if url == "": 
+		req.request(base_url % [per_page, page], headers )
+	else:
+		req.request(url, headers )
 
 	var results = []
 	var response = yield(req,"request_completed")
@@ -266,31 +269,40 @@ func _process_github(results, db: Dictionary):
 				if full_path.ends_with(suffix):
 					db.cache.download_links[full_path] = true
 
-
+func _get_next_github_url(string : String):
+	var next : String
+	var links : PoolStringArray = string.trim_prefix("Link:").split(",")
+	for link in links:
+		var data = link.split(";")
+		if data.size() == 2 and 'rel="next"' in data[1]:
+			next = data[0].lstrip(" <").rstrip(">")
+	return next
+	
 func _scrap_github(db: Dictionary, is_full: bool):
 	requests += 1
 
 	var page = 0;
 	var returns
 	if is_full:
+		var next_url = ""
 		while true:
 			page += 1
 			refresh_button_text = "Collecting Releases Page %s" % page
-			returns = yield(_scrap_github_url(page, 100), "completed")
+			returns = yield(_scrap_github_url(page, 100, next_url), "completed")
 			_process_github(returns[0], db)
 			var nextLinkFound = false
 			for header in returns[1]:
-				if header.begins_with("Link:") && "rel=\"next\"" in header:
-					nextLinkFound = true
+				if header.begins_with("Link:"):
+					next_url = _get_next_github_url(header)
 					break
-			if !nextLinkFound:
+			if next_url == "":
 				break
 	else: 
 		# we cant use the "offical" releases/lastest API endpoint from github here
 		# because it does not include pre-releases and thus we need to
 		# fallback to the releases list with but limit it to 1 release on page 1
 		refresh_button_text = "Checking for new Releases"
-		returns = yield(_scrap_github_url(1, 1), "completed")
+		returns = yield(_scrap_github_url(1, 1, ""), "completed")
 		var path = ""
 		for asset in returns[0][0]["assets"]:
 			var full_path = asset["browser_download_url"]
@@ -302,7 +314,7 @@ func _scrap_github(db: Dictionary, is_full: bool):
 		if !db.cache.download_links.has(path):
 			refresh_button_text = "Collecting Latest Releases"
 			# we only want to fetch 10 releases here from page 1 to reduce network traffic if we found a release that was missing
-			returns = yield(_scrap_github_url(1, 10), "completed")
+			returns = yield(_scrap_github_url(1, 10, ""), "completed")
 			_process_github(returns[0], db)
 	requests -= 1
 
