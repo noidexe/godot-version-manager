@@ -47,10 +47,13 @@ const platforms = {
 var current_platform
 
 # base_url used for scraping
-const base_url = "https://api.github.com/repos/godotengine/godot-builds/releases?per_page=100&page=%d"
+const base_url = "https://api.github.com/repos/godotengine/godot-builds/releases?per_page=%d&page=%d"
 
 # Number of concurrent http requests running
 var requests = 0
+
+#text shown in the refresh button
+var refresh_button_text = "Refreshing"
 
 # download_db contains a list of names and download paths, 
 # and gets serialized to JSON in the user data folder
@@ -180,7 +183,7 @@ func _refresh( is_full : bool = false ):
 		Globals.delete_download_db()
 	_reload() # in case download_db.json was modified on disk
 	var new_db = download_db.duplicate(true)
-	_scrap_github(new_db)
+	_scrap_github(new_db, is_full)
 
 	# Wait for _find_links to finish
 	while requests > 0:
@@ -234,35 +237,73 @@ func _is_link_mono_version( href: String) -> bool:
 	# return whether the containing folder is named mono
 	return split[-2] == "mono"
 
-func _scrap_github(db: Dictionary):
+
+func _scrap_github_url(page: int, per_page: int):
+	var req = HTTPRequest.new()
+	add_child(req)
+
+	var headers = ["User-Agent: %s" % Globals.user_agent, "Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2022-11-28"]
+	if Globals.github_auth_bearer_token != "":
+		headers.append("Authorization: Bearer %s" % Globals.github_auth_bearer_token)
+	req.request(base_url % [per_page, page], headers )
+
+	var results = []
+	var response = yield(req,"request_completed")
+	if response[1] == 200:
+		results = parse_json(response[3].get_string_from_utf8())
+	else:
+		printerr("Error scraping link. Response code: %s" % response[1])
+	req.queue_free()
+	return [results, response[2]]
+
+func _process_github(results, db: Dictionary):
+	for entry in results:
+		# var mtime = entry["created_at"]
+		for asset in entry["assets"]:
+			var full_path = asset["browser_download_url"]
+			var suffixes = platforms[current_platform].suffixes
+			for suffix in suffixes:
+				if full_path.ends_with(suffix):
+					db.cache.download_links[full_path] = true
+
+
+func _scrap_github(db: Dictionary, is_full: bool):
 	requests += 1
 
 	var page = 0;
-	var results = []
-
-	while true:
-		var req = HTTPRequest.new()
-		add_child(req)
-		page += 1
-		req.request(base_url % page, ["User-Agent: %s" % Globals.user_agent, "Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2022-11-28"] )
-		
-		var response = yield(req,"request_completed")
-		if response[1] == 200:
-			results = parse_json(response[3].get_string_from_utf8())
-			
-			for entry in results:
-				var mtime = entry["created_at"]
-				for asset in entry["assets"]:
-					var full_path = asset["browser_download_url"]
-					var suffixes = platforms[current_platform].suffixes
-					for suffix in suffixes:
-						if full_path.ends_with(suffix):
-							db.cache.download_links[full_path] = true
-		else:
-			printerr("Error scraping link. Response code: %s" % response[1])
-		req.queue_free()
-		if (results == []):
-			break;
+	var returns
+	if is_full:
+		while true:
+			page += 1
+			refresh_button_text = "Collecting Releases Page %s" % page
+			returns = yield(_scrap_github_url(page, 100), "completed")
+			_process_github(returns[0], db)
+			var nextLinkFound = false
+			for header in returns[1]:
+				if header.begins_with("Link:") && "rel=\"next\"" in header:
+					nextLinkFound = true
+					break
+			if !nextLinkFound:
+				break
+	else: 
+		# we cant use the "offical" releases/lastest API endpoint from github here
+		# because it does not include pre-releases and thus we need to
+		# fallback to the releases list with but limit it to 1 release on page 1
+		refresh_button_text = "Checking for new Releases"
+		returns = yield(_scrap_github_url(1, 1), "completed")
+		var path = ""
+		for asset in returns[0][0]["assets"]:
+			var full_path = asset["browser_download_url"]
+			var suffixes = platforms[current_platform].suffixes
+			for suffix in suffixes:
+				if full_path.ends_with(suffix):
+					path = full_path
+					break;
+		if !db.cache.download_links.has(path):
+			refresh_button_text = "Collecting Latest Releases"
+			# we only want to fetch 10 releases here from page 1 to reduce network traffic if we found a release that was missing
+			returns = yield(_scrap_github_url(1, 10), "completed")
+			_process_github(returns[0], db)
 	requests -= 1
 
 # Recreates the drop-down menu for download options
@@ -318,9 +359,10 @@ func _on_Refresh_pressed():
 	#disabled = true
 	refresh_button.disabled = true
 	var is_full = Input.is_key_pressed(KEY_SHIFT)
+	
 	_refresh( is_full )
 	while requests > 0: 
-		refresh_button.text = "Scraping %s urls%s" % [ requests, [".", "..", "..."][randi() % 3] ]
+		refresh_button.text = "%s %s" % [ refresh_button_text, [".", "..", "..."][randi() % 3] ]
 		yield(get_tree().create_timer(0.2),"timeout")
 	refresh_button.text = "Refresh"
 	refresh_button.disabled = false
