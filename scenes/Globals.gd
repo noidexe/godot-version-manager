@@ -5,6 +5,7 @@ const DOWNLOAD_DB_FILE_PATH: String = "user://download_db.json"
 const APP_ICONS_PATH: String = "user://app_icons"
 const GITHUB_AUTH_BEARER_TOKEN_PATH: String = "user://github_auth_bearer_token.txt"
 
+const DOWNLOAD_DB_VERSION = 1
 const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
 
 # Update before commiting
@@ -66,8 +67,10 @@ func read_download_db() -> Dictionary:
 	if file.file_exists(DOWNLOAD_DB_FILE_PATH):
 		file.open(DOWNLOAD_DB_FILE_PATH, File.READ)
 		download_db = parse_json(file.get_as_text())
-	if typeof(download_db) != TYPE_DICTIONARY:
-		download_db = {}
+	
+	# TODO: more advanced validation and sanitization
+	if not _is_download_db_valid(download_db):
+		download_db = { "version" : DOWNLOAD_DB_VERSION }
 	if not download_db.has("versions"):
 		download_db["versions"] = []
 	if not download_db.has("last_updated"):
@@ -88,3 +91,21 @@ func delete_download_db():
 	var err = OS.move_to_trash(ProjectSettings.globalize_path(DOWNLOAD_DB_FILE_PATH))
 	if err != OK:
 		print_debug(err)
+
+func _is_download_db_valid(db) -> bool:
+	# Check basic format
+	if typeof(db) != TYPE_DICTIONARY:
+		return false
+	# Check db version
+	if not db.has("version"):
+		return false
+	if db.version != DOWNLOAD_DB_VERSION:
+		return false
+	# Basic extended checks
+	# if there is a versions entry it should be an array
+	if db.has("versions") and typeof(db.versions) != TYPE_ARRAY:
+		return false
+	# if there is a cache entry it should be a dictionary
+	if db.has("cache") and typeof(db.cache) != TYPE_DICTIONARY:
+		return false
+	return true

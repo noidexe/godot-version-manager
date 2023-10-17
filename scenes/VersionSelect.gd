@@ -190,6 +190,11 @@ func _refresh( is_full : bool = false ):
 	if is_full:
 		Globals.delete_download_db()
 	_reload() # in case download_db.json was modified on disk
+	
+	# if last_updated is 0 it's a fresh db and we need a full refresh
+	if download_db.get("last_updated", 0) <= 0:
+		is_full = true
+	
 	var new_db = download_db.duplicate(true)
 	_scrape_github(new_db, is_full)
 
