@@ -191,7 +191,7 @@ func _refresh( is_full : bool = false ):
 		Globals.delete_download_db()
 	_reload() # in case download_db.json was modified on disk
 	var new_db = download_db.duplicate(true)
-	_scrap_github(new_db, is_full)
+	_scrape_github(new_db, is_full)
 
 	# Wait for _find_links to finish
 	while requests > 0:
@@ -246,7 +246,7 @@ func _is_link_mono_version( href: String) -> bool:
 	return split[-2] == "mono"
 
 
-func _scrap_github_url(page: int, per_page: int, url: String):
+func _scrape_github_url(page: int, per_page: int, url: String):
 	var req = HTTPRequest.new()
 	add_child(req)
 
@@ -286,7 +286,7 @@ func _get_next_github_url(string : String):
 			next = data[0].lstrip(" <").rstrip(">")
 	return next
 	
-func _scrap_github(db: Dictionary, is_full: bool):
+func _scrape_github(db: Dictionary, is_full: bool):
 	requests += 1
 
 	var page = 0;
@@ -296,7 +296,7 @@ func _scrap_github(db: Dictionary, is_full: bool):
 		while true:
 			page += 1
 			refresh_button_text = "Collecting Releases Page %s" % page
-			returns = yield(_scrap_github_url(page, 100, next_url), "completed")
+			returns = yield(_scrape_github_url(page, 100, next_url), "completed")
 			_process_github(returns[0], db)
 			var nextLinkFound = false
 			for header in returns[1]:
@@ -310,7 +310,7 @@ func _scrap_github(db: Dictionary, is_full: bool):
 		# because it does not include pre-releases and thus we need to
 		# fallback to the releases list with but limit it to 1 release on page 1
 		refresh_button_text = "Checking for new Releases"
-		returns = yield(_scrap_github_url(1, 1, ""), "completed")
+		returns = yield(_scrape_github_url(1, 1, ""), "completed")
 		var path = ""
 		for asset in returns[0][0]["assets"]:
 			var full_path = asset["browser_download_url"]
@@ -322,7 +322,7 @@ func _scrap_github(db: Dictionary, is_full: bool):
 		if !db.cache.download_links.has(path):
 			refresh_button_text = "Collecting Latest Releases"
 			# we only want to fetch 10 releases here from page 1 to reduce network traffic if we found a release that was missing
-			returns = yield(_scrap_github_url(1, 10, ""), "completed")
+			returns = yield(_scrape_github_url(1, 10, ""), "completed")
 			_process_github(returns[0], db)
 	requests -= 1
 
