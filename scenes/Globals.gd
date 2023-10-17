@@ -3,6 +3,7 @@ extends Node
 const CONFIG_FILE_PATH: String = "user://config.json"
 const DOWNLOAD_DB_FILE_PATH: String = "user://download_db.json"
 const APP_ICONS_PATH: String = "user://app_icons"
+const GITHUB_AUTH_BEARER_TOKEN_PATH: String = "user://github_auth_bearer_token.txt"
 
 const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
 
@@ -13,9 +14,14 @@ const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc":
 # Remember to update version in export settings before exporting
 const version_tag = "v1.14"
 var user_agent : String
+var github_auth_bearer_token: String = ""
 
 func _ready():
 	user_agent = "Godot Version Manager/%s (%s) Godot/%s" % [version_tag.lstrip("v"), OS.get_name(), Engine.get_version_info().string ] 
+	var file = File.new()
+	if file.file_exists(GITHUB_AUTH_BEARER_TOKEN_PATH):
+		file.open(GITHUB_AUTH_BEARER_TOKEN_PATH, File.READ)
+		github_auth_bearer_token = file.get_as_text()
 
 # Read the config from file
 func read_config() -> Dictionary:
@@ -68,7 +74,6 @@ func read_download_db() -> Dictionary:
 		download_db["last_updated"] = 0
 	if not download_db.has("cache"):
 		download_db["cache"] = {}
-		download_db["cache"]["directories"] = {}
 		download_db["cache"]["download_links"] = {}
 	file.close()
 	return download_db
