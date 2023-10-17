@@ -215,6 +215,7 @@ func _refresh( is_full : bool = false ):
 		_versions.append(entry)
 	
 	new_db.versions = _versions
+	new_db["last_updated"] = OS.get_unix_time()
 	
 	# Store download_db as json
 	Globals.write_download_db(new_db)
