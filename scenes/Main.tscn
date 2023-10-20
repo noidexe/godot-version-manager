@@ -594,5 +594,7 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="pressed" from="AddNew/Margin/VBox/path/Select" to="AddNew" method="_on_Select_pressed"]
 [connection signal="text_changed" from="AddNew/Margin/VBox/name/LineEdit" to="AddNew" method="_validate"]
 [connection signal="text_entered" from="AddNew/Margin/VBox/name/LineEdit" to="AddNew" method="_validate"]
+[connection signal="text_changed" from="AddNew/Margin/VBox/arguments/LineEdit" to="AddNew" method="_validate"]
+[connection signal="text_entered" from="AddNew/Margin/VBox/arguments/LineEdit" to="AddNew" method="_validate"]
 [connection signal="pressed" from="AddNew/Margin/VBox/Add" to="AddNew" method="_on_Add_pressed"]
 [connection signal="pressed" from="AddNew/Close" to="AddNew" method="_on_Close_pressed"]
