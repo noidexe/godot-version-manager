@@ -80,6 +80,7 @@ func _on_Add_pressed():
 # Initialization
 func _on_AddNew_about_to_show():
 	(get_node(modal_blur) as ColorRect).show()
+	add_button.disabled = true
 	if edited_entry == -1:
 		line_edit_name.text = ""
 		line_edit_arguments.text = ""
@@ -92,7 +93,7 @@ func _on_AddNew_about_to_show():
 		line_edit_arguments.text = entry.arguments
 		line_edit_path.text = entry.path
 		$Margin/VBox/Add.text = "Save"
-		add_button.disabled = true
+		
 	_populate_version_list()
 
 
