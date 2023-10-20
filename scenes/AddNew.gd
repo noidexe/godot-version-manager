@@ -80,6 +80,7 @@ func _on_Add_pressed():
 # Initialization
 func _on_AddNew_about_to_show():
 	(get_node(modal_blur) as ColorRect).show()
+	add_button.disabled = true
 	if edited_entry == -1:
 		line_edit_name.text = ""
 		line_edit_arguments.text = ""
