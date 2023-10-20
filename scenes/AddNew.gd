@@ -93,7 +93,6 @@ func _on_AddNew_about_to_show():
 		line_edit_arguments.text = entry.arguments
 		line_edit_path.text = entry.path
 		$Margin/VBox/Add.text = "Save"
-		
 	_populate_version_list()
 
 
