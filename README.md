@@ -6,7 +6,7 @@ Download, install and manage any version of Godot Engine from a simple app.
 
 ## Installation
 ### Windows:
-Unzip and double-click. Extraction of downloaded versions requires powershell
+Unzip and double-click. (On Windows XP please make sure Powershell is installed)
 ### Linux:
 Unzip and double-click. Extraction of downloaded versions requires `unzip` which, if not installed, should be available in your distro repository
 ### OSX:
@@ -16,10 +16,13 @@ Unzip and double-click. Extraction of downloaded versions requires `unzip` which
 
 ## Features
 - Automatically download and install any version of Godot from a drop-drown menu. (requires powershell for extraction)
-- Show or hide alpha, beta, rc versions from download drop-down. 
+- Show or hide alpha, beta, rc and dev versions from download drop-down. 
 - Add your own binaries anywhere on your filesystem. 
 - Colorful icons to easily distinguish stable, rc, beta, alpha and master builds. 
-- Right click to remove entry entry from the list
+- Right click to remove any entry from the list
+- Drag and drop to reorder enties
+- Drag and drop a project.godot file or Godot project folder to add a project and launch it with a specific version
+- News feed from godotengine.org./news
 
 ## F.A.Q
 **Q: Where are the downloaded binaries saved to?**
@@ -32,21 +35,11 @@ A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featur
 
 **Q: Why do you scrape godotengine.org/news instead or fetching the RSS feed?**
 
-A: The rss doesn't have links to thumbnails or excerpts, only the full text. Also the rss feed contains every entry in the history of Godot News. It's currently a 17MB download.
-
-## TODO
-- [x] Linux support
-- [x] OSX support
-- [ ] Complete refactor
-- [ ] Better ~~(i.e some at all)~~ error handling
-- [x] Autorefresh, use HEAD for faster scraping, ignore folders without updates.
-- [ ] Inform about available updates for installed versions
-- [x] Inform about available updates for Godot Version Manager
-- [x] Show news snippets from godotengine.com/news?
+A: When the feature was added the only alternative was a full feed with every piece of news, with no ability to only fetch the most recent ones. The godot-website team kindly added a json version of the news that fully fits the needs of this app. This is pending implementation https://github.com/noidexe/godot-version-manager/issues/29
 
 ## LICENSE
 MIT Licensed (see LICENSE.md)
-Copyright ©️2022 Lisandro Lorea
+Copyright ©️2022 Lisandro Lorea and contributors
 
 Lilita One Font ©️2011 Juan Montoreano
 <a href="https://www.flaticon.com/free-icons/exe" title="exe icons">Exe icons created by Freepik - Flaticon</a>
