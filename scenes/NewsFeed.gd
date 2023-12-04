@@ -134,7 +134,7 @@ func _get_news(data, avatars) -> Array:
 
 	for post in data["items"]:
 		var parsed_item = {}
-		parsed_item["image"] = BASE_URL + post["image"]
+		parsed_item["image"] = post["image"]
 		parsed_item["contents"] = post["description"].replace("&#39;", "'") # this is a diry fix for godot not correctly parsing &#39; unicode symbol encoded in text
 		parsed_item["title"] = post["title"]
 		parsed_item["author"] = post["dc:creator"]
