@@ -26,7 +26,6 @@ func _ready():
 	timer.start()
 	
 
-
 # Updates display of news
 func _refresh_news():
 	if refreshing:
@@ -49,10 +48,15 @@ func _refresh_news():
 			break
 	
 	if not up_to_date:
-		$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % Globals.user_agent])
+		
+		$req.request("https://raw.githubusercontent.com/godotengine/godot-website/master/_data/authors.yml", ["User-Agent: %s" % Globals.user_agent])
+		var author_response = yield($req,"request_completed")
+		var author_data = author_response[3]
+		var avatars = _parse_author_avatars(author_data)
+		
+		$req.request(BASE_URL + "/rss.json", ["User-Agent: %s" % Globals.user_agent])
 		var response = yield($req,"request_completed")
-		var news = _get_news(response[3])
-	
+		var news = _get_news(parse_json(response[3].get_string_from_utf8()), avatars)
 		_save_news_cache(news)
 		_save_news_etag(new_etag)
 		_update_news_feed(news)
@@ -124,74 +128,39 @@ func _save_news_etag(etag : String):
 	file.store_var(etag)
 	file.close()
 
-
-
-# Analyzes html for <div class="news-item"> elements
 # which will be further parsed by _parse_news_item()
-func _get_news(buffer) -> Array:
+func _get_news(data, avatars) -> Array:
 	var parsed_news = []
-	
-	var html = HTMLObject.new()
-	html.load_from_buffer(buffer)
-	
-	var posts : HTMLObject.HTMLNodeList = html.of_class("posts").children.all_with_name("a")
-	for post in posts:
-		post = post as HTMLObject.HTMLNode
-		var parsed_item = {}
-		# LINK
-		parsed_item["link"] = BASE_URL + post.attributes.get("href")
-		
-		# IMAGE
-		var divs : HTMLObject.HTMLNodeList = post.children.with_name("article").children.all_with_name("div")
-		var image_style = divs.of_class("thumbnail").attributes.get("style")
-		var url_start = image_style.find("'") + 1
-		var url_end = image_style.find_last("'")
-		var image_url = image_style.substr(url_start,url_end - url_start)
-		parsed_item["image"] = BASE_URL + image_url
-		
-		var content : HTMLObject.HTMLNode = divs.of_class("content")
-		# CONTENTS
-		parsed_item["contents"] = content.children.with_name("p").first_child.value.strip_edges()
-		
-		# TITLE
-		parsed_item["title"] = content.children.with_name("h3").first_child.value.strip_edges()
-		var info : HTMLObject.HTMLNodeList = content.children.of_class("info").children
-		
-		# AVATAR, AUTHOR, DATE
-		for node in info:
-			node = node as HTMLObject.HTMLNode
-			match node.attributes.get("class"):
-				"avatar":
-					parsed_item["avatar"] = BASE_URL + node.attributes.get("src")
-				"by":
-					parsed_item["author"] = node.first_child.value.strip_edges()
-				"date":
-					parsed_item["date"] = node.first_child.value.strip_edges().lstrip("&nbsp;-&nbsp;")
 
+	for post in data["items"]:
+		var parsed_item = {}
+		parsed_item["image"] = BASE_URL + post["image"]
+		parsed_item["contents"] = post["description"].replace("&#39;", "'") # this is a diry fix for godot not correctly parsing &#39; unicode symbol encoded in text
+		parsed_item["title"] = post["title"]
+		parsed_item["author"] = post["dc:creator"]
+		parsed_item["avatar"] = BASE_URL + avatars[post["dc:creator"]]
+		
+		# Godot does not support RFC 2822 Date Parsing only ISO 8601 thus this is a small fix to remove some of the weird text from it
+		var date = post["pubDate"].split(" ")
+		date.remove(date.size() - 1)
+		date.remove(date.size() - 1)
+		parsed_item["date"] = " ".join(date)
+		parsed_item["link"] = post["link"]
 		parsed_news.append(parsed_item)
 	return parsed_news
 
+# parses YAML data from the Author list 
+func _parse_author_avatars(raw_data): 
+	var data = raw_data.get_string_from_utf8().split("\n")
+	var avatars: Dictionary = {}
+	var author = ""
+	for idx in range(0, data.size()):
+		if data[idx].begins_with("- name: "): 
+			author = data[idx].trim_prefix("- name: ")
+		elif data[idx].begins_with("  image: "):
+			avatars[author] = data[idx].trim_prefix("  image: ")
+			author = ""
+	return avatars
 
 func _on_screen_resized():
 	visible = get_viewport_rect().size.x > 1100
-		
-
-
-# This is line by line a gdscript implementation of XMLParser::_skip_section
-# the only difference is that void html elements do not increase
-# tagcount
-func _skip_section_handle_void_elements(xml : XMLParser ):
-	if xml.is_empty():
-		return
-	
-	var tagcount : int = 1
-	
-	while tagcount and xml.read() == OK:
-		if (
-				xml.get_node_type() == XMLParser.NODE_ELEMENT and
-				!xml.is_empty() and
-				!xml.get_node_name() in VOID_HTML_ELEMENTS
-		):
-			tagcount += 1
-		elif xml.get_node_type() == XMLParser.NODE_ELEMENT_END:
-			tagcount -= 1
