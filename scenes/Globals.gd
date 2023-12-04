@@ -43,7 +43,7 @@ func write_config(config: Dictionary):
 	var file = File.new()
 
 	file.open(CONFIG_FILE_PATH,File.WRITE)
-	file.store_line(to_json(config))
+	file.store_string(JSON.print(config, "\t"))
 	file.close()
 
 # Update the ui_flag
