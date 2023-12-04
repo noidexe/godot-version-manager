@@ -157,6 +157,11 @@ func _parse_author_avatars(raw_data):
 	for idx in range(0, data.size()):
 		if data[idx].begins_with("- name: "): 
 			author = data[idx].trim_prefix("- name: ")
+			# yaml strings can be wrapped in single, double or no quotes
+			if author.begins_with('"') and author.ends_with('"'):
+				author = author.trim_prefix('"').trim_suffix('"')
+			elif author.begins_with("'") and author.ends_with("'"):
+				author = author.trim_prefix("'").trim_suffix("'")
 		elif data[idx].begins_with("  image: "):
 			avatars[author] = data[idx].trim_prefix("  image: ")
 			author = ""
