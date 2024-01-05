@@ -153,7 +153,7 @@ func _on_update_pressed():
 
 func _on_LogoContainer_gui_input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == BUTTON_LEFT:
-		var error = OS.shell_open(RELEASES_URL)
+		var error = OS.shell_open("https://github.com/noidexe/godot-version-manager/graphs/contributors")
 		if error != OK:
 			printerr("Error opening browser. Error Code: %s" % error )
 	pass # Replace with function body.

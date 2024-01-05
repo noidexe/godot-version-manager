@@ -290,12 +290,13 @@ expand = true
 stretch_mode = 6
 
 [node name="Copyright" type="Label" parent="MarginContainer/HBox/MenuBar/LogoContainer/Panel/HBox"]
-margin_top = 167.0
+margin_top = 156.0
 margin_right = 259.0
-margin_bottom = 194.0
+margin_bottom = 206.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
-text = "Copyright ©2022 Red Mage Games"
+text = "Copyright ©2022
+Lisandro Lorea and Contributors"
 align = 1
 
 [node name="Version" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
