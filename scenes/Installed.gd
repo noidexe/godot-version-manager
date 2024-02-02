@@ -50,16 +50,50 @@ func _get_name(version):
 			ret += version_number % "custom ver."
 	return ret
 
+func _get_icon_path_from_project(path_to_project : String):
+	# This should be easier loading project.godot as a ConfigFile
+	# Unfortunately some identifiers like Vector4 break parsing
+	# It would probably work if we migrate GVM to Godot 4
+	
+	var ret = ""
+	var file := File.new()
+	var err := file.open(path_to_project, File.READ)
+	if err != OK:
+		printerr("Error loading project.godot at " + path_to_project)
+		return ret
+	
+	var in_section = false # true if we reached [application]
+	while not file.eof_reached():
+		var line: String = file.get_line().strip_edges()
+		if line == "[application]":
+			in_section = true
+			continue
+		# we don't do any further checks if we're not in the correct section
+		# it's a waste of time and we could find the wrong config/icon if defined somewhere else
+		if in_section:
+			if line.begins_with("[") and line.ends_with("]"):
+				# we are entering another section and we left [application]
+				# we don't want to keep searching. There's no icon defined
+				break
+			elif line.begins_with("config/icon="):
+				ret = line.get_slice("=", 1).lstrip('"').rstrip('"').trim_prefix("res://")
+				break
+	file.close()
+	return ret
+
 func _get_correct_icon(v_name : String, v_args : String):
 	# Handle Godot projects
 	if "--path" in v_args:
 		var args = _args_string_to_array(v_args)
-		var path : String = args[ args.find("--path") + 1 ]
+		var project_path : String = args[ args.find("--path") + 1 ]
 		if OS.has_feature("Windows"):
-			path = path.lstrip("\\\"").rstrip("\\\"") + "\\icon.png"
+			# Strip \ and " from left and right
+			project_path = project_path.lstrip("\\\"").rstrip("\\\"") + "\\"
 		else:
-			path = path.lstrip("\"").rstrip("/\"") + "/icon.png"
-		return _load_icon_from_file(path)
+			# Strip " from left, and strip / and " from right
+			project_path = project_path.lstrip("\"").rstrip("/\"") + "/"
+		
+		return _load_icon_from_file(project_path + _get_icon_path_from_project(project_path + "project.godot"))
 	# Handle Godot versions
 	if "godot" in v_name.to_lower():
 		for test in ["tools", "dev", "alpha", "beta", "rc", "stable"]:
@@ -224,6 +258,7 @@ func _load_icon_from_file(path: String, default : Texture = preload("res://icon.
 	
 	var icon_image = Image.new()
 	var err = ERR_BUG
+	# loading svgs at runtime is not supported on Godot 3
 	match path.get_extension():
 		"png":
 			err = icon_image.load_png_from_buffer(buffer)
