@@ -270,6 +270,9 @@ func _scrape_github_url(page: int, per_page: int, url: String):
 		results = parse_json(response[3].get_string_from_utf8())
 	else:
 		printerr("Error scraping link. Response code: %s" % response[1])
+		printerr((response[3] as PoolByteArray).get_string_from_utf8())
+		# Make sure we still return data in the expected format
+		results = [{ "assets" : [] }]
 	req.queue_free()
 	return [results, response[2]]
 
