@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 class_name HTMLObject
 
 const  VOID_HTML_ELEMENTS = ["area", "base", "br", "col", "command", "embed", "hr",
@@ -10,10 +10,10 @@ const CacheDict = {
 }
 
 class HTMLNode:
-	var parent : HTMLNode = null setget _set_parent, _get_parent
+	var parent : HTMLNode = null: get = _get_parent, set = _set_parent
 	var _parent_weakref : WeakRef
 	var children := HTMLNodeList.new()
-	var first_child : HTMLNode = null setget , _get_first_child
+	var first_child : HTMLNode = null: get = _get_first_child
 	var name : String= ""
 	var type : int = -1
 	var value : String= ""
@@ -57,14 +57,14 @@ class HTMLNodeList:
 		return list[i]
 
 	func first() -> HTMLNode:
-		if list.empty():
+		if list.is_empty():
 			push_error("Attempting to return first node in empty HTMLNodeList")
 			return HTMLNullNode.new()
 		else:
 			return list.front()
 
 	func last() -> HTMLNode:
-		if list.empty():
+		if list.is_empty():
 			push_error("Attempting to return last node in empty HTMLNodeList")
 			return HTMLNullNode.new()
 		else:
@@ -138,7 +138,7 @@ var root = null
 var grouped_by : Dictionary
 
 
-func load_from_buffer( buffer : PoolByteArray) -> int: # -> Error
+func load_from_buffer( buffer : PackedByteArray) -> int: # -> Error
 	return load_from_text(buffer.get_string_from_utf8())
 
 func load_from_text( file : String) -> int: # -> Error
@@ -149,7 +149,7 @@ func load_from_text( file : String) -> int: # -> Error
 
 	var err = ERR_BUG
 	var xml = XMLParser.new()
-	err = xml.open_buffer(file.to_utf8())
+	err = xml.open_buffer(file.to_utf8_buffer())
 	if err == OK:
 		err = _parse(xml)
 	return err
@@ -198,7 +198,7 @@ func _parse(xml : XMLParser) -> int: # -> Error
 						grouped_by[attr_name][attr_value].append(node)
 
 				# Add as child of parent
-				if not stack.empty():
+				if not stack.is_empty():
 					node.parent = stack.back()
 					node.parent.children.append(node)
 
@@ -208,7 +208,7 @@ func _parse(xml : XMLParser) -> int: # -> Error
 			XMLParser.NODE_ELEMENT_END:
 				assert(stack.back().name == xml.get_node_name())
 				var node = stack.pop_back()
-				if stack.empty():
+				if stack.is_empty():
 					root = node
 					break
 			XMLParser.NODE_TEXT:
@@ -218,7 +218,7 @@ func _parse(xml : XMLParser) -> int: # -> Error
 				node.value = xml.get_node_data()
 
 				# Add as child of parent
-				if not stack.empty():
+				if not stack.is_empty():
 					node.parent = stack.back()
 					node.parent.children.append(node)
 			_:

@@ -19,31 +19,33 @@ var github_auth_bearer_token: String = ""
 
 func _ready():
 	user_agent = "Godot Version Manager/%s (%s) Godot/%s" % [version_tag.lstrip("v"), OS.get_name(), Engine.get_version_info().string ] 
-	var file = File.new()
-	if file.file_exists(GITHUB_AUTH_BEARER_TOKEN_PATH):
-		file.open(GITHUB_AUTH_BEARER_TOKEN_PATH, File.READ)
+	var file : FileAccess
+	if FileAccess.file_exists(GITHUB_AUTH_BEARER_TOKEN_PATH):
+		file = FileAccess.open(GITHUB_AUTH_BEARER_TOKEN_PATH, FileAccess.READ)
 		github_auth_bearer_token = file.get_as_text()
 
 # Read the config from file
 func read_config() -> Dictionary:
-	var file = File.new()
+	var file : FileAccess
 	
 	# Initialise config file if it doesn't exist
-	if not file.file_exists(CONFIG_FILE_PATH):
+	if not FileAccess.file_exists(CONFIG_FILE_PATH):
 		write_config(DEFAULT_CONFIG)
 
-	file.open(CONFIG_FILE_PATH,File.READ)
-	var config = parse_json(file.get_as_text())
+	file = FileAccess.open(CONFIG_FILE_PATH,FileAccess.READ)
+	var test_json_conv = JSON.new()
+	test_json_conv.parse(file.get_as_text())
+	var config = test_json_conv.get_data()
 	file.close()
 	return config
 
 
 # Write config to file
 func write_config(config: Dictionary):
-	var file = File.new()
+	var file : FileAccess
 
-	file.open(CONFIG_FILE_PATH,File.WRITE)
-	file.store_string(JSON.print(config, "\t"))
+	file = FileAccess.open(CONFIG_FILE_PATH,FileAccess.WRITE)
+	file.store_string(JSON.stringify(config, "\t"))
 	file.close()
 
 # Update the ui_flag
@@ -60,13 +62,15 @@ func update_ui_flag(flag: String, value): #switch: bool):
 
 # Read the download db from file
 func read_download_db() -> Dictionary:
-	var file = File.new()
+	var file : FileAccess
 	var download_db
 	
 	
-	if file.file_exists(DOWNLOAD_DB_FILE_PATH):
-		file.open(DOWNLOAD_DB_FILE_PATH, File.READ)
-		download_db = parse_json(file.get_as_text())
+	if FileAccess.file_exists(DOWNLOAD_DB_FILE_PATH):
+		file = FileAccess.open(DOWNLOAD_DB_FILE_PATH, FileAccess.READ)
+		var test_json_conv = JSON.new()
+		test_json_conv.parse(file.get_as_text())
+		download_db = test_json_conv.get_data()
 	
 	# TODO: more advanced validation and sanitization
 	if not _is_download_db_valid(download_db):
@@ -78,13 +82,12 @@ func read_download_db() -> Dictionary:
 	if not download_db.has("cache"):
 		download_db["cache"] = {}
 		download_db["cache"]["download_links"] = {}
-	file.close()
 	return download_db
 
 func write_download_db(download_db):
-	var file = File.new()
-	file.open(DOWNLOAD_DB_FILE_PATH, File.WRITE)
-	file.store_line(to_json(download_db))
+	var file : FileAccess
+	file = FileAccess.open(DOWNLOAD_DB_FILE_PATH, FileAccess.WRITE)
+	file.store_line(JSON.stringify(download_db))
 	file.close()
 
 func delete_download_db():

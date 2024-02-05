@@ -9,20 +9,20 @@ const BASE_URL = "https://godotengine.org"
 const  VOID_HTML_ELEMENTS = ["area", "base", "br", "col", "command", "embed", "hr",
 		"img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"]
 
-onready var feed_vbox = $"Feed"
-onready var loading_text = $"Feed/Loading"
+@onready var feed_vbox = $"Feed"
+@onready var loading_text = $"Feed/Loading"
 
 var refreshing = false
 
 func _ready():
 # warning-ignore:return_value_discarded
-	get_tree().connect("screen_resized", self, "_on_screen_resized")
+	get_window().size_changed.connect(_on_screen_resized)
 	_refresh_news()
 	# Check for news every 5 minutes
 	var timer = Timer.new()
 	add_child(timer)
 	timer.wait_time = 5 * 60 # 5 minutes
-	timer.connect("timeout", self, "_refresh_news")
+	timer.connect("timeout", Callable(self, "_refresh_news"))
 	timer.start()
 	
 
@@ -37,8 +37,8 @@ func _refresh_news():
 	var up_to_date := false
 	var new_etag := "" 
 	
-	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % Globals.user_agent], true, HTTPClient.METHOD_HEAD)
-	var head_response = yield($req,"request_completed")
+	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % Globals.user_agent], HTTPClient.METHOD_HEAD)
+	var head_response = await $req.request_completed
 	for header in head_response[2]:
 		# No ETag being returned by the server as of 2023/02/15
 		# Using Last-Modified instead
@@ -50,13 +50,14 @@ func _refresh_news():
 	if not up_to_date:
 		
 		$req.request("https://raw.githubusercontent.com/godotengine/godot-website/master/_data/authors.yml", ["User-Agent: %s" % Globals.user_agent])
-		var author_response = yield($req,"request_completed")
+		var author_response = await $req.request_completed
 		var author_data = author_response[3]
 		var avatars = _parse_author_avatars(author_data)
 		
 		$req.request(BASE_URL + "/rss.json", ["User-Agent: %s" % Globals.user_agent])
-		var response = yield($req,"request_completed")
-		var news = _get_news(parse_json(response[3].get_string_from_utf8()), avatars)
+		var response = await $req.request_completed
+		var data = JSON.parse_string(response[3].get_string_from_utf8())
+		var news = _get_news(data, avatars)
 		_save_news_cache(news)
 		_save_news_etag(new_etag)
 		_update_news_feed(news)
@@ -72,18 +73,19 @@ func _update_news_feed(feed : Array):
 	for i in range(2,old_news.size()):
 		old_news[i].queue_free()
 	for item in feed:
-		var news_item = news_item_scene.instance()
+		var news_item = news_item_scene.instantiate()
 		feed_vbox.add_child(news_item)
 		news_item.set_info(item)
 
 
 func _get_news_cache() -> Array:
 	var ret = []
-	var file : File = File.new()
-	if not file.file_exists(NEWS_CACHE_FILE):
+	var file
+	if not FileAccess.file_exists(NEWS_CACHE_FILE):
 		push_warning("News cache not found")
 	else:
-		var err = file.open(NEWS_CACHE_FILE, File.READ)
+		file = FileAccess.open(NEWS_CACHE_FILE, FileAccess.READ)
+		var err = FileAccess.get_open_error()
 		if err != OK:
 			push_error("Error opening file")
 		else:
@@ -97,19 +99,20 @@ func _get_news_cache() -> Array:
 
 
 func _save_news_cache(news : Array):
-	var file = File.new()
-	file.open(NEWS_CACHE_FILE, File.WRITE)
+	var file
+	file = FileAccess.open(NEWS_CACHE_FILE, FileAccess.WRITE)
 	file.store_var(news)
 	file.close()
 
 
 func _get_news_etag() -> String:
 	var ret : String = ""
-	var file : File = File.new()
-	if not file.file_exists(NEWS_ETAG_FILE):
+	var file
+	if not FileAccess.file_exists(NEWS_ETAG_FILE):
 		push_warning("News etag not found")
 	else:
-		var err = file.open(NEWS_ETAG_FILE, File.READ)
+		file = FileAccess.open(NEWS_ETAG_FILE, FileAccess.READ)
+		var err = FileAccess.get_open_error()
 		if err != OK:
 			push_error("Error opening file")
 		else:
@@ -123,8 +126,7 @@ func _get_news_etag() -> String:
 
 
 func _save_news_etag(etag : String):
-	var file = File.new()
-	file.open(NEWS_ETAG_FILE, File.WRITE)
+	var file = FileAccess.open(NEWS_ETAG_FILE, FileAccess.WRITE)
 	file.store_var(etag)
 	file.close()
 
@@ -142,8 +144,8 @@ func _get_news(data, avatars) -> Array:
 		
 		# Godot does not support RFC 2822 Date Parsing only ISO 8601 thus this is a small fix to remove some of the weird text from it
 		var date = post["pubDate"].split(" ")
-		date.remove(date.size() - 1)
-		date.remove(date.size() - 1)
+		date.remove_at(date.size() - 1)
+		date.remove_at(date.size() - 1)
 		parsed_item["date"] = " ".join(date)
 		parsed_item["link"] = post["link"]
 		parsed_news.append(parsed_item)

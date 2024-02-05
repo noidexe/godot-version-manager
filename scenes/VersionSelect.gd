@@ -88,23 +88,23 @@ var rc_included = false
 var dev_included = false
 var mono_included = false
 
-export var refresh_button_path : NodePath 
-export var download_button_path : NodePath
-export var stable_button_path : NodePath
-export var alpha_button_path : NodePath
-export var beta_button_path : NodePath
-export var rc_button_path : NodePath
-export var dev_button_path : NodePath
-export var mono_button_path : NodePath
+@export var refresh_button_path : NodePath 
+@export var download_button_path : NodePath
+@export var stable_button_path : NodePath
+@export var alpha_button_path : NodePath
+@export var beta_button_path : NodePath
+@export var rc_button_path : NodePath
+@export var dev_button_path : NodePath
+@export var mono_button_path : NodePath
 
-onready var refresh_button = get_node(refresh_button_path)
-onready var download_button = get_node(download_button_path)
-onready var stable_button = get_node(stable_button_path)
-onready var alpha_button = get_node(alpha_button_path)
-onready var beta_button = get_node(beta_button_path)
-onready var rc_button = get_node(rc_button_path)
-onready var dev_button = get_node(dev_button_path)
-onready var mono_button = get_node(mono_button_path)
+@onready var refresh_button = get_node(refresh_button_path)
+@onready var download_button = get_node(download_button_path)
+@onready var stable_button = get_node(stable_button_path)
+@onready var alpha_button = get_node(alpha_button_path)
+@onready var beta_button = get_node(beta_button_path)
+@onready var rc_button = get_node(rc_button_path)
+@onready var dev_button = get_node(dev_button_path)
+@onready var mono_button = get_node(mono_button_path)
 
 signal refresh_started()
 # Emitted when the download_db has been updated
@@ -127,29 +127,29 @@ func _ready():
 	
 	
 	# DETECT PLATFORM
-	if OS.has_feature("Windows"):
+	if OS.has_feature("windows"):
 		current_platform = "Windows"
-	elif OS.has_feature("OSX"):
+	elif OS.has_feature("macos"):
 		current_platform = "OSX"
-	elif OS.has_feature("X11"):
+	elif OS.has_feature("linux"):
 		current_platform = "X11"
-		
+	assert(current_platform in platforms)
 	
 	# RESTORE UI FLAGS
 	var config = Globals.read_config()
 	if "ui" in config:
-		stable_button.pressed = config.ui.get("stable", stable_button.pressed )
-		alpha_button.pressed = config.ui.get("alpha", alpha_button.pressed )
-		beta_button.pressed = config.ui.get("beta", beta_button.pressed )
-		rc_button.pressed = config.ui.get("rc", rc_button.pressed )
-		dev_button.pressed = config.ui.get("dev", dev_button.pressed )
-		mono_button.pressed = config.ui.get("mono", mono_button.pressed )
+		stable_button.button_pressed = config.ui.get("stable", stable_button.button_pressed )
+		alpha_button.button_pressed = config.ui.get("alpha", alpha_button.button_pressed )
+		beta_button.button_pressed = config.ui.get("beta", beta_button.button_pressed )
+		rc_button.button_pressed = config.ui.get("rc", rc_button.button_pressed )
+		dev_button.button_pressed = config.ui.get("dev", dev_button.button_pressed )
+		mono_button.button_pressed = config.ui.get("mono", mono_button.button_pressed )
 		
 	
 	# RELOAD
 	_reload()
 
-	yield(get_tree(),"idle_frame")
+	await get_tree().process_frame
 	_on_autoupdate_timeout()
 
 
@@ -200,14 +200,14 @@ func _refresh( is_full : bool = false ):
 
 	# Wait for _find_links to finish
 	while requests > 0:
-		yield(get_tree().create_timer(1.0),"timeout")
+		await get_tree().create_timer(1.0).timeout
 	
 	# Build download_db
 	var _download_links = new_db.cache.download_links.keys()
 	var _versions = []
-	_download_links.sort_custom(self, "_version_sort")
+	_download_links.sort_custom(Callable(self, "_version_sort"))
 	
-	_download_links.invert()
+	_download_links.reverse()
 	for link in _download_links:
 		var suffixes = platforms[current_platform].suffixes
 		var _entry_name = link.get_file()
@@ -220,7 +220,7 @@ func _refresh( is_full : bool = false ):
 		_versions.append(entry)
 	
 	new_db.versions = _versions
-	new_db["last_updated"] = OS.get_unix_time()
+	new_db["last_updated"] = Time.get_unix_time_from_system()
 	
 	# Store download_db as json
 	Globals.write_download_db(new_db)
@@ -236,7 +236,7 @@ func _is_version_directory( href: String) -> bool:
 		href.begins_with("rc") or
 		href.begins_with("dev") or # New in 4.x
 		href.begins_with("20200815") or # Handle 2.1.7 rc odd naming scheme
-		(href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
+		(href[0].is_valid_int() and href[1] == ".") # x.x.x/ etc..
 		)
 
 
@@ -265,11 +265,16 @@ func _scrape_github_url(page: int, per_page: int, url: String):
 		req.request(url, headers )
 
 	var results = []
-	var response = yield(req,"request_completed")
+	var response = await req.request_completed
 	if response[1] == 200:
-		results = parse_json(response[3].get_string_from_utf8())
+		var test_json_conv = JSON.new()
+		test_json_conv.parse(response[3].get_string_from_utf8())
+		results = test_json_conv.get_data()
 	else:
 		printerr("Error scraping link. Response code: %s" % response[1])
+		printerr((response[3] as PackedByteArray).get_string_from_utf8())
+		# Make sure we still return data in the expected format
+		results = [ { "assets" : [] }]
 	req.queue_free()
 	return [results, response[2]]
 
@@ -285,7 +290,7 @@ func _process_github(results, db: Dictionary):
 
 func _get_next_github_url(string : String):
 	var next : String
-	var links : PoolStringArray = string.trim_prefix("Link:").split(",")
+	var links : PackedStringArray = string.trim_prefix("Link:").split(",")
 	for link in links:
 		var data = link.split(";")
 		if data.size() == 2 and 'rel="next"' in data[1]:
@@ -302,7 +307,7 @@ func _scrape_github(db: Dictionary, is_full: bool):
 		while true:
 			page += 1
 			refresh_button_text = "Collecting Releases Page %s" % page
-			returns = yield(_scrape_github_url(page, 100, next_url), "completed")
+			returns = await _scrape_github_url(page, 100, next_url)
 			_process_github(returns[0], db)
 			var nextLinkFound = false
 			for header in returns[1]:
@@ -316,7 +321,7 @@ func _scrape_github(db: Dictionary, is_full: bool):
 		# because it does not include pre-releases and thus we need to
 		# fallback to the releases list with but limit it to 1 release on page 1
 		refresh_button_text = "Checking for new Releases"
-		returns = yield(_scrape_github_url(1, 1, ""), "completed")
+		returns = await _scrape_github_url(1, 1, "")
 		var path = ""
 		for asset in returns[0][0]["assets"]:
 			var full_path = asset["browser_download_url"]
@@ -328,7 +333,7 @@ func _scrape_github(db: Dictionary, is_full: bool):
 		if !db.cache.download_links.has(path):
 			refresh_button_text = "Collecting Latest Releases"
 			# we only want to fetch 10 releases here from page 1 to reduce network traffic if we found a release that was missing
-			returns = yield(_scrape_github_url(1, 10, ""), "completed")
+			returns = await _scrape_github_url(1, 10, "")
 			_process_github(returns[0], db)
 	requests -= 1
 
@@ -361,20 +366,20 @@ func _update_list():
 func _unhandled_key_input(event):
 	if refresh_button.disabled:
 		return
-	if event is InputEventKey and event.physical_scancode == KEY_SHIFT:
+	if event is InputEventKey and event.physical_keycode == KEY_SHIFT:
 		_set_full_refresh_mode(event.pressed)
 
 func _set_full_refresh_mode(enabled : bool):
 	if enabled:
 		var warning = preload("res://theme/warning_button.tres")
-		(refresh_button as Button).add_stylebox_override("normal", warning)
-		(refresh_button as Button).add_stylebox_override("focus", warning)
-		(refresh_button as Button).add_stylebox_override("hover", warning)
+		(refresh_button as Button).add_theme_stylebox_override("normal", warning)
+		(refresh_button as Button).add_theme_stylebox_override("focus", warning)
+		(refresh_button as Button).add_theme_stylebox_override("hover", warning)
 		refresh_button.text = "Full Refresh"
 	else:
-		(refresh_button as Button).remove_stylebox_override("normal")
-		(refresh_button as Button).remove_stylebox_override("focus")
-		(refresh_button as Button).remove_stylebox_override("hover")
+		(refresh_button as Button).remove_theme_stylebox_override("normal")
+		(refresh_button as Button).remove_theme_stylebox_override("focus")
+		(refresh_button as Button).remove_theme_stylebox_override("hover")
 		refresh_button.text = "Refresh"
 
 
@@ -389,7 +394,7 @@ func _on_Refresh_pressed():
 	_refresh( is_full )
 	while requests > 0: 
 		refresh_button.text = "%s %s" % [ refresh_button_text, [".", "..", "..."][randi() % 3] ]
-		yield(get_tree().create_timer(0.2),"timeout")
+		await get_tree().create_timer(0.2).timeout
 	refresh_button.text = "Refresh"
 	refresh_button.disabled = false
 	$autoupdate.start()
@@ -404,8 +409,7 @@ func _on_Download_pressed():
 	is_downloading = true
 	emit_signal("download_started")
 	# Make sure the directory exists
-	var dir = Directory.new()
-	dir.make_dir("user://versions/")
+	DirAccess.make_dir_absolute("user://versions/")
 	
 	var _selection = filtered_db_view[selected]
 	download_button.disabled = true
@@ -417,54 +421,54 @@ func _on_Download_pressed():
 	var req = HTTPRequest.new()
 	add_child(req)
 	req.download_file = filename
-	req.request(url, ["User-Agent: %s" % Globals.user_agent], false)
+	req.request(url, ["User-Agent: %s" % Globals.user_agent])
 	
 	var divisor : float = 1024 * 1024
 	
 	while req.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:	
 		download_button.text = "Downloading... %d%% [%.2f/%.2fMB]" % [100.0 * req.get_downloaded_bytes() / req.get_body_size(), req.get_downloaded_bytes() / divisor, req.get_body_size() / divisor]
-		yield(get_tree().create_timer(1.0),"timeout")
+		await get_tree().create_timer(1.0).timeout
 	
 	download_button.text = "Extracting.."
-	yield(get_tree(),"idle_frame")
+	await get_tree().process_frame
 	
 	var output = []
 	var exit_code : int
-	if OS.has_feature("Windows"):
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+	if OS.has_feature("windows"):
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], output) 
 		print(output.pop_front())
 		print("Powershell.exe executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename) ], true, output) 
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename) ], output) 
 		print(output.pop_front())
 		print("Powershell.exe executed with exit code: %s" % exit_code)
 		var run_path = filename.trim_suffix(".zip")
 		if "_mono_" in filename:
 			run_path += "/" + _selection.path.get_file().trim_suffix(".zip") + ".exe"
 		_add_version(_selection.name,run_path)
-	elif OS.has_feature("X11"):
-		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+	elif OS.has_feature("linux"):
+		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], output)
 		print(output.pop_front())
 		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
+		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], output)
 		print(output.pop_front())
 		print("rm executed with exit code: %s" % exit_code)
 		var run_path = filename.trim_suffix(".zip")
 		if "_mono_" in filename:
 			run_path += "/" + _selection.name + "_x11.64"
-		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], true, output )
+		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], output )
 		print(output.pop_front())
 		print("chmod executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,run_path)
-	elif OS.has_feature("OSX"):
-		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+	elif OS.has_feature("macos"):
+		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], output)
 		print(output.pop_front())
 		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
+		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], output)
 		print(output.pop_front())
 		print("rm executed with exit code: %s" % exit_code)
 		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
 		var original_path = "user://versions/Godot_mono.app" if "_mono_" in filename else "user://versions/Godot.app"
-		exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_path), app_full_path], true, output)
+		exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_path), app_full_path], output)
 		print(output.pop_front())
 		print("mv run with exit code: %s" % exit_code)
 		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
@@ -495,39 +499,39 @@ func _add_version(v_name : String, path: String):
 	
 	emit_signal("version_added")
 
-func _on_Stable_toggled(button_pressed):
-	stable_included = button_pressed
-	Globals.update_ui_flag("stable", button_pressed)
+func _on_Stable_toggled(is_button_pressed):
+	stable_included = is_button_pressed
+	Globals.update_ui_flag("stable", is_button_pressed)
 	_update_list()
 
 
 
-func _on_Alpha_toggled(button_pressed):
-	alpha_included = button_pressed
-	Globals.update_ui_flag("alpha", button_pressed)
+func _on_Alpha_toggled(is_button_pressed):
+	alpha_included = is_button_pressed
+	Globals.update_ui_flag("alpha", is_button_pressed)
 	_update_list()
 
 
-func _on_Beta_toggled(button_pressed):
-	beta_included = button_pressed
-	Globals.update_ui_flag("beta", button_pressed)
+func _on_Beta_toggled(is_button_pressed):
+	beta_included = is_button_pressed
+	Globals.update_ui_flag("beta", is_button_pressed)
 	_update_list()
 
 
-func _on_RC_toggled(button_pressed):
-	rc_included = button_pressed
-	Globals.update_ui_flag("rc", button_pressed)
+func _on_RC_toggled(is_button_pressed):
+	rc_included = is_button_pressed
+	Globals.update_ui_flag("rc", is_button_pressed)
 	_update_list()
 	
-func _on_Dev_toggled(button_pressed):
-	dev_included = button_pressed
-	Globals.update_ui_flag("dev", button_pressed)
+func _on_Dev_toggled(is_button_pressed):
+	dev_included = is_button_pressed
+	Globals.update_ui_flag("dev", is_button_pressed)
 	_update_list()
 
 
-func _on_Mono_toggled(button_pressed):
-	mono_included = button_pressed
-	Globals.update_ui_flag("mono", button_pressed)
+func _on_Mono_toggled(is_button_pressed):
+	mono_included = is_button_pressed
+	Globals.update_ui_flag("mono", is_button_pressed)
 	_update_list()
 
 

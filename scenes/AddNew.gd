@@ -1,16 +1,16 @@
 extends Popup
 
-export var select_dialog : NodePath
-export var modal_blur : NodePath
+@export var select_dialog : NodePath
+@export var modal_blur : NodePath
 
 
-onready var line_edit_path : LineEdit = $Margin/VBox/path/LineEdit
-onready var line_edit_name : LineEdit = $Margin/VBox/name/LineEdit
-onready var line_edit_arguments : LineEdit = $Margin/VBox/arguments/LineEdit
-onready var add_button : Button = $Margin/VBox/Add
+@onready var line_edit_path : LineEdit = $Margin/VBox/path/LineEdit
+@onready var line_edit_name : LineEdit = $Margin/VBox/name/LineEdit
+@onready var line_edit_arguments : LineEdit = $Margin/VBox/arguments/LineEdit
+@onready var add_button : Button = $Margin/VBox/Add
 
-onready var installed : ItemList = get_node("%Installed")
-onready var version_popup = get_node("%AddVersionSelect").get_popup()
+@onready var installed : ItemList = get_node("%Installed")
+@onready var version_popup = get_node("%AddVersionSelect").get_popup()
 
 
 signal version_added()
@@ -18,23 +18,23 @@ signal version_added()
 var edited_entry : int = -1  # -1 adding new
 var available_versions : Dictionary
 
-var is_mac = OS.has_feature("OSX")
+var is_mac = OS.has_feature("macos")
 
 func _ready():
 	(get_node(modal_blur) as ColorRect).hide()
 	_validate()
-	var err = get_tree().connect("files_dropped", self, "_on_files_dropped")
+	var err = get_parent().get_window().files_dropped.connect(_on_files_dropped)
 	assert(err == OK)
-	err = version_popup.connect("index_pressed", self, "_on_version_selected")
+	err = version_popup.connect("index_pressed", Callable(self, "_on_version_selected"))
 	assert(err == OK)
 
 # Selection of binary to add
 func _on_Select_pressed():
-	var popup := get_node(select_dialog) as FileDialog
-	popup.current_dir = ProjectSettings.globalize_path("user://versions")
-	popup.mode = FileDialog.MODE_OPEN_DIR if is_mac else FileDialog.MODE_OPEN_FILE
-	popup.popup()	
-	line_edit_path.text = yield(popup,"dir_selected" if is_mac else "file_selected")
+	var file_popup := get_node(select_dialog) as FileDialog
+	file_popup.current_dir = ProjectSettings.globalize_path("user://versions")
+	file_popup.file_mode = FileDialog.FILE_MODE_OPEN_DIR if is_mac else FileDialog.FILE_MODE_OPEN_FILE
+	file_popup.popup()
+	line_edit_path.text = await file_popup.dir_selectedifis_macelsefile_selected
 	if line_edit_name.text == "":
 		line_edit_name.text = line_edit_path.text.get_file()
 	_validate()
@@ -45,11 +45,11 @@ func _validate(_unused = ""):
 	if line_edit_name.text == "":
 		print_debug("Name cannot be empty")
 		return
-	if not line_edit_path.text.is_abs_path():
-		print_debug("Path must be absolute")
+	if not line_edit_path.text.is_absolute_path():
+		print_debug("Path3D must be absolute")
 		return
 	if is_mac and not line_edit_path.text.ends_with(".app"):
-		print_debug("Folder must end in .app")
+		print_debug("Folder must end in super.app")
 		return
 	add_button.disabled = false
 
@@ -113,15 +113,15 @@ func _on_Close_pressed():
 	pass # Replace with function body.
 
 
-func _on_files_dropped(files : PoolStringArray, _screen ):
-	if files.empty():
+func _on_files_dropped(files : PackedStringArray ):
+	if files.is_empty():
 		return
-	var dir = Directory.new()
+	
 	var path : String = files[0]
 	
-	if dir.dir_exists(path):
-		var project_path = path.plus_file("project.godot")
-		if dir.file_exists(project_path):
+	if DirAccess.dir_exists_absolute(path):
+		var project_path = path.path_join("project.godot")
+		if FileAccess.file_exists(project_path):
 			path = project_path
 		else:
 			return

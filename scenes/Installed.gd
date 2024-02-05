@@ -15,7 +15,7 @@ var icons = {
 # TODO: Move the config to Globals.gd and centralize config
 # manipulation
 var config : Dictionary
-export var context_menu : NodePath
+@export var context_menu : NodePath
 
 var version_regex : RegEx
 
@@ -29,7 +29,7 @@ func _ready():
 func _reload():
 	config = Globals.read_config()
 	if "ui" in config:
-		$"%CloseOnLaunch".pressed = config.ui.get("close_on_launch", false)
+		$"%CloseOnLaunch".button_pressed = config.ui.get("close_on_launch", false)
 	_update_list()
 
 
@@ -56,8 +56,8 @@ func _get_icon_path_from_project(path_to_project : String):
 	# It would probably work if we migrate GVM to Godot 4
 	
 	var ret = ""
-	var file := File.new()
-	var err := file.open(path_to_project, File.READ)
+	var file = FileAccess.open(path_to_project, FileAccess.READ)
+	var err = FileAccess.get_open_error()
 	if err != OK:
 		printerr("Error loading project.godot at " + path_to_project)
 		return ret
@@ -86,7 +86,7 @@ func _get_correct_icon(v_name : String, v_args : String):
 	if "--path" in v_args:
 		var args = _args_string_to_array(v_args)
 		var project_path : String = args[ args.find("--path") + 1 ]
-		if OS.has_feature("Windows"):
+		if OS.has_feature("windows"):
 			# Strip \ and " from left and right
 			project_path = project_path.lstrip("\\\"").rstrip("\\\"") + "\\"
 		else:
@@ -100,13 +100,13 @@ func _get_correct_icon(v_name : String, v_args : String):
 			if test in v_name:
 				return icons[test]
 	# Handle custom app with icon in app_icons folder
-	var dir = Directory.new()
-	if not dir.dir_exists(Globals.APP_ICONS_PATH):
-		dir.make_dir(Globals.APP_ICONS_PATH)
+	
+	if not DirAccess.dir_exists_absolute(Globals.APP_ICONS_PATH):
+		DirAccess.make_dir_absolute(Globals.APP_ICONS_PATH)
 	var icon_path := ""
 	for ext in ["png", "webp", "jpg"]:
-		var candidate = Globals.APP_ICONS_PATH.plus_file("%s.%s" % [v_name, ext])
-		if dir.file_exists(candidate):
+		var candidate = Globals.APP_ICONS_PATH.path_join("%s.%s" % [v_name, ext])
+		if FileAccess.file_exists(candidate):
 			icon_path = candidate
 			break
 	# If found try loading the icon
@@ -121,24 +121,24 @@ func _on_Installed_item_activated(index):
 	var path : String =  config.versions[index].path
 	var is_game_project = "--path" in config.versions[index].arguments
 	var is_godot = "godot" in path.to_lower()
-	var args : PoolStringArray = _args_string_to_array(config.versions[index].arguments)
+	var args : PackedStringArray = _args_string_to_array(config.versions[index].arguments)
 	if is_game_project:
 		args.append("-e")
 	elif is_godot:
 		args.append("-p")
-	if OS.has_feature("OSX"):
-		var osx_args := PoolStringArray([ProjectSettings.globalize_path(path), "--args"])
+	if OS.has_feature("macos"):
+		var osx_args := PackedStringArray([ProjectSettings.globalize_path(path), "--args"])
 		osx_args.append_array(args)
-		pid = OS.execute("open", osx_args, false)
+		pid = OS.create_process("open", osx_args)
 	else:
-		pid = OS.execute(ProjectSettings.globalize_path(path), args, false)
+		pid = OS.create_process(ProjectSettings.globalize_path(path), args)
 	print( "Running \"%s\" with pid %s" % [ path, pid ] )
-	if $"%CloseOnLaunch".pressed:
+	if $"%CloseOnLaunch".button_pressed:
 		print("Close on launch enabled. Quitting.." )
 		get_tree().quit(0)
 
-func _args_string_to_array( args : String ) -> PoolStringArray:
-	var ret = PoolStringArray()
+func _args_string_to_array( args : String ) -> PackedStringArray:
+	var ret = PackedStringArray()
 	var quoting = false
 	var tmp = String()
 	for c in args:
@@ -156,7 +156,7 @@ func _args_string_to_array( args : String ) -> PoolStringArray:
 				tmp = String()
 		else:
 			tmp += c
-	if not tmp.empty():
+	if not tmp.is_empty():
 		ret.append(tmp)
 	return ret
 
@@ -181,14 +181,14 @@ func _on_ContextMenu_id_pressed(id):
 
 
 func _delete(idx):
-	config.versions.remove(idx)
+	config.versions.remove_at(idx)
 	Globals.write_config(config)
 	_reload()
 
 
 func _move(idx : int, offset: int):
 	var to_move = config.versions[idx]
-	config.versions.remove(idx)
+	config.versions.remove_at(idx)
 	var new_idx = clamp(idx + offset, 0, config.versions.size() )
 	config.versions.insert(new_idx, to_move)
 	Globals.write_config(config)
@@ -197,12 +197,14 @@ func _move(idx : int, offset: int):
 func _edit(idx):
 	$"%AddNew".edit(idx)
 
-func _on_Installed_item_rmb_selected(_index, at_position):
+func _on_Installed_item_rmb_selected(_index, at_position, mouse_button_index):
+	if mouse_button_index != MOUSE_BUTTON_RIGHT:
+		return
 	var menu = get_node(context_menu) as PopupMenu
 	# The top_left is at the beginning of the container
 	# So we need to add the rect_position of the parent node to 
 	# Compensate
-	menu.set_position(rect_global_position + at_position + Vector2(0, 20))
+	menu.set_position(global_position + at_position + Vector2(0, 20))
 	menu.popup()
 
 
@@ -211,20 +213,20 @@ func _on_CloseOnLaunch_toggled(button_pressed):
 	pass # Replace with function body.
 
 
-func can_drop_data(position, _data):
-	return get_item_at_position(position) != -1
+func _can_drop_data(p_position, _data):
+	return get_item_at_position(p_position) != -1
 	
-func get_drag_data(position):
-	var item_id := get_item_at_position(position)
+func _get_drag_data(p_position):
+	var item_id := get_item_at_position(p_position)
 	set_drag_preview(_create_preview(item_id))
 	return item_id
 	
-func drop_data(position, data):
+func _drop_data(p_position, data):
 	var old_pos : int = data
-	var new_pos : int = get_item_at_position(position)
+	var new_pos : int = get_item_at_position(p_position)
 	_move(old_pos, new_pos - old_pos)
 
-func _create_preview( item_id : int ) -> HBoxContainer:
+func _create_preview( item_id : int ) -> PanelContainer:
 	assert(item_id >= 0 and item_id < get_item_count())
 	var ret = PanelContainer.new()
 	var hbox = HBoxContainer.new()
@@ -235,25 +237,25 @@ func _create_preview( item_id : int ) -> HBoxContainer:
 	ret.add_child(hbox)
 	label.text = get_item_text(item_id)
 	icon.texture = get_item_icon(item_id)
-	icon.rect_min_size = Vector2(64,64)
+	icon.custom_minimum_size = Vector2(64,64)
 	icon.expand = true
-	ret.add_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
+	ret.add_theme_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
 	return ret
 
 func _gui_input(event):
 	if event is InputEventKey:
 		var e = event as InputEventKey
-		if e.pressed and e.physical_scancode == KEY_DELETE:
+		if e.pressed and e.physical_keycode == KEY_DELETE:
 			for id in get_selected_items():
 				_delete(id)
 
 
-func _load_icon_from_file(path: String, default : Texture = preload("res://icon.png")) -> Texture: 
-	var file = File.new()
-	if file.open(path,File.READ) != OK:
+func _load_icon_from_file(path: String, default : Texture2D = preload("res://icon.png")) -> Texture2D: 
+	var file = FileAccess.open(path,FileAccess.READ)
+	if FileAccess.get_open_error() != OK:
 		return preload("res://icon.png")
 
-	var buffer = file.get_buffer(file.get_len())
+	var buffer = file.get_buffer(file.get_length())
 	file.close()
 	
 	var icon_image = Image.new()
@@ -266,10 +268,11 @@ func _load_icon_from_file(path: String, default : Texture = preload("res://icon.
 			err = icon_image.load_webp_from_buffer(buffer)
 		"jpg":
 			err = icon_image.load_jpg_from_buffer(buffer)
+		"svg":
+			err = icon_image.load_svg_from_buffer(buffer)
 
 	if err:
 		return default
 
-	var icon_texture = ImageTexture.new()
-	icon_texture.create_from_image(icon_image)
+	var icon_texture = ImageTexture.create_from_image(icon_image)
 	return icon_texture
