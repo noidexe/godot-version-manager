@@ -96,6 +96,7 @@ export var beta_button_path : NodePath
 export var rc_button_path : NodePath
 export var dev_button_path : NodePath
 export var mono_button_path : NodePath
+export var rate_limit_path : NodePath
 
 onready var refresh_button = get_node(refresh_button_path)
 onready var download_button = get_node(download_button_path)
@@ -105,6 +106,7 @@ onready var beta_button = get_node(beta_button_path)
 onready var rc_button = get_node(rc_button_path)
 onready var dev_button = get_node(dev_button_path)
 onready var mono_button = get_node(mono_button_path)
+onready var rate_limit = get_node(rate_limit_path)
 
 signal refresh_started()
 # Emitted when the download_db has been updated
@@ -121,7 +123,7 @@ signal version_added()
 
 func _ready():
 	# VALIDATE BUTTON PATHS ( Will use scene unique names when 3.5 reaches stable)
-	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button, dev_button, mono_button]:
+	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button, dev_button, mono_button, rate_limit]:
 		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
 	
 	
@@ -273,6 +275,7 @@ func _scrape_github_url(page: int, per_page: int, url: String):
 		printerr((response[3] as PoolByteArray).get_string_from_utf8())
 		# Make sure we still return data in the expected format
 		results = [{ "assets" : [] }]
+	rate_limit.update_info(response[2])
 	req.queue_free()
 	return [results, response[2]]
 

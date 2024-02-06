@@ -19,11 +19,18 @@ func _ready():
 	$update.hide()
 	$tag.text = "Version Tag: " + Globals.version_tag
 	
-	$req.request(api_endpoint, ["Accept: application/vnd.github.v3+json", "User-Agent: %s" % Globals.user_agent])
+	var headers = ["Accept: application/vnd.github.v3+json", "User-Agent: %s" % Globals.user_agent]
+	
+	
+	if Globals.github_auth_bearer_token != "":
+		headers.append("Authorization: Bearer %s" % Globals.github_auth_bearer_token)
+	
+	$req.request(api_endpoint, headers)
 	
 
 
-func _on_request_completed(_result, response_code : int, _headers, body : PoolByteArray):
+func _on_request_completed(_result, response_code : int, headers, body : PoolByteArray):
+	$"%RateLimit".update_info(headers)
 	if response_code != 200:
 		printerr("Error %s downloaded release list from Github" % response_code)
 		return

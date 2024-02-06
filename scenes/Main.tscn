@@ -1,9 +1,9 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://scenes/OpenFolder.gd" type="Script" id=1]
 [ext_resource path="res://scenes/Add.gd" type="Script" id=2]
 [ext_resource path="res://scenes/VersionSelect.gd" type="Script" id=3]
-[ext_resource path="res://scenes/Version.gd" type="Script" id=4]
+[ext_resource path="res://scenes/UpdateManager.gd" type="Script" id=4]
 [ext_resource path="res://icons/alpha.res" type="Texture" id=5]
 [ext_resource path="res://scenes/AddNew.gd" type="Script" id=6]
 [ext_resource path="res://icons/paypal_donate.png" type="Texture" id=7]
@@ -15,6 +15,12 @@
 [ext_resource path="res://scenes/NewsFeed.gd" type="Script" id=13]
 [ext_resource path="res://icon.png" type="Texture" id=14]
 [ext_resource path="res://scenes/UIScale.gd" type="Script" id=15]
+[ext_resource path="res://scenes/RateLimit.gd" type="Script" id=16]
+[ext_resource path="res://fonts/Dosis-SemiBold.ttf" type="DynamicFontData" id=17]
+
+[sub_resource type="DynamicFont" id=3057]
+size = 12
+font_data = ExtResource( 17 )
 
 [sub_resource type="StyleBoxFlat" id=3055]
 bg_color = Color( 0.815686, 0.815686, 0.815686, 1 )
@@ -68,12 +74,12 @@ custom_constants/margin_bottom = 20
 margin_left = 20.0
 margin_top = 20.0
 margin_right = 1090.0
-margin_bottom = 580.0
+margin_bottom = 589.0
 custom_constants/separation = 10
 
 [node name="MenuBar" type="VBoxContainer" parent="MarginContainer/HBox"]
 margin_right = 329.0
-margin_bottom = 560.0
+margin_bottom = 569.0
 rect_min_size = Vector2( 300, 50 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -148,6 +154,7 @@ beta_button_path = NodePath("../../Include/Beta")
 rc_button_path = NodePath("../../Include/RC")
 dev_button_path = NodePath("../../Include/Dev")
 mono_button_path = NodePath("../../Include/Mono")
+rate_limit_path = NodePath("../../RateLimit")
 
 [node name="autoupdate" type="Timer" parent="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect"]
 wait_time = 300.0
@@ -166,10 +173,20 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 0.01
 text = "Refresh"
 
-[node name="Download" type="Button" parent="MarginContainer/HBox/MenuBar"]
+[node name="RateLimit" type="Label" parent="MarginContainer/HBox/MenuBar"]
+unique_name_in_owner = true
 margin_top = 95.0
 margin_right = 329.0
-margin_bottom = 155.0
+margin_bottom = 117.0
+mouse_filter = 1
+custom_fonts/font = SubResource( 3057 )
+align = 1
+script = ExtResource( 16 )
+
+[node name="Download" type="Button" parent="MarginContainer/HBox/MenuBar"]
+margin_top = 127.0
+margin_right = 329.0
+margin_bottom = 187.0
 rect_min_size = Vector2( 0, 60 )
 hint_tooltip = "Download the selected version"
 size_flags_horizontal = 3
@@ -179,9 +196,9 @@ __meta__ = {
 }
 
 [node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 165.0
+margin_top = 197.0
 margin_right = 329.0
-margin_bottom = 215.0
+margin_bottom = 247.0
 rect_min_size = Vector2( 0, 50 )
 hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
@@ -210,9 +227,9 @@ __meta__ = {
 }
 
 [node name="OpenFolder" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 225.0
+margin_top = 257.0
 margin_right = 329.0
-margin_bottom = 250.0
+margin_bottom = 282.0
 hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
 text = "Open Download Folder"
@@ -222,9 +239,9 @@ __meta__ = {
 }
 
 [node name="UIScale" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 260.0
+margin_top = 292.0
 margin_right = 329.0
-margin_bottom = 287.0
+margin_bottom = 319.0
 script = ExtResource( 15 )
 
 [node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/UIScale"]
@@ -240,9 +257,9 @@ max_value = 3.0
 step = 0.1
 
 [node name="LogoContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 297.0
+margin_top = 329.0
 margin_right = 329.0
-margin_bottom = 523.0
+margin_bottom = 532.0
 hint_tooltip = "Click to go to releases webpage"
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -255,7 +272,7 @@ custom_constants/margin_bottom = 10
 margin_left = 35.0
 margin_top = 10.0
 margin_right = 294.0
-margin_bottom = 216.0
+margin_bottom = 193.0
 mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -263,24 +280,23 @@ custom_styles/panel = SubResource( 3055 )
 
 [node name="HBox" type="VBoxContainer" parent="MarginContainer/HBox/MenuBar/LogoContainer/Panel"]
 margin_right = 259.0
-margin_bottom = 206.0
+margin_bottom = 183.0
 mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Name" type="Label" parent="MarginContainer/HBox/MenuBar/LogoContainer/Panel/HBox"]
-margin_top = 11.0
 margin_right = 259.0
-margin_bottom = 38.0
+margin_bottom = 27.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Godot Version Manager"
 align = 1
 
 [node name="Logo" type="TextureRect" parent="MarginContainer/HBox/MenuBar/LogoContainer/Panel/HBox"]
-margin_top = 53.0
+margin_top = 30.0
 margin_right = 259.0
-margin_bottom = 153.0
+margin_bottom = 130.0
 rect_min_size = Vector2( 0, 100 )
 mouse_filter = 2
 size_flags_horizontal = 3
@@ -290,9 +306,9 @@ expand = true
 stretch_mode = 6
 
 [node name="Copyright" type="Label" parent="MarginContainer/HBox/MenuBar/LogoContainer/Panel/HBox"]
-margin_top = 156.0
+margin_top = 133.0
 margin_right = 259.0
-margin_bottom = 206.0
+margin_bottom = 183.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Copyright ©2022
@@ -301,9 +317,9 @@ align = 1
 
 [node name="Version" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
 unique_name_in_owner = true
-margin_top = 533.0
+margin_top = 542.0
 margin_right = 329.0
-margin_bottom = 560.0
+margin_bottom = 569.0
 size_flags_horizontal = 3
 script = ExtResource( 4 )
 
@@ -324,7 +340,7 @@ text = "Update"
 unique_name_in_owner = true
 margin_left = 339.0
 margin_right = 699.0
-margin_bottom = 560.0
+margin_bottom = 569.0
 rect_min_size = Vector2( 320, 0 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -364,7 +380,7 @@ text = "Close on launch"
 [node name="Scroll" type="ScrollContainer" parent="MarginContainer/HBox"]
 margin_left = 709.0
 margin_right = 1070.0
-margin_bottom = 560.0
+margin_bottom = 569.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
