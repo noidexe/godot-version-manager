@@ -35,12 +35,12 @@ content_margin_left = 20.0
 content_margin_right = 20.0
 content_margin_top = 30.0
 content_margin_bottom = 20.0
-bg_color = Color( 0.92, 0.92, 0.92, 1 )
+bg_color = Color( 0.921569, 0.921569, 0.921569, 1 )
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color( 0.84, 0.84, 0.84, 1 )
+border_color = Color( 0.839216, 0.839216, 0.839216, 1 )
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -276,6 +276,10 @@ text = "Toggle Darkmode:"
 margin_left = 124.0
 margin_right = 161.0
 margin_bottom = 27.0
+
+[node name="Timer" type="Timer" parent="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode"]
+wait_time = 10.0
+one_shot = true
 
 [node name="LogoContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar"]
 margin_top = 329.0
@@ -617,6 +621,8 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/OpenFolder" to="MarginContainer/HBox/MenuBar/OpenFolder" method="_on_OpenFolder_pressed"]
 [connection signal="value_changed" from="MarginContainer/HBox/MenuBar/UIOptions/UIScale/SpinBox" to="MarginContainer/HBox/MenuBar/UIOptions/UIScale" method="_on_SpinBox_value_changed"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode/CheckButton" to="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode" method="_on_CheckButton_toggled"]
+[connection signal="timeout" from="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode/Timer" to="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode" method="_on_Timer_timeout"]
 [connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer" to="MarginContainer/HBox/MenuBar/Version" method="_on_LogoContainer_gui_input"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
