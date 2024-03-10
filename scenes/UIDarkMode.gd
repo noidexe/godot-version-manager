@@ -3,9 +3,6 @@ extends HBoxContainer
 
 # Path to the Main Node to edit its theme
 onready var main_node = $"../../../../.."
-# When it starts up sets to true so the setting doesn't save itself before
-# anything was done
-var initialized = false
 
 # Custom Styles from some nodes, not darkmode friendly but a work around
 onready var install_style: StyleBoxFlat = $"%Installed".get("custom_styles/bg")
@@ -81,9 +78,6 @@ func _on_CheckButton_toggled(button_pressed):
 # Is a little cooldown so if someone spams the toggler
 # the file doesn't write everytime
 func _on_Timer_timeout():
-	if not initialized:
-		initialized = true
-		return
 	var config = Globals.read_config()
 	if config["ui"]["darkmode"] == $CheckButton.pressed:
 		return
