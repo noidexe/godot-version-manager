@@ -85,5 +85,7 @@ func _on_Timer_timeout():
 		initialized = true
 		return
 	var config = Globals.read_config()
+	if config["ui"]["darkmode"] == $CheckButton.pressed:
+		return
 	config["ui"]["darkmode"] = $CheckButton.pressed
 	Globals.write_config(config)
