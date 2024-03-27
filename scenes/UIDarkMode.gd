@@ -54,11 +54,7 @@ func mode_handler(dark: bool):
 
 
 func _update_config(darkmode_selected):
-	var config = Globals.read_config()
-	if config["ui"]["darkmode"] == darkmode_selected:
-		return
-	config["ui"]["darkmode"] = darkmode_selected
-	Globals.write_config(config)
+	Globals.update_ui_flag("darkmode", darkmode_selected)
 
 
 func _on_OptionButton_item_selected(index):
