@@ -21,6 +21,9 @@ func _ready():
 
 
 func _rescale_ui(scale: float):
+	if scale <= 0:
+		push_error("UI scale cannot be set to <= 0")
+		return
 	get_tree().set_screen_stretch(stretch_mode, stretch_aspect, Vector2.ZERO, scale)
 	OS.window_size = base_window_size * scale
 	OS.center_window()
