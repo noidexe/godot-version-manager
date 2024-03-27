@@ -261,29 +261,29 @@ margin_bottom = 27.0
 min_value = 0.25
 max_value = 3.0
 step = 0.1
-value = 0.25
+value = 0.3
 
-[node name="UIDarkMode" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/UIOptions"]
+[node name="UITheme" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/UIOptions"]
 margin_left = 142.0
-margin_right = 303.0
+margin_right = 246.0
 margin_bottom = 27.0
 script = ExtResource( 18 )
+main_node_path = NodePath("../../../../..")
 
-[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode"]
-margin_right = 121.0
+[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/UIOptions/UITheme"]
+margin_right = 51.0
 margin_bottom = 27.0
-text = "Toggle Darkmode:"
+text = "Theme"
 
-[node name="CheckButton" type="CheckButton" parent="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode"]
-margin_left = 124.0
-margin_right = 161.0
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/HBox/MenuBar/UIOptions/UITheme"]
+margin_left = 54.0
+margin_right = 104.0
 margin_bottom = 27.0
-
-[node name="Timer" type="Timer" parent="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode"]
-wait_time = 10.0
-one_shot = true
+disabled = true
+text = "Light"
 
 [node name="LogoContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar"]
+unique_name_in_owner = true
 margin_top = 329.0
 margin_right = 329.0
 margin_bottom = 532.0
@@ -623,8 +623,7 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/OpenFolder" to="MarginContainer/HBox/MenuBar/OpenFolder" method="_on_OpenFolder_pressed"]
 [connection signal="value_changed" from="MarginContainer/HBox/MenuBar/UIOptions/UIScale/SpinBox" to="MarginContainer/HBox/MenuBar/UIOptions/UIScale" method="_on_SpinBox_value_changed"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode/CheckButton" to="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode" method="_on_CheckButton_toggled"]
-[connection signal="timeout" from="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode/Timer" to="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode" method="_on_Timer_timeout"]
+[connection signal="item_selected" from="MarginContainer/HBox/MenuBar/UIOptions/UITheme/OptionButton" to="MarginContainer/HBox/MenuBar/UIOptions/UITheme" method="_on_OptionButton_item_selected"]
 [connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer" to="MarginContainer/HBox/MenuBar/Version" method="_on_LogoContainer_gui_input"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
