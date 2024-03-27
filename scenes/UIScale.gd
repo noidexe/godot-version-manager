@@ -26,7 +26,9 @@ func _rescale_ui(scale: float):
 		return
 	get_tree().set_screen_stretch(stretch_mode, stretch_aspect, Vector2.ZERO, scale)
 	OS.window_size = base_window_size * scale
+	$SpinBox.editable = false
 	OS.center_window()
+	$SpinBox.editable = true
 
 
 func _on_SpinBox_value_changed(value):
