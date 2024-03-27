@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://scenes/OpenFolder.gd" type="Script" id=1]
 [ext_resource path="res://scenes/Add.gd" type="Script" id=2]
@@ -17,6 +17,7 @@
 [ext_resource path="res://scenes/UIScale.gd" type="Script" id=15]
 [ext_resource path="res://scenes/RateLimit.gd" type="Script" id=16]
 [ext_resource path="res://fonts/Dosis-SemiBold.ttf" type="DynamicFontData" id=17]
+[ext_resource path="res://scenes/UIDarkMode.gd" type="Script" id=18]
 
 [sub_resource type="DynamicFont" id=3057]
 size = 12
@@ -34,12 +35,12 @@ content_margin_left = 20.0
 content_margin_right = 20.0
 content_margin_top = 30.0
 content_margin_bottom = 20.0
-bg_color = Color( 0.92, 0.92, 0.92, 1 )
+bg_color = Color( 0.921569, 0.921569, 0.921569, 1 )
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color( 0.84, 0.84, 0.84, 1 )
+border_color = Color( 0.839216, 0.839216, 0.839216, 1 )
 corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
@@ -238,18 +239,22 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="UIScale" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
+[node name="UIOptions" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
 margin_top = 292.0
 margin_right = 329.0
 margin_bottom = 319.0
+
+[node name="UIScale" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/UIOptions"]
+margin_right = 139.0
+margin_bottom = 27.0
 script = ExtResource( 15 )
 
-[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/UIScale"]
+[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/UIOptions/UIScale"]
 margin_right = 67.0
 margin_bottom = 27.0
 text = "UI SCALE:"
 
-[node name="SpinBox" type="SpinBox" parent="MarginContainer/HBox/MenuBar/UIScale"]
+[node name="SpinBox" type="SpinBox" parent="MarginContainer/HBox/MenuBar/UIOptions/UIScale"]
 margin_left = 70.0
 margin_right = 139.0
 margin_bottom = 27.0
@@ -257,6 +262,26 @@ min_value = 0.25
 max_value = 3.0
 step = 0.1
 value = 0.25
+
+[node name="UIDarkMode" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/UIOptions"]
+margin_left = 142.0
+margin_right = 303.0
+margin_bottom = 27.0
+script = ExtResource( 18 )
+
+[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode"]
+margin_right = 121.0
+margin_bottom = 27.0
+text = "Toggle Darkmode:"
+
+[node name="CheckButton" type="CheckButton" parent="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode"]
+margin_left = 124.0
+margin_right = 161.0
+margin_bottom = 27.0
+
+[node name="Timer" type="Timer" parent="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode"]
+wait_time = 10.0
+one_shot = true
 
 [node name="LogoContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar"]
 margin_top = 329.0
@@ -597,7 +622,9 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/OpenFolder" to="MarginContainer/HBox/MenuBar/OpenFolder" method="_on_OpenFolder_pressed"]
-[connection signal="value_changed" from="MarginContainer/HBox/MenuBar/UIScale/SpinBox" to="MarginContainer/HBox/MenuBar/UIScale" method="_on_SpinBox_value_changed"]
+[connection signal="value_changed" from="MarginContainer/HBox/MenuBar/UIOptions/UIScale/SpinBox" to="MarginContainer/HBox/MenuBar/UIOptions/UIScale" method="_on_SpinBox_value_changed"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode/CheckButton" to="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode" method="_on_CheckButton_toggled"]
+[connection signal="timeout" from="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode/Timer" to="MarginContainer/HBox/MenuBar/UIOptions/UIDarkMode" method="_on_Timer_timeout"]
 [connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer" to="MarginContainer/HBox/MenuBar/Version" method="_on_LogoContainer_gui_input"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
