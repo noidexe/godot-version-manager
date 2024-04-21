@@ -10,7 +10,7 @@ extends OptionButton
 # depending on the detected platform
 const platforms = {
 	"X11": {
-		"suffixes": ["_x11.64.zip", "_linux.64.zip", "_linux.x86_64.zip", "_x11_64.zip"],
+		"suffixes": ["_x11.64.zip", "_linux.64.zip", "_linux.x86_64.zip", "_x11_64.zip", "_linux_x86_64.zip"],
 		"extraction-command" : [
 			"unzip",
 			[
@@ -125,7 +125,6 @@ func _ready():
 	# VALIDATE BUTTON PATHS ( Will use scene unique names when 3.5 reaches stable)
 	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button, dev_button, mono_button, rate_limit]:
 		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
-	
 	
 	
 	# DETECT PLATFORM
@@ -456,7 +455,10 @@ func _on_Download_pressed():
 		print("rm executed with exit code: %s" % exit_code)
 		var run_path = filename.trim_suffix(".zip")
 		if "_mono_" in filename:
-			run_path += "/" + _selection.name + "_x11.64"
+			if "v3." in filename:
+				run_path += "/" + _selection.name + "_x11.64"
+			elif "v4." in filename:
+				run_path += "/" + _selection.name + "_linux.x86_64"
 		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], true, output )
 		print(output.pop_front())
 		print("chmod executed with exit code: %s" % exit_code)
