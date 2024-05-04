@@ -34,7 +34,11 @@ func _on_Select_pressed():
 	file_popup.current_dir = ProjectSettings.globalize_path("user://versions")
 	file_popup.file_mode = FileDialog.FILE_MODE_OPEN_DIR if is_mac else FileDialog.FILE_MODE_OPEN_FILE
 	file_popup.popup()
-	line_edit_path.text = await file_popup.dir_selectedifis_macelsefile_selected
+	await file_popup.visibility_changed
+	if is_mac:
+		line_edit_path.text = await file_popup.dir_selected
+	else:
+		line_edit_path.text = await file_popup.file_selected
 	if line_edit_name.text == "":
 		line_edit_name.text = line_edit_path.text.get_file()
 	_validate()
