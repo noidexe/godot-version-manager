@@ -1,13 +1,13 @@
-extends Popup
+extends Control
 
 @export var select_dialog : NodePath
 @export var modal_blur : NodePath
 
 
-@onready var line_edit_path : LineEdit = $Margin/VBox/path/LineEdit
-@onready var line_edit_name : LineEdit = $Margin/VBox/name/LineEdit
-@onready var line_edit_arguments : LineEdit = $Margin/VBox/arguments/LineEdit
-@onready var add_button : Button = $Margin/VBox/Add
+@onready var line_edit_name : LineEdit = %NameLineEdit
+@onready var line_edit_path : LineEdit = %PathLineEdit
+@onready var line_edit_arguments : TextEdit = %ArgumentsTextEdit
+@onready var add_button : Button = %AddButton
 
 @onready var installed : ItemList = get_node("%Installed")
 @onready var version_popup = get_node("%AddVersionSelect").get_popup()
@@ -21,6 +21,7 @@ var available_versions : Dictionary
 var is_mac = OS.has_feature("macos")
 
 func _ready():
+	get_viewport().transparent_bg = true
 	(get_node(modal_blur) as ColorRect).hide()
 	_validate()
 	var err = get_parent().get_window().files_dropped.connect(_on_files_dropped)
@@ -34,6 +35,7 @@ func _on_Select_pressed():
 	file_popup.current_dir = ProjectSettings.globalize_path("user://versions")
 	file_popup.file_mode = FileDialog.FILE_MODE_OPEN_DIR if is_mac else FileDialog.FILE_MODE_OPEN_FILE
 	file_popup.popup()
+	file_popup.popup_centered_ratio()
 	await file_popup.visibility_changed
 	if is_mac:
 		line_edit_path.text = await file_popup.dir_selected
@@ -42,6 +44,7 @@ func _on_Select_pressed():
 	if line_edit_name.text == "":
 		line_edit_name.text = line_edit_path.text.get_file()
 	_validate()
+	line_edit_path.caret_column = line_edit_path.text.length()
 
 # Validate name and path input
 func _validate(_unused = ""):
@@ -55,6 +58,7 @@ func _validate(_unused = ""):
 	if is_mac and not line_edit_path.text.ends_with(".app"):
 		print_debug("Folder must end in super.app")
 		return
+	
 	add_button.disabled = false
 
 # Create a entry and add it to the list of 
@@ -63,7 +67,8 @@ func _on_Add_pressed():
 	var entry = {
 		"name": line_edit_name.text,
 		"path" :line_edit_path.text,
-		"arguments" :line_edit_arguments.text
+		"arguments" :line_edit_arguments.text.replace("\n", " "),
+		"arguments_raw": line_edit_arguments.text
 	}
 	
 	# Read the config
@@ -89,21 +94,103 @@ func _on_AddNew_about_to_show():
 		line_edit_name.text = ""
 		line_edit_arguments.text = ""
 		line_edit_path.text = ""
-		$Margin/VBox/Add.text = "Add"
+		add_button.text = "Add"
 	else:
 		var config: Dictionary = Globals.read_config()
 		var entry = config.versions[edited_entry]
 		line_edit_name.text = entry.name
-		line_edit_arguments.text = entry.arguments
 		line_edit_path.text = entry.path
-		$Margin/VBox/Add.text = "Save"
+		line_edit_path.caret_column = line_edit_path.text.length()
+		line_edit_arguments.text = entry.arguments_raw
+		add_button.text = "Save"
 	_populate_version_list()
 
 
 func edit(config_idx):
 	print("Editing %s" % config_idx)
 	edited_entry = config_idx
-	popup_centered()
+	visible = true
+
+
+func _args_pretty_print(args_text: String) -> String:
+	var lines: PackedStringArray = []
+	
+	# ==================================================
+	# Split arguments
+	# ==================================================
+	
+	## Matches separate command line "arguments" - which is either quoted text
+	## or non-whitespace characters sequence.
+	## Example arguments:
+	##   --path
+	##   "C://path/to/my/awesome project 3000"
+	##   -key="value"
+	##   /nextKey:${theValue}
+	var r_argument = RegEx.new()
+	r_argument.compile('([^\\s"]*\\"[^\\"]*\\")+|\\S+')
+	var arguments: PackedStringArray = r_argument.search_all(args_text).map(func(rg_match: RegExMatch):
+		return rg_match.get_string())
+	
+	# ==================================================
+	# Create key - value pairs of arguments
+	# ==================================================
+	
+	## Matches key.
+	## When talking about command line interfaces they are often called: option,
+	## key, flag and start with single od double dash ('-', '--') or forward
+	## slash ('/').
+	## Examples
+	##   --key
+	##   -h
+	##   /Arg
+	var r_key := RegEx.new()
+	r_key.compile('^[-/]\\S*')
+	var was_last_added := false
+	var is_last := false
+	for i in arguments.size():
+		if i == 0:
+			continue
+		if i == arguments.size() - 1:
+			is_last = true
+		
+		# Current argument is a key.
+		if r_key.search(arguments[i]) != null:
+			# Key with value.
+			if arguments[i].contains('=') or arguments[i].contains(':'):
+				if not was_last_added:
+					lines.append(arguments[i-1])
+				lines.append(arguments[i])
+				was_last_added = true
+			# Key after key.
+			elif r_key.search(arguments[i-1]) != null:
+				if not was_last_added:
+					lines.append(arguments[i-1])
+				was_last_added = false
+			# Key after value.
+			else:
+				if not was_last_added:
+					lines.append(arguments[i-1])
+				if is_last:
+					lines.append(arguments[i])
+				was_last_added = false
+		
+		# Current argument is a value.
+		else:
+			# Value after key.
+			if r_key.search(arguments[i-1]) != null:
+				if not was_last_added:
+					lines.append(str(arguments[i-1], ' ', arguments[i]))
+				else:
+					lines.append(arguments[i])
+				was_last_added = true
+			# Value after value.
+			else:
+				if not was_last_added:
+					lines.append(arguments[i-1])
+				lines.append(arguments[i])
+				was_last_added = true
+	
+	return "\n".join(lines)
 
 
 func _on_AddNew_popup_hide():
@@ -114,10 +201,10 @@ func _on_AddNew_popup_hide():
 
 func _on_Close_pressed():
 	hide()
-	pass # Replace with function body.
 
 
 func _on_files_dropped(files : PackedStringArray ):
+	show()
 	if files.is_empty():
 		return
 	
@@ -130,15 +217,13 @@ func _on_files_dropped(files : PackedStringArray ):
 		else:
 			return
 	
-	popup_centered()
 	if path.get_file() == "project.godot":
-		line_edit_arguments.text = '--path %s' % path.get_base_dir()
+		line_edit_arguments.text = '--path "%s"' % path.get_base_dir()
 		line_edit_name.text = path.get_base_dir().get_file()
 	else:
 		line_edit_path.text = path
 		line_edit_name.text = path.get_file().trim_suffix("." + path.get_extension())
 	_validate()
-	pass
 
 
 func _populate_version_list():
@@ -154,3 +239,16 @@ func _populate_version_list():
 func _on_version_selected(index:int):
 	line_edit_path.text = available_versions[index]
 	_validate()
+
+
+func _on_prettify_button_pressed() -> void:
+	line_edit_arguments.text = \
+		_args_pretty_print(line_edit_arguments.text)
+	_validate()
+
+
+func _on_visibility_changed() -> void:
+	if visible:
+		_on_AddNew_about_to_show()
+	else:
+		_on_AddNew_popup_hide()

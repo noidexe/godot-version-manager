@@ -1,4 +1,4 @@
-extends ScrollContainer
+extends PanelContainer
 
 var news_item_scene = preload("res://scenes/NewsItem.tscn")
 
@@ -9,8 +9,9 @@ const BASE_URL = "https://godotengine.org"
 const  VOID_HTML_ELEMENTS = ["area", "base", "br", "col", "command", "embed", "hr",
 		"img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"]
 
-@onready var feed_vbox = $"Feed"
-@onready var loading_text = $"Feed/Loading"
+@onready var feed_vbox = $"Scroll/Feed"
+@onready var loading_text = $"Scroll/Feed/Loading"
+@onready var req = $"Scroll/req"
 
 var refreshing = false
 
@@ -37,8 +38,8 @@ func _refresh_news():
 	var up_to_date := false
 	var new_etag := "" 
 	
-	$req.request(BASE_URL + "/blog/", ["User-Agent: %s" % Globals.user_agent], HTTPClient.METHOD_HEAD)
-	var head_response = await $req.request_completed
+	req.request(BASE_URL + "/blog/", ["User-Agent: %s" % Globals.user_agent], HTTPClient.METHOD_HEAD)
+	var head_response = await req.request_completed
 	for header in head_response[2]:
 		# No ETag being returned by the server as of 2023/02/15
 		# Using Last-Modified instead
@@ -49,13 +50,13 @@ func _refresh_news():
 	
 	if not up_to_date:
 		
-		$req.request("https://raw.githubusercontent.com/godotengine/godot-website/master/_data/authors.yml", ["User-Agent: %s" % Globals.user_agent])
-		var author_response = await $req.request_completed
+		req.request("https://raw.githubusercontent.com/godotengine/godot-website/master/_data/authors.yml", ["User-Agent: %s" % Globals.user_agent])
+		var author_response = await req.request_completed
 		var author_data = author_response[3]
 		var avatars = _parse_author_avatars(author_data)
 		
-		$req.request(BASE_URL + "/rss.json", ["User-Agent: %s" % Globals.user_agent])
-		var response = await $req.request_completed
+		req.request(BASE_URL + "/rss.json", ["User-Agent: %s" % Globals.user_agent])
+		var response = await req.request_completed
 		var data = JSON.parse_string(response[3].get_string_from_utf8())
 		var news = _get_news(data, avatars)
 		_save_news_cache(news)

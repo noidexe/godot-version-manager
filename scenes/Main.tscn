@@ -1,7 +1,7 @@
-[gd_scene load_steps=20 format=3 uid="uid://nrevo2o6wdal"]
+[gd_scene load_steps=21 format=3 uid="uid://nrevo2o6wdal"]
 
 [ext_resource type="Script" path="res://scenes/OpenFolder.gd" id="1"]
-[ext_resource type="Theme" path="res://theme/main.theme" id="1_bapi4"]
+[ext_resource type="Theme" uid="uid://g4qvg5yosnmp" path="res://theme/main.tres" id="1_frhb4"]
 [ext_resource type="Script" path="res://scenes/Add.gd" id="2"]
 [ext_resource type="Script" path="res://scenes/VersionSelect.gd" id="3"]
 [ext_resource type="Script" path="res://scenes/Version.gd" id="4"]
@@ -11,19 +11,20 @@
 [ext_resource type="Texture2D" uid="uid://clfak0mhlgsr8" path="res://icons/paypal_donate_hover.png" id="8"]
 [ext_resource type="Script" path="res://scenes/Installed.gd" id="9"]
 [ext_resource type="Script" path="res://scenes/Donate.gd" id="10"]
-[ext_resource type="StyleBox" path="res://theme/round_and_shaded.stylebox" id="12"]
+[ext_resource type="StyleBox" uid="uid://tlvvlauogw2r" path="res://theme/round_and_shaded.stylebox" id="12"]
 [ext_resource type="Script" path="res://scenes/NewsFeed.gd" id="13"]
 [ext_resource type="Texture2D" uid="uid://cmxldkx7a5rrn" path="res://icon.png" id="14"]
 [ext_resource type="Script" path="res://scenes/UIScale.gd" id="15"]
+[ext_resource type="Texture2D" uid="uid://be2j5rgxn28e" path="res://icons/close_icon.png" id="16_o1n66"]
 
-[sub_resource type="StyleBoxFlat" id="3055"]
-bg_color = Color(0.815686, 0.815686, 0.815686, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jmhod"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 7.0
+content_margin_bottom = 5.0
 
-[sub_resource type="StyleBoxEmpty" id="3054"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mpuwo"]
+content_margin_right = 10.0
 
 [sub_resource type="StyleBoxEmpty" id="3052"]
 
@@ -38,7 +39,7 @@ offset_top = 1.0
 offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_bapi4")
+theme = ExtResource("1_frhb4")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 0
@@ -49,50 +50,72 @@ anchor_bottom = 1.0
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 4
 
 [node name="MenuBar" type="VBoxContainer" parent="MarginContainer/HBox"]
 custom_minimum_size = Vector2(300, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 0.5
 theme_override_constants/separation = 10
 
-[node name="Include" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
+[node name="Include" type="VBoxContainer" parent="MarginContainer/HBox/MenuBar"]
 layout_mode = 2
-tooltip_text = "Select type of version to include"
 
-[node name="Stable" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include"]
-layout_mode = 2
-text = "Stable"
-
-[node name="Alpha" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include"]
-layout_mode = 2
-text = "Alpha"
-
-[node name="Beta" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include"]
-layout_mode = 2
-text = "Beta"
-
-[node name="RC" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include"]
-layout_mode = 2
-text = "RC"
-
-[node name="Dev" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include"]
-layout_mode = 2
-text = "Dev"
-
-[node name="Mono" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include"]
+[node name="Mono" type="CheckButton" parent="MarginContainer/HBox/MenuBar/Include"]
 layout_mode = 2
 text = "Mono"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar/Include"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="HBoxContainer3" type="VBoxContainer" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3"]
+layout_mode = 2
+
+[node name="Stable" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Stable"
+
+[node name="RC" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "RC"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3"]
+layout_mode = 2
+
+[node name="Beta" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer2"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Beta"
+
+[node name="Alpha" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer2"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Alpha"
+
+[node name="Dev" type="CheckBox" parent="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer2"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Dev"
 
 [node name="Version&Refresh" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
 custom_minimum_size = Vector2(0, 50)
@@ -107,11 +130,11 @@ tooltip_text = "Select a Godot version to download"
 script = ExtResource("3")
 refresh_button_path = NodePath("../Refresh")
 download_button_path = NodePath("../../Download")
-stable_button_path = NodePath("../../Include/Stable")
-alpha_button_path = NodePath("../../Include/Alpha")
-beta_button_path = NodePath("../../Include/Beta")
-rc_button_path = NodePath("../../Include/RC")
-dev_button_path = NodePath("../../Include/Dev")
+stable_button_path = NodePath("../../Include/MarginContainer/HBoxContainer3/HBoxContainer/Stable")
+alpha_button_path = NodePath("../../Include/MarginContainer/HBoxContainer3/HBoxContainer2/Alpha")
+beta_button_path = NodePath("../../Include/MarginContainer/HBoxContainer3/HBoxContainer2/Beta")
+rc_button_path = NodePath("../../Include/MarginContainer/HBoxContainer3/HBoxContainer/RC")
+dev_button_path = NodePath("../../Include/MarginContainer/HBoxContainer3/HBoxContainer2/Dev")
 mono_button_path = NodePath("../../Include/Mono")
 
 [node name="autoupdate" type="Timer" parent="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect"]
@@ -136,7 +159,7 @@ size_flags_horizontal = 3
 tooltip_text = "Download the selected version"
 text = "Download"
 
-[node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar"]
+[node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar" node_paths=PackedStringArray("add_popup")]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -181,17 +204,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 tooltip_text = "Click to go to releases webpage"
-theme_override_constants/margin_left = 35
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 35
-theme_override_constants/margin_bottom = 10
 
 [node name="Panel" type="PanelContainer" parent="MarginContainer/HBox/MenuBar/LogoContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 2
-theme_override_styles/panel = SubResource("3055")
 
 [node name="HBox" type="VBoxContainer" parent="MarginContainer/HBox/MenuBar/LogoContainer/Panel"]
 layout_mode = 2
@@ -240,16 +258,34 @@ text = "Update"
 
 [node name="req" type="HTTPRequest" parent="MarginContainer/HBox/MenuBar/Version"]
 
-[node name="Installed" type="ItemList" parent="MarginContainer/HBox"]
+[node name="InstalledContainer" type="PanelContainer" parent="MarginContainer/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBox/InstalledContainer"]
+layout_mode = 2
+
+[node name="CloseOnLaunch" type="CheckButton" parent="MarginContainer/HBox/InstalledContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_styles/focus = SubResource("StyleBoxEmpty_jmhod")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_jmhod")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_jmhod")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_jmhod")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_jmhod")
+text = "Close on launch"
+
+[node name="Installed" type="ItemList" parent="MarginContainer/HBox/InstalledContainer/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
 theme_override_constants/icon_margin = 10
 theme_override_constants/line_separation = 10
+theme_override_constants/v_separation = 10
+theme_override_constants/h_separation = 10
 allow_rmb_select = true
 item_count = 1
 fixed_icon_size = Vector2i(64, 64)
@@ -258,10 +294,10 @@ item_0/icon = ExtResource("5")
 script = ExtResource("9")
 context_menu = NodePath("ContextMenu")
 
-[node name="ContextMenu" type="PopupMenu" parent="MarginContainer/HBox/Installed"]
+[node name="ContextMenu" type="PopupMenu" parent="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed"]
+size = Vector2i(120, 116)
 item_count = 4
 item_0/text = "Edit"
-item_0/id = 0
 item_1/text = "Move Up"
 item_1/id = 1
 item_2/text = "Move Down"
@@ -269,37 +305,29 @@ item_2/id = 2
 item_3/text = "Delete"
 item_3/id = 3
 
-[node name="CloseOnLaunch" type="CheckButton" parent="MarginContainer/HBox/Installed"]
-unique_name_in_owner = true
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -128.0
-offset_bottom = 25.0
-grow_horizontal = 0
-theme_override_colors/font_pressed_color = Color(0.27451, 0.54902, 0.74902, 1)
-theme_override_styles/focus = SubResource("3054")
-text = "Close on launch"
-
-[node name="Scroll" type="ScrollContainer" parent="MarginContainer/HBox"]
+[node name="FeedPanel" type="PanelContainer" parent="MarginContainer/HBox"]
+custom_minimum_size = Vector2(408, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
 script = ExtResource("13")
 
-[node name="Feed" type="VBoxContainer" parent="MarginContainer/HBox/Scroll"]
+[node name="Scroll" type="ScrollContainer" parent="MarginContainer/HBox/FeedPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mpuwo")
+
+[node name="Feed" type="VBoxContainer" parent="MarginContainer/HBox/FeedPanel/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="Title" type="Label" parent="MarginContainer/HBox/Scroll/Feed"]
+[node name="Title" type="Label" parent="MarginContainer/HBox/FeedPanel/Scroll/Feed"]
 layout_mode = 2
 text = "godotengine.org news feed"
 horizontal_alignment = 1
 uppercase = true
 
-[node name="Loading" type="RichTextLabel" parent="MarginContainer/HBox/Scroll/Feed"]
-visible = false
+[node name="Loading" type="RichTextLabel" parent="MarginContainer/HBox/FeedPanel/Scroll/Feed"]
 clip_contents = false
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
@@ -310,7 +338,7 @@ theme_override_styles/normal = SubResource("3053")
 bbcode_enabled = true
 text = "updating..."
 
-[node name="req" type="HTTPRequest" parent="MarginContainer/HBox/Scroll"]
+[node name="req" type="HTTPRequest" parent="MarginContainer/HBox/FeedPanel/Scroll"]
 
 [node name="ModalBlur" type="ColorRect" parent="."]
 visible = false
@@ -320,125 +348,175 @@ anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0.126, 0.149433, 0.2, 0.784314)
 
-[node name="AddNew" type="Popup" parent="."]
+[node name="AddNew" type="CenterContainer" parent="."]
 unique_name_in_owner = true
-initial_position = 4
-size = Vector2i(625, 223)
-exclusive = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("6")
-select_dialog = NodePath("../SelectPath")
+select_dialog = NodePath("Container/SelectPath")
 modal_blur = NodePath("../ModalBlur")
 
-[node name="Panel" type="Panel" parent="AddNew"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="Container" type="MarginContainer" parent="AddNew"]
+custom_minimum_size = Vector2(800, 0)
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = ExtResource("12")
-
-[node name="Margin" type="MarginContainer" parent="AddNew"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_constants/margin_left = 20
+theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_bottom = 40
 
-[node name="VBox" type="VBoxContainer" parent="AddNew/Margin"]
+[node name="Panel" type="PanelContainer" parent="AddNew/Container"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("12")
+
+[node name="Margin" type="MarginContainer" parent="AddNew/Container/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBox" type="VBoxContainer" parent="AddNew/Container/Panel/Margin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Title" type="Label" parent="AddNew/Margin/VBox"]
+[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
 layout_mode = 2
+
+[node name="Title" type="Label" parent="AddNew/Container/Panel/Margin/VBox/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Add new version or project.."
 horizontal_alignment = 1
 
-[node name="path" type="HBoxContainer" parent="AddNew/Margin/VBox"]
+[node name="Close" type="Button" parent="AddNew/Container/Panel/Margin/VBox/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+tooltip_text = "Close	"
+icon = ExtResource("16_o1n66")
+
+[node name="name" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="AddNew/Margin/VBox/path"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Path3D"
-
-[node name="LineEdit" type="LineEdit" parent="AddNew/Margin/VBox/path"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 4.0
-
-[node name="AddVersionSelect" type="MenuButton" parent="AddNew/Margin/VBox/path"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "[Select]"
-
-[node name="Select" type="Button" parent="AddNew/Margin/VBox/path"]
-layout_mode = 2
-text = "Load.."
-
-[node name="name" type="HBoxContainer" parent="AddNew/Margin/VBox"]
+[node name="VBoxContainer" type="VBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/name"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="AddNew/Margin/VBox/name"]
+[node name="Label" type="Label" parent="AddNew/Container/Panel/Margin/VBox/name/VBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 0
 text = "Name"
 
-[node name="LineEdit" type="LineEdit" parent="AddNew/Margin/VBox/name"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 4.0
-
-[node name="arguments" type="HBoxContainer" parent="AddNew/Margin/VBox"]
+[node name="NameLineEdit" type="LineEdit" parent="AddNew/Container/Panel/Margin/VBox/name/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="AddNew/Margin/VBox/arguments"]
+[node name="path" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/path"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Path3D"
+
+[node name="AddVersionSelect" type="MenuButton" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select"
+flat = false
+
+[node name="Select" type="Button" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Find"
+
+[node name="PathLineEdit" type="LineEdit" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="arguments" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/arguments"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 2
 text = "Arguments"
 
-[node name="LineEdit" type="LineEdit" parent="AddNew/Margin/VBox/arguments"]
+[node name="PrettifyButton" type="Button" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Arguments text when used will have new lines replaced with spaces."
+text = "Prettify"
+
+[node name="ArgumentsTextEdit" type="TextEdit" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 4.0
+text = "1 sadfa asdgasdgf
+2 sadfa asdgasdgf
+3 sadfa asdgasdgf
+4 sadfa asdgasdgf
+5 sadfa asdgasdgf
+6 sadfa asdgasdgf"
 
-[node name="Tip" type="Label" parent="AddNew/Margin/VBox"]
+[node name="Tip" type="Label" parent="AddNew/Container/Panel/Margin/VBox"]
 layout_mode = 2
+size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.921569, 0.921569, 0.921569, 1)
+theme_override_font_sizes/font_size = 12
 text = "Tip: to launch a project directly add to arguments: --path \"path/to/project_folder\""
 
-[node name="Add" type="Button" parent="AddNew/Margin/VBox"]
+[node name="AddButton" type="Button" parent="AddNew/Container/Panel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Add"
 
-[node name="Close" type="Button" parent="AddNew"]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -25.0
-offset_bottom = 25.0
-tooltip_text = "Close	"
-text = "X"
-
-[node name="SelectPath" type="FileDialog" parent="."]
+[node name="SelectPath" type="FileDialog" parent="AddNew/Container"]
+title = "Find executable"
+size = Vector2i(600, 300)
 access = 2
 filters = PackedStringArray("*.exe ; Windows executable", "*.app ; OSX Application", "*.64,*.x86_64 ; Linux executable")
 
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/Stable" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Stable_toggled"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/Alpha" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Alpha_toggled"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/Beta" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Beta_toggled"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/RC" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_RC_toggled"]
-[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/Dev" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Dev_toggled"]
 [connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/Mono" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Mono_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer/Stable" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Stable_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer/RC" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_RC_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer2/Beta" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Beta_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer2/Alpha" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Alpha_toggled"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/Include/MarginContainer/HBoxContainer3/HBoxContainer2/Dev" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Dev_toggled"]
 [connection signal="refresh_finished" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_VersionSelect_refresh_finished"]
-[connection signal="version_added" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/Installed" method="_on_version_added"]
+[connection signal="version_added" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_version_added"]
 [connection signal="timeout" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect/autoupdate" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_autoupdate_timeout"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version&Refresh/Refresh" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Refresh_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Download" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Download_pressed"]
@@ -449,19 +527,16 @@ filters = PackedStringArray("*.exe ; Windows executable", "*.app ; OSX Applicati
 [connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer" to="MarginContainer/HBox/MenuBar/Version" method="_on_LogoContainer_gui_input"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
-[connection signal="item_activated" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_activated"]
-[connection signal="item_clicked" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_rmb_selected"]
-[connection signal="id_pressed" from="MarginContainer/HBox/Installed/ContextMenu" to="MarginContainer/HBox/Installed" method="_on_ContextMenu_id_pressed"]
-[connection signal="toggled" from="MarginContainer/HBox/Installed/CloseOnLaunch" to="MarginContainer/HBox/Installed" method="_on_CloseOnLaunch_toggled"]
-[connection signal="about_to_popup" from="AddNew" to="AddNew" method="_on_AddNew_about_to_show"]
-[connection signal="popup_hide" from="AddNew" to="AddNew" method="_on_AddNew_popup_hide"]
-[connection signal="version_added" from="AddNew" to="MarginContainer/HBox/Installed" method="_on_version_added"]
-[connection signal="text_changed" from="AddNew/Margin/VBox/path/LineEdit" to="AddNew" method="_validate"]
-[connection signal="text_submitted" from="AddNew/Margin/VBox/path/LineEdit" to="AddNew" method="_validate"]
-[connection signal="pressed" from="AddNew/Margin/VBox/path/Select" to="AddNew" method="_on_Select_pressed"]
-[connection signal="text_changed" from="AddNew/Margin/VBox/name/LineEdit" to="AddNew" method="_validate"]
-[connection signal="text_submitted" from="AddNew/Margin/VBox/name/LineEdit" to="AddNew" method="_validate"]
-[connection signal="text_changed" from="AddNew/Margin/VBox/arguments/LineEdit" to="AddNew" method="_validate"]
-[connection signal="text_submitted" from="AddNew/Margin/VBox/arguments/LineEdit" to="AddNew" method="_validate"]
-[connection signal="pressed" from="AddNew/Margin/VBox/Add" to="AddNew" method="_on_Add_pressed"]
-[connection signal="pressed" from="AddNew/Close" to="AddNew" method="_on_Close_pressed"]
+[connection signal="toggled" from="MarginContainer/HBox/InstalledContainer/VBoxContainer/CloseOnLaunch" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_CloseOnLaunch_toggled"]
+[connection signal="item_activated" from="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_Installed_item_activated"]
+[connection signal="item_clicked" from="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_Installed_item_rmb_selected"]
+[connection signal="id_pressed" from="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed/ContextMenu" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_ContextMenu_id_pressed"]
+[connection signal="version_added" from="AddNew" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_version_added"]
+[connection signal="visibility_changed" from="AddNew" to="AddNew" method="_on_visibility_changed"]
+[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/HBoxContainer/Close" to="AddNew" method="_on_Close_pressed"]
+[connection signal="text_changed" from="AddNew/Container/Panel/Margin/VBox/name/VBoxContainer/NameLineEdit" to="AddNew" method="_validate"]
+[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer/Select" to="AddNew" method="_on_Select_pressed"]
+[connection signal="text_changed" from="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/PathLineEdit" to="AddNew" method="_validate"]
+[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/HBoxContainer/PrettifyButton" to="AddNew" method="_on_prettify_button_pressed"]
+[connection signal="text_changed" from="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/ArgumentsTextEdit" to="AddNew" method="_validate"]
+[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/AddButton" to="AddNew" method="_on_Add_pressed"]
