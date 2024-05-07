@@ -1,7 +1,6 @@
-[gd_scene load_steps=21 format=3 uid="uid://nrevo2o6wdal"]
+[gd_scene load_steps=19 format=3 uid="uid://nrevo2o6wdal"]
 
 [ext_resource type="Script" path="res://scenes/OpenFolder.gd" id="1"]
-[ext_resource type="Theme" uid="uid://g4qvg5yosnmp" path="res://theme/main.tres" id="1_frhb4"]
 [ext_resource type="Script" path="res://scenes/Add.gd" id="2"]
 [ext_resource type="Script" path="res://scenes/VersionSelect.gd" id="3"]
 [ext_resource type="Script" path="res://scenes/Version.gd" id="4"]
@@ -9,13 +8,12 @@
 [ext_resource type="Script" path="res://scenes/AddNew.gd" id="6"]
 [ext_resource type="Texture2D" uid="uid://bt5vbehjyrvad" path="res://icons/paypal_donate.png" id="7"]
 [ext_resource type="Texture2D" uid="uid://clfak0mhlgsr8" path="res://icons/paypal_donate_hover.png" id="8"]
+[ext_resource type="Script" path="res://scenes/theme_switch.gd" id="8_ryotg"]
 [ext_resource type="Script" path="res://scenes/Installed.gd" id="9"]
 [ext_resource type="Script" path="res://scenes/Donate.gd" id="10"]
-[ext_resource type="StyleBox" uid="uid://tlvvlauogw2r" path="res://theme/round_and_shaded.stylebox" id="12"]
 [ext_resource type="Script" path="res://scenes/NewsFeed.gd" id="13"]
 [ext_resource type="Texture2D" uid="uid://cmxldkx7a5rrn" path="res://icon.png" id="14"]
 [ext_resource type="Script" path="res://scenes/UIScale.gd" id="15"]
-[ext_resource type="Texture2D" uid="uid://be2j5rgxn28e" path="res://icons/close_icon.png" id="16_o1n66"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jmhod"]
 content_margin_left = 5.0
@@ -39,7 +37,6 @@ offset_top = 1.0
 offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_frhb4")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 0
@@ -159,14 +156,8 @@ size_flags_horizontal = 3
 tooltip_text = "Download the selected version"
 text = "Download"
 
-[node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar" node_paths=PackedStringArray("add_popup")]
-custom_minimum_size = Vector2(0, 50)
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/HBox/MenuBar"]
 layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Add a custom version or another tool from an .exe"
-text = "Add version/project from file.."
-script = ExtResource("2")
-add_popup = NodePath("../../../../AddNew")
 
 [node name="Donate" type="TextureButton" parent="MarginContainer/HBox/MenuBar"]
 visible = false
@@ -179,25 +170,21 @@ texture_hover = ExtResource("8")
 stretch_mode = 3
 script = ExtResource("10")
 
+[node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar" node_paths=PackedStringArray("add_popup")]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Add a custom version or another tool from an .exe"
+text = "Add version/project from file.."
+script = ExtResource("2")
+add_popup = NodePath("../../../../AddNew")
+
 [node name="OpenFolder" type="Button" parent="MarginContainer/HBox/MenuBar"]
 layout_mode = 2
 size_flags_horizontal = 3
 tooltip_text = "Add a custom version or another tool from an .exe"
 text = "Open Download Folder"
 script = ExtResource("1")
-
-[node name="UIScale" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
-layout_mode = 2
-script = ExtResource("15")
-
-[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/UIScale"]
-layout_mode = 2
-text = "UI SCALE:"
-
-[node name="SpinBox" type="SpinBox" parent="MarginContainer/HBox/MenuBar/UIScale"]
-layout_mode = 2
-max_value = 3.0
-step = 0.1
 
 [node name="LogoContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar"]
 layout_mode = 2
@@ -241,6 +228,42 @@ size_flags_vertical = 6
 text = "Copyright ©2022
 Lisandro Lorea and Contributors"
 horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/HBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Theme"
+
+[node name="ThemeSwitch" type="OptionButton" parent="MarginContainer/HBox/MenuBar/HBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 1
+popup/item_0/text = "light"
+script = ExtResource("8_ryotg")
+
+[node name="Control" type="Control" parent="MarginContainer/HBox/MenuBar/HBoxContainer"]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="UIScale" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/HBoxContainer"]
+layout_mode = 2
+script = ExtResource("15")
+
+[node name="Label" type="Label" parent="MarginContainer/HBox/MenuBar/HBoxContainer/UIScale"]
+layout_mode = 2
+text = "UI Scale"
+
+[node name="SpinBox" type="SpinBox" parent="MarginContainer/HBox/MenuBar/HBoxContainer/UIScale"]
+layout_mode = 2
+max_value = 3.0
+step = 0.1
 
 [node name="Version" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
 unique_name_in_owner = true
@@ -295,7 +318,7 @@ script = ExtResource("9")
 context_menu = NodePath("ContextMenu")
 
 [node name="ContextMenu" type="PopupMenu" parent="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed"]
-size = Vector2i(120, 116)
+size = Vector2i(100, 106)
 item_count = 4
 item_0/text = "Edit"
 item_1/text = "Move Up"
@@ -371,112 +394,114 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 40
 
-[node name="Panel" type="PanelContainer" parent="AddNew/Container"]
+[node name="PanelFloating" type="PanelContainer" parent="AddNew/Container"]
 layout_mode = 2
-theme_override_styles/panel = ExtResource("12")
+theme_type_variation = &"PanelFloating"
 
-[node name="Margin" type="MarginContainer" parent="AddNew/Container/Panel"]
+[node name="Margin" type="MarginContainer" parent="AddNew/Container/PanelFloating"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="VBox" type="VBoxContainer" parent="AddNew/Container/Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="AddNew/Container/PanelFloating/Margin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
+[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox"]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="AddNew/Container/Panel/Margin/VBox/HBoxContainer"]
+[node name="Title" type="Label" parent="AddNew/Container/PanelFloating/Margin/VBox/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Add new version or project.."
 horizontal_alignment = 1
 
-[node name="Close" type="Button" parent="AddNew/Container/Panel/Margin/VBox/HBoxContainer"]
+[node name="Close" type="Button" parent="AddNew/Container/PanelFloating/Margin/VBox/HBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
 tooltip_text = "Close	"
-icon = ExtResource("16_o1n66")
+theme_override_font_sizes/font_size = 30
+text = "✕"
+flat = true
 
-[node name="name" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
+[node name="name" type="HBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/name"]
+[node name="VBoxContainer" type="VBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox/name"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="AddNew/Container/Panel/Margin/VBox/name/VBoxContainer"]
+[node name="Label" type="Label" parent="AddNew/Container/PanelFloating/Margin/VBox/name/VBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Name"
 
-[node name="NameLineEdit" type="LineEdit" parent="AddNew/Container/Panel/Margin/VBox/name/VBoxContainer"]
+[node name="NameLineEdit" type="LineEdit" parent="AddNew/Container/PanelFloating/Margin/VBox/name/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="path" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
+[node name="path" type="HBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/path"]
+[node name="VBoxContainer" type="VBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox/path"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox/path/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="AddNew/Container/PanelFloating/Margin/VBox/path/VBoxContainer/HBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Path3D"
 
-[node name="AddVersionSelect" type="MenuButton" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer"]
+[node name="AddVersionSelect" type="MenuButton" parent="AddNew/Container/PanelFloating/Margin/VBox/path/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Select"
 flat = false
 
-[node name="Select" type="Button" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer"]
+[node name="Select" type="Button" parent="AddNew/Container/PanelFloating/Margin/VBox/path/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Find"
 
-[node name="PathLineEdit" type="LineEdit" parent="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer"]
+[node name="PathLineEdit" type="LineEdit" parent="AddNew/Container/PanelFloating/Margin/VBox/path/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="arguments" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox"]
+[node name="arguments" type="HBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/arguments"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox/arguments"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="AddNew/Container/PanelFloating/Margin/VBox/arguments/VBoxContainer2"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/HBoxContainer"]
+[node name="Label" type="Label" parent="AddNew/Container/PanelFloating/Margin/VBox/arguments/VBoxContainer2/HBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Arguments"
 
-[node name="PrettifyButton" type="Button" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/HBoxContainer"]
+[node name="PrettifyButton" type="Button" parent="AddNew/Container/PanelFloating/Margin/VBox/arguments/VBoxContainer2/HBoxContainer"]
 layout_mode = 2
 tooltip_text = "Arguments text when used will have new lines replaced with spaces."
 text = "Prettify"
 
-[node name="ArgumentsTextEdit" type="TextEdit" parent="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2"]
+[node name="ArgumentsTextEdit" type="TextEdit" parent="AddNew/Container/PanelFloating/Margin/VBox/arguments/VBoxContainer2"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
@@ -488,14 +513,14 @@ text = "1 sadfa asdgasdgf
 5 sadfa asdgasdgf
 6 sadfa asdgasdgf"
 
-[node name="Tip" type="Label" parent="AddNew/Container/Panel/Margin/VBox"]
+[node name="Tip" type="Label" parent="AddNew/Container/PanelFloating/Margin/VBox"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.921569, 0.921569, 0.921569, 1)
 theme_override_font_sizes/font_size = 12
 text = "Tip: to launch a project directly add to arguments: --path \"path/to/project_folder\""
 
-[node name="AddButton" type="Button" parent="AddNew/Container/Panel/Margin/VBox"]
+[node name="AddButton" type="Button" parent="AddNew/Container/PanelFloating/Margin/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
@@ -520,11 +545,12 @@ filters = PackedStringArray("*.exe ; Windows executable", "*.app ; OSX Applicati
 [connection signal="timeout" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect/autoupdate" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_autoupdate_timeout"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version&Refresh/Refresh" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Refresh_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Download" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Download_pressed"]
-[connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
+[connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/OpenFolder" to="MarginContainer/HBox/MenuBar/OpenFolder" method="_on_OpenFolder_pressed"]
-[connection signal="value_changed" from="MarginContainer/HBox/MenuBar/UIScale/SpinBox" to="MarginContainer/HBox/MenuBar/UIScale" method="_on_SpinBox_value_changed"]
 [connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer" to="MarginContainer/HBox/MenuBar/Version" method="_on_LogoContainer_gui_input"]
+[connection signal="item_selected" from="MarginContainer/HBox/MenuBar/HBoxContainer/HBoxContainer/ThemeSwitch" to="MarginContainer/HBox/MenuBar/HBoxContainer/HBoxContainer/ThemeSwitch" method="_on_item_selected"]
+[connection signal="value_changed" from="MarginContainer/HBox/MenuBar/HBoxContainer/UIScale/SpinBox" to="MarginContainer/HBox/MenuBar/HBoxContainer/UIScale" method="_on_SpinBox_value_changed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
 [connection signal="toggled" from="MarginContainer/HBox/InstalledContainer/VBoxContainer/CloseOnLaunch" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_CloseOnLaunch_toggled"]
@@ -533,10 +559,10 @@ filters = PackedStringArray("*.exe ; Windows executable", "*.app ; OSX Applicati
 [connection signal="id_pressed" from="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed/ContextMenu" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_ContextMenu_id_pressed"]
 [connection signal="version_added" from="AddNew" to="MarginContainer/HBox/InstalledContainer/VBoxContainer/Installed" method="_on_version_added"]
 [connection signal="visibility_changed" from="AddNew" to="AddNew" method="_on_visibility_changed"]
-[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/HBoxContainer/Close" to="AddNew" method="_on_Close_pressed"]
-[connection signal="text_changed" from="AddNew/Container/Panel/Margin/VBox/name/VBoxContainer/NameLineEdit" to="AddNew" method="_validate"]
-[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/HBoxContainer/Select" to="AddNew" method="_on_Select_pressed"]
-[connection signal="text_changed" from="AddNew/Container/Panel/Margin/VBox/path/VBoxContainer/PathLineEdit" to="AddNew" method="_validate"]
-[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/HBoxContainer/PrettifyButton" to="AddNew" method="_on_prettify_button_pressed"]
-[connection signal="text_changed" from="AddNew/Container/Panel/Margin/VBox/arguments/VBoxContainer2/ArgumentsTextEdit" to="AddNew" method="_validate"]
-[connection signal="pressed" from="AddNew/Container/Panel/Margin/VBox/AddButton" to="AddNew" method="_on_Add_pressed"]
+[connection signal="pressed" from="AddNew/Container/PanelFloating/Margin/VBox/HBoxContainer/Close" to="AddNew" method="_on_Close_pressed"]
+[connection signal="text_changed" from="AddNew/Container/PanelFloating/Margin/VBox/name/VBoxContainer/NameLineEdit" to="AddNew" method="_validate"]
+[connection signal="pressed" from="AddNew/Container/PanelFloating/Margin/VBox/path/VBoxContainer/HBoxContainer/Select" to="AddNew" method="_on_Select_pressed"]
+[connection signal="text_changed" from="AddNew/Container/PanelFloating/Margin/VBox/path/VBoxContainer/PathLineEdit" to="AddNew" method="_validate"]
+[connection signal="pressed" from="AddNew/Container/PanelFloating/Margin/VBox/arguments/VBoxContainer2/HBoxContainer/PrettifyButton" to="AddNew" method="_on_prettify_button_pressed"]
+[connection signal="text_changed" from="AddNew/Container/PanelFloating/Margin/VBox/arguments/VBoxContainer2/ArgumentsTextEdit" to="AddNew" method="_validate"]
+[connection signal="pressed" from="AddNew/Container/PanelFloating/Margin/VBox/AddButton" to="AddNew" method="_on_Add_pressed"]

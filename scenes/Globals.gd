@@ -6,7 +6,13 @@ const APP_ICONS_PATH: String = "user://app_icons"
 const GITHUB_AUTH_BEARER_TOKEN_PATH: String = "user://github_auth_bearer_token.txt"
 
 const DOWNLOAD_DB_VERSION = 1
-const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
+const DEFAULT_CONFIG : Dictionary = {
+		"ui": {
+			"alpha": false, "beta": false, "rc": false
+		},
+		"theme": "light",
+		"versions" : [] 
+	}
 
 # Update before commiting
 # Use semver
@@ -23,6 +29,8 @@ func _ready():
 	if FileAccess.file_exists(GITHUB_AUTH_BEARER_TOKEN_PATH):
 		file = FileAccess.open(GITHUB_AUTH_BEARER_TOKEN_PATH, FileAccess.READ)
 		github_auth_bearer_token = file.get_as_text()
+	
+	update_theme()
 
 # Read the config from file
 func read_config() -> Dictionary:
@@ -37,6 +45,7 @@ func read_config() -> Dictionary:
 	test_json_conv.parse(file.get_as_text())
 	var config = test_json_conv.get_data()
 	file.close()
+	
 	return config
 
 
@@ -59,6 +68,24 @@ func update_ui_flag(flag: String, value): #switch: bool):
 	config.ui[flag] = value
 	write_config(config)
 
+func update_theme(p_theme_name: String = "") -> void:
+	var config = read_config()
+	const themes_path := "res://themes/"
+	const theme_filename := "main.tres"
+	var theme_name: String = config.theme
+	if p_theme_name != "":
+		theme_name = p_theme_name
+	var default_theme_filepath = str(themes_path, '/', DEFAULT_CONFIG.theme, '/', theme_filename)
+	var theme_filepath = str(themes_path, '/', theme_name, '/', theme_filename)
+	
+	if ResourceLoader.exists(theme_filepath):
+		get_window().theme = load(theme_filepath)
+		if p_theme_name != "":
+			config.theme = p_theme_name
+	else:
+		get_window().theme = load(default_theme_filepath)
+		config.theme = DEFAULT_CONFIG.theme
+	write_config(config)
 
 # Read the download db from file
 func read_download_db() -> Dictionary:

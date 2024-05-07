@@ -31,6 +31,11 @@ Globals="*res://scenes/Globals.gd"
 window/size/viewport_width=1110
 window/energy_saving/keep_screen_on=false
 
+[gui]
+
+theme/custom="res://themes/light/main.tres"
+theme/custom_font="res://fonts/Dosis-Regular.ttf"
+
 [input]
 
 ui_accept={

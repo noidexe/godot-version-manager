@@ -239,7 +239,7 @@ func _create_preview( item_id : int ) -> PanelContainer:
 	icon.texture = get_item_icon(item_id)
 	icon.custom_minimum_size = Vector2(64,64)
 	icon.expand = true
-	ret.add_theme_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
+	ret.theme_type_variation = "PanelDrag"
 	return ret
 
 func _gui_input(event):

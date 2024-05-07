@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="ThemeColors" load_steps=12 format=3 uid="uid://dkekf5aasr1i8"]
+
+[ext_resource type="Script" path="res://themes/scripts/theme_colors.gd" id="1_plvth"]
+[ext_resource type="Script" path="res://themes/scripts/theme_color.gd" id="1_wmg8h"]
+
+[sub_resource type="Resource" id="Resource_o6ec5"]
+script = ExtResource("1_wmg8h")
+color = Color(0.145098, 0.145098, 0.145098, 1)
+theme_properties = Array[String]([""])
+
+[sub_resource type="Resource" id="Resource_mdy8x"]
+script = ExtResource("1_wmg8h")
+color = Color(0, 0, 0, 1)
+theme_properties = Array[String]([""])
+
+[sub_resource type="Resource" id="Resource_dr16t"]
+script = ExtResource("1_wmg8h")
+color = Color(0.337255, 0.619608, 1, 1)
+theme_properties = Array[String](["Button_font_hover_color", "Button_font_pressed_color", "Button_font_hover_pressed_color", "PopupMenu_font_hover_color"])
+
+[sub_resource type="Resource" id="Resource_0wpjs"]
+script = ExtResource("1_wmg8h")
+color = Color(0.815686, 0.815686, 0.815686, 1)
+theme_properties = Array[String](["Button_font_color", "Button_font_focus_color", "ItemList_font_color", "ItemList_font_hovered_color", "ItemList_font_selected_color", "Label_font_color", "LineEdit_font_color", "LineEdit_caret_color", "PopupMenu_font_color", "RichTextLabel_default_color", "TextEdit_caret_color", "TextEdit_font_color", "TooltipLabel_font_color"])
+
+[sub_resource type="Resource" id="Resource_j5md3"]
+script = ExtResource("1_wmg8h")
+color = Color(0.86, 0.86, 0.86, 1)
+theme_properties = Array[String](["Button_font_disabled_color", "Button_icon_disabled_color"])
+
+[sub_resource type="Resource" id="Resource_wi8pw"]
+script = ExtResource("1_wmg8h")
+color = Color(1, 1, 1, 1)
+theme_properties = Array[String](["ButtonRed_font_hover_color"])
+
+[sub_resource type="Resource" id="Resource_4s5iv"]
+script = ExtResource("1_wmg8h")
+color = Color(0.96, 0.96, 0.96, 1)
+theme_properties = Array[String](["LabelArticleTitle_font_color"])
+
+[sub_resource type="Resource" id="Resource_y0vuj"]
+script = ExtResource("1_wmg8h")
+color = Color(0.22, 0.226, 0.25, 1)
+theme_properties = Array[String]([""])
+
+[sub_resource type="Resource" id="Resource_2w7r8"]
+script = ExtResource("1_wmg8h")
+color = Color(0.87, 0.3219, 0.3219, 1)
+theme_properties = Array[String]([""])
+
+[resource]
+script = ExtResource("1_plvth")
+font_color = SubResource("Resource_0wpjs")
+font_accent_color = SubResource("Resource_dr16t")
+font_disabled_color = SubResource("Resource_j5md3")
+font_inverted_color = SubResource("Resource_wi8pw")
+font_inverted_light_color = SubResource("Resource_4s5iv")
+background_color = SubResource("Resource_o6ec5")
+light_background_color = SubResource("Resource_y0vuj")
+dark_background_color = SubResource("Resource_mdy8x")
+warning_color = SubResource("Resource_2w7r8")
