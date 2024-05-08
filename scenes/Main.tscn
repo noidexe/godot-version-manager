@@ -424,6 +424,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 tooltip_text = "Close	"
+theme_type_variation = &"FlatButtonThemed"
 theme_override_font_sizes/font_size = 30
 text = "✕"
 flat = true

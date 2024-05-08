@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=23 format=3 uid="uid://cgbs8xbli8u5r"]
+[gd_resource type="Theme" load_steps=27 format=3 uid="uid://cgbs8xbli8u5r"]
 
 [ext_resource type="FontFile" uid="uid://ct5yfnlyuu2od" path="res://fonts/Dosis-SemiBold.ttf" id="1_o1rrb"]
 [ext_resource type="FontFile" uid="uid://3lahj5a1t450" path="res://fonts/Dosis-Regular.ttf" id="2_6kflm"]
@@ -18,6 +18,14 @@
 [ext_resource type="StyleBox" uid="uid://bppb412aafld4" path="res://themes/Dark/tooltip.stylebox" id="16_eb787"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f4nad"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_d7cuk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wmyu0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gpv3i"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g7rwu"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_abo6v"]
 
@@ -93,6 +101,15 @@ ButtonRed/styles/pressed = ExtResource("5_53ekt")
 CheckBox/styles/hover_pressed = ExtResource("4_gfiew")
 CheckButton/styles/hover_pressed = ExtResource("4_gfiew")
 FileDialog/styles/panel = ExtResource("6_fifkj")
+FlatButtonThemed/base_type = &"Button"
+FlatButtonThemed/colors/font_color = Color(0.815686, 0.815686, 0.815686, 1)
+FlatButtonThemed/colors/font_focus_color = Color(1, 1, 1, 1)
+FlatButtonThemed/colors/font_hover_color = Color(1, 1, 1, 1)
+FlatButtonThemed/colors/font_pressed_color = Color(1, 1, 1, 1)
+FlatButtonThemed/styles/focus = SubResource("StyleBoxEmpty_d7cuk")
+FlatButtonThemed/styles/hover = SubResource("StyleBoxEmpty_wmyu0")
+FlatButtonThemed/styles/normal = SubResource("StyleBoxEmpty_gpv3i")
+FlatButtonThemed/styles/pressed = SubResource("StyleBoxEmpty_g7rwu")
 HBoxContainer/constants/separation = 2
 HSeparator/styles/separator = ExtResource("7_luvuv")
 ItemList/colors/font_color = Color(0.815686, 0.815686, 0.815686, 1)
