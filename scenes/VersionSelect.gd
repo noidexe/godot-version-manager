@@ -371,15 +371,10 @@ func _unhandled_key_input(event):
 
 func _set_full_refresh_mode(enabled : bool):
 	if enabled:
-		var warning = preload("res://theme/warning_button.tres")
-		(refresh_button as Button).add_theme_stylebox_override("normal", warning)
-		(refresh_button as Button).add_theme_stylebox_override("focus", warning)
-		(refresh_button as Button).add_theme_stylebox_override("hover", warning)
+		(refresh_button as Button).theme_type_variation = "ButtonRed"
 		refresh_button.text = "Full Refresh"
 	else:
-		(refresh_button as Button).remove_theme_stylebox_override("normal")
-		(refresh_button as Button).remove_theme_stylebox_override("focus")
-		(refresh_button as Button).remove_theme_stylebox_override("hover")
+		(refresh_button as Button).theme_type_variation = ""
 		refresh_button.text = "Refresh"
 
 

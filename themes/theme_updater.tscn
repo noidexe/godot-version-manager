@@ -1,0 +1,10 @@
+[gd_scene load_steps=4 format=3 uid="uid://smvou13a1bms"]
+
+[ext_resource type="Script" path="res://themes/scripts/theme_updater.gd" id="1_jcx57"]
+[ext_resource type="Theme" uid="uid://g4qvg5yosnmp" path="res://themes/Light/main.tres" id="2_7pmuc"]
+[ext_resource type="Resource" uid="uid://dubhv04ud2f4p" path="res://themes/Light/colors.tres" id="3_d52xm"]
+
+[node name="ThemeUpdater" type="Node"]
+script = ExtResource("1_jcx57")
+theme = ExtResource("2_7pmuc")
+theme_colors = ExtResource("3_d52xm")

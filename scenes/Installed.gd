@@ -25,7 +25,6 @@ func _ready():
 	version_regex.compile("v[0-9].+_")
 	_reload()
 
-
 func _reload():
 	config = Globals.read_config()
 	if "ui" in config:
@@ -137,7 +136,7 @@ func _on_Installed_item_activated(index):
 		print("Close on launch enabled. Quitting.." )
 		get_tree().quit(0)
 
-func _args_string_to_array( args : String ) -> PackedStringArray:
+func _args_string_to_array(args : String) -> PackedStringArray:
 	var ret = PackedStringArray()
 	var quoting = false
 	var tmp = String()
@@ -159,6 +158,7 @@ func _args_string_to_array( args : String ) -> PackedStringArray:
 	if not tmp.is_empty():
 		ret.append(tmp)
 	return ret
+
 
 func _on_version_added():
 	_reload()
@@ -239,7 +239,7 @@ func _create_preview( item_id : int ) -> PanelContainer:
 	icon.texture = get_item_icon(item_id)
 	icon.custom_minimum_size = Vector2(64,64)
 	icon.expand = true
-	ret.add_theme_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
+	ret.theme_type_variation = "PanelDrag"
 	return ret
 
 func _gui_input(event):
