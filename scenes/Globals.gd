@@ -10,7 +10,7 @@ const DEFAULT_CONFIG : Dictionary = {
 		"ui": {
 			"alpha": false, "beta": false, "rc": false
 		},
-		"theme": "light",
+		"theme": "Light",
 		"versions" : [] 
 	}
 

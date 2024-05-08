@@ -33,7 +33,7 @@ window/energy_saving/keep_screen_on=false
 
 [gui]
 
-theme/custom="res://themes/light/main.tres"
+theme/custom="res://themes/Light/main.tres"
 theme/custom_font="res://fonts/Dosis-Regular.ttf"
 
 [input]
