@@ -13,7 +13,7 @@ func _ready() -> void:
 	for t in _themes:
 		add_item(t)
 	var config = Globals.read_config()
-	var active_theme_id = _themes.find(config.theme)
+	var active_theme_id = _themes.find(config.get("theme", Globals.DEFAULT_CONFIG.theme))
 	select(active_theme_id)
 
 
