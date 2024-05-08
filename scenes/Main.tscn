@@ -68,7 +68,7 @@ layout_mode = 2
 
 [node name="Mono" type="CheckButton" parent="MarginContainer/HBox/MenuBar/Include"]
 layout_mode = 2
-text = "Mono"
+text = "C# Support"
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar/Include"]
 layout_mode = 2
