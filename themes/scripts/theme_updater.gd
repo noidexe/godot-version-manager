@@ -19,7 +19,7 @@ extends Node
 			theme_colors.changed.disconnect(update_colors)
 		if c != null:
 			c.changed.connect(update_colors)
-			
+		
 		theme_colors = c
 		
 		if c != null:

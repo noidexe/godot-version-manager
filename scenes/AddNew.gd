@@ -101,7 +101,7 @@ func _on_AddNew_about_to_show():
 		line_edit_name.text = entry.name
 		line_edit_path.text = entry.path
 		line_edit_path.caret_column = line_edit_path.text.length()
-		line_edit_arguments.text = entry.arguments_raw
+		line_edit_arguments.text = entry.get("arguments_raw", entry.arguments)
 		add_button.text = "Save"
 	_populate_version_list()
 
