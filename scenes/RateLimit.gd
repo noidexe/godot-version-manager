@@ -4,6 +4,7 @@ var total : int = -1
 var remaining: int = -1
 var reset_time: int = -1
 var retry_after: int = -1
+var invalid_credentials : bool = false
 
 onready var time_zone : int = Time.get_time_zone_from_system().bias
 
@@ -56,6 +57,8 @@ func _update_display():
 		text = text_template_exceeded % (retry_after if retry_after != -1 else txt_reset_time)
 	else:
 		text = text_template_normal % [remaining, total]
+	if invalid_credentials:
+		text += " ## INVALID OR EXPIRED TOKEN! ##"
 
 func _get_time_for_timezone(time : int)-> String:
 	var offset_seconds = time_zone * 60

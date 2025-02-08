@@ -272,11 +272,15 @@ func _scrape_github_url(page: int, per_page: int, url: String):
 	else:
 		printerr("Error scraping link. Response code: %s" % response[1])
 		printerr((response[3] as PoolByteArray).get_string_from_utf8())
+		
+		# Reset auth_bearer_token if we got a 401. Proably expired
+		if response[1] == 401:
+			rate_limit.invalid_credentials = true
 		# Make sure we still return data in the expected format
 		results = [{ "assets" : [] }]
 	rate_limit.update_info(response[2])
 	req.queue_free()
-	return [results, response[2]]
+	return [results, response[2], response[1]]
 
 func _process_github(results, db: Dictionary):
 	for entry in results:
@@ -308,6 +312,11 @@ func _scrape_github(db: Dictionary, is_full: bool):
 			page += 1
 			refresh_button_text = "Collecting Releases Page %s" % page
 			returns = yield(_scrape_github_url(page, 100, next_url), "completed")
+			if returns[2] == 401:
+				Globals.github_auth_bearer_token = ""
+				printerr("Error with Authentication Token, reseting to unauthenticated requests")
+				returns = yield(_scrape_github_url(page, 100, next_url), "completed")
+			
 			_process_github(returns[0], db)
 			var nextLinkFound = false
 			for header in returns[1]:
@@ -322,6 +331,11 @@ func _scrape_github(db: Dictionary, is_full: bool):
 		# fallback to the releases list with but limit it to 1 release on page 1
 		refresh_button_text = "Checking for new Releases"
 		returns = yield(_scrape_github_url(1, 1, ""), "completed")
+		if returns[2] == 401:
+			printerr("Error with Authentication Token, reseting to unauthenticated requests")
+			Globals.github_auth_bearer_token = ""
+			returns = yield(_scrape_github_url(1, 1, ""), "completed")
+
 		var path = ""
 		for asset in returns[0][0]["assets"]:
 			var full_path = asset["browser_download_url"]
