@@ -1,0 +1,4 @@
+res://default_env.tres
+res://scenes/Main.tscn
+res://scenes/Globals.gd
+res://scenes/theme_switch.gd
