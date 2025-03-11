@@ -147,6 +147,7 @@ script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+add_desktop_shortcut = true
 refresh_button_path = NodePath("../Refresh")
 download_button_path = NodePath("../../Download")
 stable_button_path = NodePath("../../Include/Stable")

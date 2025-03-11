@@ -1,23 +1,26 @@
 extends ItemList
 
+const DESKTOP_ENTRY_FOLDER = ".local/share/applications"
+
 # Shows a slightly different icon for alpha, beta, rc, etc. Will be replaced by
 # official icons when https://github.com/godotengine/godot-proposals/issues/541
 # is approved
 var icons = {
-	"tools" : preload("res://icons/master.res"),
-	"dev" : preload("res://icons/master.res"),
-	"alpha" : preload("res://icons/alpha.res"),
-	"beta" : preload("res://icons/beta.res"),
-	"rc" : preload("res://icons/rc.res"),
-	"stable" : preload("res://icons/stable.res")
+	"tools": preload("res://icons/master.res"),
+	"dev": preload("res://icons/master.res"),
+	"alpha": preload("res://icons/alpha.res"),
+	"beta": preload("res://icons/beta.res"),
+	"rc": preload("res://icons/rc.res"),
+	"stable": preload("res://icons/stable.res")
 }
 
 # TODO: Move the config to Globals.gd and centralize config
 # manipulation
-var config : Dictionary
-export var context_menu : NodePath
+var config: Dictionary
+export var context_menu: NodePath
 
-var version_regex : RegEx
+var version_regex: RegEx
+
 
 func _ready():
 	version_regex = RegEx.new()
@@ -50,19 +53,20 @@ func _get_name(version):
 			ret += version_number % "custom ver."
 	return ret
 
-func _get_icon_path_from_project(path_to_project : String):
+
+func _get_icon_path_from_project(path_to_project: String):
 	# This should be easier loading project.godot as a ConfigFile
 	# Unfortunately some identifiers like Vector4 break parsing
 	# It would probably work if we migrate GVM to Godot 4
-	
+
 	var ret = ""
 	var file := File.new()
 	var err := file.open(path_to_project, File.READ)
 	if err != OK:
 		printerr("Error loading project.godot at " + path_to_project)
 		return ret
-	
-	var in_section = false # true if we reached [application]
+
+	var in_section = false  # true if we reached [application]
 	while not file.eof_reached():
 		var line: String = file.get_line().strip_edges()
 		if line == "[application]":
@@ -81,19 +85,22 @@ func _get_icon_path_from_project(path_to_project : String):
 	file.close()
 	return ret
 
-func _get_correct_icon(v_name : String, v_args : String):
+
+func _get_correct_icon(v_name: String, v_args: String):
 	# Handle Godot projects
 	if "--path" in v_args:
 		var args = _args_string_to_array(v_args)
-		var project_path : String = args[ args.find("--path") + 1 ]
+		var project_path: String = args[args.find("--path") + 1]
 		if OS.has_feature("Windows"):
 			# Strip \ and " from left and right
-			project_path = project_path.lstrip("\\\"").rstrip("\\\"") + "\\"
+			project_path = project_path.lstrip('\\"').rstrip('\\"') + "\\"
 		else:
 			# Strip " from left, and strip / and " from right
-			project_path = project_path.lstrip("\"").rstrip("/\"") + "/"
-		
-		return _load_icon_from_file(project_path + _get_icon_path_from_project(project_path + "project.godot"))
+			project_path = project_path.lstrip('"').rstrip('/"') + "/"
+
+		return _load_icon_from_file(
+			project_path + _get_icon_path_from_project(project_path + "project.godot")
+		)
 	# Handle Godot versions
 	if "godot" in v_name.to_lower():
 		for test in ["tools", "dev", "alpha", "beta", "rc", "stable"]:
@@ -117,11 +124,11 @@ func _get_correct_icon(v_name : String, v_args : String):
 
 
 func _on_Installed_item_activated(index):
-	var pid :int
-	var path : String =  config.versions[index].path
+	var pid: int
+	var path: String = config.versions[index].path
 	var is_game_project = "--path" in config.versions[index].arguments
 	var is_godot = "godot" in path.to_lower()
-	var args : PoolStringArray = _args_string_to_array(config.versions[index].arguments)
+	var args: PoolStringArray = _args_string_to_array(config.versions[index].arguments)
 	if is_game_project:
 		args.append("-e")
 	elif is_godot:
@@ -132,12 +139,13 @@ func _on_Installed_item_activated(index):
 		pid = OS.execute("open", osx_args, false)
 	else:
 		pid = OS.execute(ProjectSettings.globalize_path(path), args, false)
-	print( "Running \"%s\" with pid %s" % [ path, pid ] )
+	print('Running "%s" with pid %s' % [path, pid])
 	if $"%CloseOnLaunch".pressed:
-		print("Close on launch enabled. Quitting.." )
+		print("Close on launch enabled. Quitting..")
 		get_tree().quit(0)
 
-func _args_string_to_array( args : String ) -> PoolStringArray:
+
+func _args_string_to_array(args: String) -> PoolStringArray:
 	var ret = PoolStringArray()
 	var quoting = false
 	var tmp = String()
@@ -145,20 +153,21 @@ func _args_string_to_array( args : String ) -> PoolStringArray:
 		if c == " " and not quoting:
 			ret.append(tmp)
 			tmp = String()
-		elif c == "\"":
+		elif c == '"':
 			tmp += c
 			if not quoting:
 				quoting = true
 			else:
 				quoting = false
 				#no quotes needed
-				ret.append(tmp.rstrip("\"").lstrip("\""))
+				ret.append(tmp.rstrip('"').lstrip('"'))
 				tmp = String()
 		else:
 			tmp += c
 	if not tmp.empty():
 		ret.append(tmp)
 	return ret
+
 
 func _on_version_added():
 	_reload()
@@ -177,30 +186,50 @@ func _on_ContextMenu_id_pressed(id):
 			_move(item, 1)
 		3:
 			_delete(item)
-	
 
 
 func _delete(idx):
+	var version = config.versions[idx]
+
+	# If this is a Godot version (not a project) and we're on Linux, remove its desktop entry
+	if "godot" in version.name.to_lower() and OS.has_feature("X11"):
+		_remove_desktop_shortcut(version.name)
+
 	config.versions.remove(idx)
 	Globals.write_config(config)
 	_reload()
 
 
-func _move(idx : int, offset: int):
+func _remove_desktop_shortcut(v_name: String) -> void:
+	var safe_name = v_name.replace(".", "_")
+	var desktop_file_path = OS.get_environment("HOME").plus_file(
+		DESKTOP_ENTRY_FOLDER.plus_file("%s.desktop" % safe_name)
+	)
+
+	var dir = Directory.new()
+	if dir.file_exists(desktop_file_path):
+		var err = dir.remove(desktop_file_path)
+		if err != OK:
+			printerr("Failed to remove desktop shortcut: ", err)
+
+
+func _move(idx: int, offset: int):
 	var to_move = config.versions[idx]
 	config.versions.remove(idx)
-	var new_idx = clamp(idx + offset, 0, config.versions.size() )
+	var new_idx = clamp(idx + offset, 0, config.versions.size())
 	config.versions.insert(new_idx, to_move)
 	Globals.write_config(config)
 	_reload()
 
+
 func _edit(idx):
 	$"%AddNew".edit(idx)
+
 
 func _on_Installed_item_rmb_selected(_index, at_position):
 	var menu = get_node(context_menu) as PopupMenu
 	# The top_left is at the beginning of the container
-	# So we need to add the rect_position of the parent node to 
+	# So we need to add the rect_position of the parent node to
 	# Compensate
 	menu.set_position(rect_global_position + at_position + Vector2(0, 20))
 	menu.popup()
@@ -208,23 +237,26 @@ func _on_Installed_item_rmb_selected(_index, at_position):
 
 func _on_CloseOnLaunch_toggled(button_pressed):
 	Globals.update_ui_flag("close_on_launch", button_pressed)
-	pass # Replace with function body.
+	pass  # Replace with function body.
 
 
 func can_drop_data(position, _data):
 	return get_item_at_position(position) != -1
-	
+
+
 func get_drag_data(position):
 	var item_id := get_item_at_position(position)
 	set_drag_preview(_create_preview(item_id))
 	return item_id
-	
+
+
 func drop_data(position, data):
-	var old_pos : int = data
-	var new_pos : int = get_item_at_position(position)
+	var old_pos: int = data
+	var new_pos: int = get_item_at_position(position)
 	_move(old_pos, new_pos - old_pos)
 
-func _create_preview( item_id : int ) -> HBoxContainer:
+
+func _create_preview(item_id: int) -> HBoxContainer:
 	assert(item_id >= 0 and item_id < get_item_count())
 	var ret = PanelContainer.new()
 	var hbox = HBoxContainer.new()
@@ -235,10 +267,11 @@ func _create_preview( item_id : int ) -> HBoxContainer:
 	ret.add_child(hbox)
 	label.text = get_item_text(item_id)
 	icon.texture = get_item_icon(item_id)
-	icon.rect_min_size = Vector2(64,64)
+	icon.rect_min_size = Vector2(64, 64)
 	icon.expand = true
 	ret.add_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
 	return ret
+
 
 func _gui_input(event):
 	if event is InputEventKey:
@@ -248,14 +281,14 @@ func _gui_input(event):
 				_delete(id)
 
 
-func _load_icon_from_file(path: String, default : Texture = preload("res://icon.png")) -> Texture: 
+func _load_icon_from_file(path: String, default: Texture = preload("res://icon.png")) -> Texture:
 	var file = File.new()
-	if file.open(path,File.READ) != OK:
+	if file.open(path, File.READ) != OK:
 		return preload("res://icon.png")
 
 	var buffer = file.get_buffer(file.get_len())
 	file.close()
-	
+
 	var icon_image = Image.new()
 	var err = ERR_BUG
 	# loading svgs at runtime is not supported on Godot 3

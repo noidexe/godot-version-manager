@@ -9,31 +9,30 @@ extends OptionButton
 # Contains info to download and extract the correct version
 # depending on the detected platform
 const platforms = {
-	"X11": {
-		"suffixes": ["_x11.64.zip", "_linux.64.zip", "_linux.x86_64.zip", "_x11_64.zip", "_linux_x86_64.zip"],
-		"extraction-command" : [
+	"X11":
+	{
+		"suffixes":
+		["_x11.64.zip", "_linux.64.zip", "_linux.x86_64.zip", "_x11_64.zip", "_linux_x86_64.zip"],
+		"extraction-command":
+		[
 			"unzip",
-			[
-				"{zip_path}",
-				"-d",
-				"{dest_folder}"
-			],
+			["{zip_path}", "-d", "{dest_folder}"],
 		]
 	},
-	"OSX": {
+	"OSX":
+	{
 		"suffixes": ["_osx.universal.zip", "_macos.universal.zip", "_osx64.zip", "_osx.64.zip"],
-		"extraction-command" : [
+		"extraction-command":
+		[
 			"unzip",
-			[
-				"{zip_path}",
-				"-d",
-				"{dest_folder}"
-			],
+			["{zip_path}", "-d", "{dest_folder}"],
 		]
 	},
-	"Windows": {
+	"Windows":
+	{
 		"suffixes": ["_win64.exe.zip", "_win64.zip"],
-		"extraction-command" : [
+		"extraction-command":
+		[
 			"powershell.exe",
 			[
 				"-command",
@@ -43,8 +42,16 @@ const platforms = {
 	}
 }
 
+const ICON_FOLDER = ".local/share/icons/godot/"
+const ICON_TYPES = {
+	"dev": "master", "alpha": "alpha", "beta": "beta", "rc": "rc", "stable": "stable"
+}
+
 # Currently detected platform (Windows, OSX, Linux, etc)
 var current_platform
+
+# Flag to add desktop shortcut
+export var add_desktop_shortcut = false
 
 # base_url used for scraping
 const base_url = "https://api.github.com/repos/godotengine/godot-builds/releases?per_page=%d&page=%d"
@@ -55,7 +62,7 @@ var requests = 0
 #text shown in the refresh button
 var refresh_button_text = "Refreshing"
 
-# download_db contains a list of names and download paths, 
+# download_db contains a list of names and download paths,
 # and gets serialized to JSON in the user data folder
 # download_db  = {
 # 	"last_updated" : <unix timestamp>
@@ -74,11 +81,11 @@ var refresh_button_text = "Refreshing"
 #	}
 
 # }
-var download_db : Dictionary 
+var download_db: Dictionary
 
 # Filtered version of download_db excluding alphas, betas, or rcs depending
 # on settings
-var filtered_db_view :  Array
+var filtered_db_view: Array
 
 # Used to regenerate filtered_db_view
 var stable_included = true
@@ -88,15 +95,15 @@ var rc_included = false
 var dev_included = false
 var mono_included = false
 
-export var refresh_button_path : NodePath 
-export var download_button_path : NodePath
-export var stable_button_path : NodePath
-export var alpha_button_path : NodePath
-export var beta_button_path : NodePath
-export var rc_button_path : NodePath
-export var dev_button_path : NodePath
-export var mono_button_path : NodePath
-export var rate_limit_path : NodePath
+export var refresh_button_path: NodePath
+export var download_button_path: NodePath
+export var stable_button_path: NodePath
+export var alpha_button_path: NodePath
+export var beta_button_path: NodePath
+export var rc_button_path: NodePath
+export var dev_button_path: NodePath
+export var mono_button_path: NodePath
+export var rate_limit_path: NodePath
 
 onready var refresh_button = get_node(refresh_button_path)
 onready var download_button = get_node(download_button_path)
@@ -108,25 +115,34 @@ onready var dev_button = get_node(dev_button_path)
 onready var mono_button = get_node(mono_button_path)
 onready var rate_limit = get_node(rate_limit_path)
 
-signal refresh_started()
+signal refresh_started
 # Emitted when the download_db has been updated
-signal refresh_finished()
+signal refresh_finished
 var is_refreshing := false
 
-signal download_started()
-signal download_finished()
+signal download_started
+signal download_finished
 var is_downloading := false
 
 # Emitted when a version is added to the list of installed versions
-signal version_added() 
+signal version_added
 
 
 func _ready():
 	# VALIDATE BUTTON PATHS ( Will use scene unique names when 3.5 reaches stable)
-	for button in [refresh_button, download_button, stable_button, alpha_button, beta_button, rc_button, dev_button, mono_button, rate_limit]:
+	for button in [
+		refresh_button,
+		download_button,
+		stable_button,
+		alpha_button,
+		beta_button,
+		rc_button,
+		dev_button,
+		mono_button,
+		rate_limit
+	]:
 		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
-	
-	
+
 	# DETECT PLATFORM
 	if OS.has_feature("Windows"):
 		current_platform = "Windows"
@@ -134,25 +150,22 @@ func _ready():
 		current_platform = "OSX"
 	elif OS.has_feature("X11"):
 		current_platform = "X11"
-		
-	
+
 	# RESTORE UI FLAGS
 	var config = Globals.read_config()
 	if "ui" in config:
-		stable_button.pressed = config.ui.get("stable", stable_button.pressed )
-		alpha_button.pressed = config.ui.get("alpha", alpha_button.pressed )
-		beta_button.pressed = config.ui.get("beta", beta_button.pressed )
-		rc_button.pressed = config.ui.get("rc", rc_button.pressed )
-		dev_button.pressed = config.ui.get("dev", dev_button.pressed )
-		mono_button.pressed = config.ui.get("mono", mono_button.pressed )
-		
-	
+		stable_button.pressed = config.ui.get("stable", stable_button.pressed)
+		alpha_button.pressed = config.ui.get("alpha", alpha_button.pressed)
+		beta_button.pressed = config.ui.get("beta", beta_button.pressed)
+		rc_button.pressed = config.ui.get("rc", rc_button.pressed)
+		dev_button.pressed = config.ui.get("dev", dev_button.pressed)
+		mono_button.pressed = config.ui.get("mono", mono_button.pressed)
+
 	# RELOAD
 	_reload()
 
-	yield(get_tree(),"idle_frame")
+	yield(get_tree(), "idle_frame")
 	_on_autoupdate_timeout()
-
 
 
 # Deserializes json version of download_db and
@@ -161,22 +174,25 @@ func _reload():
 	download_db = Globals.read_download_db()
 	_update_list()
 
+
 const TAGS = {
-	"dev" : "a",
-	"alpha" : "b",
-	"beta" : "c",
-	"rc" : "d",
-	"stable" : "e",
+	"dev": "a",
+	"alpha": "b",
+	"beta": "c",
+	"rc": "d",
+	"stable": "e",
 }
+
+
 # Uses natural order sort to sort based on semver
-func _version_sort(a : String, b: String):
+func _version_sort(a: String, b: String):
 	# Get the name of the file from the url
-	# Otherwise the full url will cause naturalnocasemp_to 
+	# Otherwise the full url will cause naturalnocasemp_to
 	# sort incorrectly
 	var a_split = a.split("/")
 	var b_split = b.split("/")
-	a = a_split[a_split.size()-1]
-	b = b_split[b_split.size()-1]
+	a = a_split[a_split.size() - 1]
+	b = b_split[b_split.size() - 1]
 	for tag in TAGS:
 		a = a.replace(tag, TAGS[tag])
 		b = b.replace(tag, TAGS[tag])
@@ -185,63 +201,61 @@ func _version_sort(a : String, b: String):
 
 # Scrapes downloads website and regenerates
 # downloads_db
-func _refresh( is_full : bool = false ):
+func _refresh(is_full: bool = false):
 	emit_signal("refresh_started")
 	is_refreshing = true
 	if is_full:
 		Globals.delete_download_db()
-	_reload() # in case download_db.json was modified on disk
-	
+	_reload()  # in case download_db.json was modified on disk
+
 	# if last_updated is 0 it's a fresh db and we need a full refresh
 	if download_db.get("last_updated", 0) <= 0:
 		is_full = true
-	
+
 	var new_db = download_db.duplicate(true)
 	_scrape_github(new_db, is_full)
 
 	# Wait for _find_links to finish
 	while requests > 0:
-		yield(get_tree().create_timer(1.0),"timeout")
-	
+		yield(get_tree().create_timer(1.0), "timeout")
+
 	# Build download_db
 	var _download_links = new_db.cache.download_links.keys()
 	var _versions = []
 	_download_links.sort_custom(self, "_version_sort")
-	
+
 	_download_links.invert()
 	for link in _download_links:
 		var suffixes = platforms[current_platform].suffixes
 		var _entry_name = link.get_file()
 		for suffix in suffixes:
 			_entry_name = _entry_name.trim_suffix(suffix)
-		var entry = {
-			"name" : _entry_name,
-			"path" : link
-		}
+		var entry = {"name": _entry_name, "path": link}
 		_versions.append(entry)
-	
+
 	new_db.versions = _versions
 	new_db["last_updated"] = OS.get_unix_time()
-	
+
 	# Store download_db as json
 	Globals.write_download_db(new_db)
-	
+
 	is_refreshing = false
 	emit_signal("refresh_finished", new_db)
 
-func _is_version_directory( href: String) -> bool:
-	return ( 
-		href.begins_with("mono") or
-		href.begins_with("alpha") or
-		href.begins_with("beta") or
-		href.begins_with("rc") or
-		href.begins_with("dev") or # New in 4.x
-		href.begins_with("20200815") or # Handle 2.1.7 rc odd naming scheme
-		(href[0].is_valid_integer() and href[1] == ".") # x.x.x/ etc..
-		)
+
+func _is_version_directory(href: String) -> bool:
+	return (
+		href.begins_with("mono")
+		or href.begins_with("alpha")
+		or href.begins_with("beta")
+		or href.begins_with("rc")
+		or href.begins_with("dev")  # New in 4.x
+		or href.begins_with("20200815")  # Handle 2.1.7 rc odd naming scheme
+		or (href[0].is_valid_integer() and href[1] == ".")
+	)  # x.x.x/ etc..
 
 
-func _is_link_mono_version( href: String) -> bool:
+func _is_link_mono_version(href: String) -> bool:
 	# "/mono/" should be somewhere in the url
 	if not "/mono/" in href:
 		return false
@@ -257,30 +271,35 @@ func _scrape_github_url(page: int, per_page: int, url: String):
 	var req = HTTPRequest.new()
 	add_child(req)
 
-	var headers = ["User-Agent: %s" % Globals.user_agent, "Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2022-11-28"]
+	var headers = [
+		"User-Agent: %s" % Globals.user_agent,
+		"Accept: application/vnd.github+json",
+		"X-GitHub-Api-Version: 2022-11-28"
+	]
 	if Globals.github_auth_bearer_token != "":
 		headers.append("Authorization: Bearer %s" % Globals.github_auth_bearer_token)
-	if url == "": 
-		req.request(base_url % [per_page, page], headers )
+	if url == "":
+		req.request(base_url % [per_page, page], headers)
 	else:
-		req.request(url, headers )
+		req.request(url, headers)
 
 	var results = []
-	var response = yield(req,"request_completed")
+	var response = yield(req, "request_completed")
 	if response[1] == 200:
 		results = parse_json(response[3].get_string_from_utf8())
 	else:
 		printerr("Error scraping link. Response code: %s" % response[1])
 		printerr((response[3] as PoolByteArray).get_string_from_utf8())
-		
+
 		# Reset auth_bearer_token if we got a 401. Proably expired
 		if response[1] == 401:
 			rate_limit.invalid_credentials = true
 		# Make sure we still return data in the expected format
-		results = [{ "assets" : [] }]
+		results = [{"assets": []}]
 	rate_limit.update_info(response[2])
 	req.queue_free()
 	return [results, response[2], response[1]]
+
 
 func _process_github(results, db: Dictionary):
 	for entry in results:
@@ -292,19 +311,21 @@ func _process_github(results, db: Dictionary):
 				if full_path.ends_with(suffix):
 					db.cache.download_links[full_path] = true
 
-func _get_next_github_url(string : String):
-	var next : String
-	var links : PoolStringArray = string.trim_prefix("Link:").split(",")
+
+func _get_next_github_url(string: String):
+	var next: String
+	var links: PoolStringArray = string.trim_prefix("Link:").split(",")
 	for link in links:
 		var data = link.split(";")
 		if data.size() == 2 and 'rel="next"' in data[1]:
 			next = data[0].lstrip(" <").rstrip(">")
 	return next
-	
+
+
 func _scrape_github(db: Dictionary, is_full: bool):
 	requests += 1
 
-	var page = 0;
+	var page = 0
 	var returns
 	if is_full:
 		var next_url = ""
@@ -316,7 +337,7 @@ func _scrape_github(db: Dictionary, is_full: bool):
 				Globals.github_auth_bearer_token = ""
 				printerr("Error with Authentication Token, reseting to unauthenticated requests")
 				returns = yield(_scrape_github_url(page, 100, next_url), "completed")
-			
+
 			_process_github(returns[0], db)
 			var nextLinkFound = false
 			for header in returns[1]:
@@ -325,7 +346,7 @@ func _scrape_github(db: Dictionary, is_full: bool):
 					break
 			if next_url == "":
 				break
-	else: 
+	else:
 		# we cant use the "offical" releases/lastest API endpoint from github here
 		# because it does not include pre-releases and thus we need to
 		# fallback to the releases list with but limit it to 1 release on page 1
@@ -343,7 +364,7 @@ func _scrape_github(db: Dictionary, is_full: bool):
 			for suffix in suffixes:
 				if full_path.ends_with(suffix):
 					path = full_path
-					break;
+					break
 		if !db.cache.download_links.has(path):
 			refresh_button_text = "Collecting Latest Releases"
 			# we only want to fetch 10 releases here from page 1 to reduce network traffic if we found a release that was missing
@@ -351,14 +372,15 @@ func _scrape_github(db: Dictionary, is_full: bool):
 			_process_github(returns[0], db)
 	requests -= 1
 
+
 # Recreates the drop-down menu for download options
 func _update_list():
 	if not download_db.has("versions"):
 		return
-	
+
 	clear()
 	filtered_db_view = []
-	
+
 	for entry in download_db.versions:
 		# if mono entry should include "mono" and vice versa
 		if mono_included != ("mono" in entry.name):
@@ -369,8 +391,8 @@ func _update_list():
 			or (rc_included and "rc" in entry.name)
 			or (beta_included and "beta" in entry.name)
 			or (alpha_included and "alpha" in entry.name)
-			or (dev_included and "dev" in entry.name) 
-			):
+			or (dev_included and "dev" in entry.name)
+		):
 			filtered_db_view.append(entry)
 
 	for entry in filtered_db_view:
@@ -383,7 +405,8 @@ func _unhandled_key_input(event):
 	if event is InputEventKey and event.physical_scancode == KEY_SHIFT:
 		_set_full_refresh_mode(event.pressed)
 
-func _set_full_refresh_mode(enabled : bool):
+
+func _set_full_refresh_mode(enabled: bool):
 	if enabled:
 		var warning = preload("res://theme/warning_button.tres")
 		(refresh_button as Button).add_stylebox_override("normal", warning)
@@ -404,11 +427,11 @@ func _on_Refresh_pressed():
 	#disabled = true
 	refresh_button.disabled = true
 	var is_full = Input.is_key_pressed(KEY_SHIFT)
-	
-	_refresh( is_full )
-	while requests > 0: 
-		refresh_button.text = "%s %s" % [ refresh_button_text, [".", "..", "..."][randi() % 3] ]
-		yield(get_tree().create_timer(0.2),"timeout")
+
+	_refresh(is_full)
+	while requests > 0:
+		refresh_button.text = "%s %s" % [refresh_button_text, [".", "..", "..."][randi() % 3]]
+		yield(get_tree().create_timer(0.2), "timeout")
 	refresh_button.text = "Refresh"
 	refresh_button.disabled = false
 	$autoupdate.start()
@@ -419,52 +442,90 @@ func _on_Refresh_pressed():
 func _on_Download_pressed():
 	if selected == -1:
 		return false
-	
+
 	is_downloading = true
 	emit_signal("download_started")
 	# Make sure the directory exists
 	var dir = Directory.new()
 	dir.make_dir("user://versions/")
-	
+
 	var _selection = filtered_db_view[selected]
 	download_button.disabled = true
-	
+
 	# TODO: make it work with other platforms
-	var filename =  "user://versions/" + _selection.path.get_file()
+	var filename = "user://versions/" + _selection.path.get_file()
 	var url = _selection.path
-	
+
 	var req = HTTPRequest.new()
 	add_child(req)
 	req.download_file = filename
 	req.request(url, ["User-Agent: %s" % Globals.user_agent], false)
-	
-	var divisor : float = 1024 * 1024
-	
-	while req.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:	
-		download_button.text = "Downloading... %d%% [%.2f/%.2fMB]" % [100.0 * req.get_downloaded_bytes() / req.get_body_size(), req.get_downloaded_bytes() / divisor, req.get_body_size() / divisor]
-		yield(get_tree().create_timer(1.0),"timeout")
-	
+
+	var divisor: float = 1024 * 1024
+
+	while req.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		download_button.text = (
+			"Downloading... %d%% [%.2f/%.2fMB]"
+			% [
+				100.0 * req.get_downloaded_bytes() / req.get_body_size(),
+				req.get_downloaded_bytes() / divisor,
+				req.get_body_size() / divisor
+			]
+		)
+		yield(get_tree().create_timer(1.0), "timeout")
+
 	download_button.text = "Extracting.."
-	yield(get_tree(),"idle_frame")
-	
+	yield(get_tree(), "idle_frame")
+
 	var output = []
-	var exit_code : int
+	var exit_code: int
 	if OS.has_feature("Windows"):
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+		exit_code = OS.execute(
+			"powershell.exe",
+			[
+				"-command",
+				(
+					"\"Expand-Archive '%s' '%s'\" -Force"
+					% [
+						ProjectSettings.globalize_path(filename),
+						ProjectSettings.globalize_path("user://versions/")
+					]
+				)
+			],
+			true,
+			output
+		)
 		print(output.pop_front())
 		print("Powershell.exe executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename) ], true, output) 
+		exit_code = OS.execute(
+			"powershell.exe",
+			["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename)],
+			true,
+			output
+		)
 		print(output.pop_front())
 		print("Powershell.exe executed with exit code: %s" % exit_code)
 		var run_path = filename.trim_suffix(".zip")
 		if "_mono_" in filename:
 			run_path += "/" + _selection.path.get_file().trim_suffix(".zip") + ".exe"
-		_add_version(_selection.name,run_path)
+		_add_version(_selection.name, run_path)
 	elif OS.has_feature("X11"):
-		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		exit_code = OS.execute(
+			"unzip",
+			[
+				"-o",
+				"%s" % ProjectSettings.globalize_path(filename),
+				"-d",
+				"%s" % ProjectSettings.globalize_path("user://versions/")
+			],
+			true,
+			output
+		)
 		print(output.pop_front())
 		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
+		exit_code = OS.execute(
+			"rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output
+		)
 		print(output.pop_front())
 		print("rm executed with exit code: %s" % exit_code)
 		var run_path = filename.trim_suffix(".zip")
@@ -473,55 +534,190 @@ func _on_Download_pressed():
 				run_path += "/" + _selection.name + "_x11.64"
 			elif "v4." in filename:
 				run_path += "/" + _selection.name + "_linux.x86_64"
-		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], true, output )
+		exit_code = OS.execute(
+			"chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path)], true, output
+		)
 		print(output.pop_front())
 		print("chmod executed with exit code: %s" % exit_code)
-		_add_version(_selection.name,run_path)
+		_add_version(_selection.name, run_path)
+		# if enabled, add godot version entry to desktop shortcuts
+		if add_desktop_shortcut:
+			_add_desktop_shortcut(_selection.name, run_path)
 	elif OS.has_feature("OSX"):
-		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		exit_code = OS.execute(
+			"unzip",
+			[
+				"%s" % ProjectSettings.globalize_path(filename),
+				"-d",
+				"%s" % ProjectSettings.globalize_path("user://versions/")
+			],
+			true,
+			output
+		)
 		print(output.pop_front())
 		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
+		exit_code = OS.execute(
+			"rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output
+		)
 		print(output.pop_front())
 		print("rm executed with exit code: %s" % exit_code)
-		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
-		var original_path = "user://versions/Godot_mono.app" if "_mono_" in filename else "user://versions/Godot.app"
-		exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_path), app_full_path], true, output)
+		var app_full_path = (
+			ProjectSettings.globalize_path("user://versions/")
+			+ _selection.name
+			+ ".app"
+		)
+		var original_path = (
+			"user://versions/Godot_mono.app"
+			if "_mono_" in filename
+			else "user://versions/Godot.app"
+		)
+		exit_code = OS.execute(
+			"mv", [ProjectSettings.globalize_path(original_path), app_full_path], true, output
+		)
 		print(output.pop_front())
 		print("mv run with exit code: %s" % exit_code)
 		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
-	
+
 	download_button.disabled = false
 	download_button.text = "Download"
-	
+
 	is_downloading = false
 	emit_signal("download_finished")
 
-# Adds a downloaded version of Godot to the list of 
+
+# Adds a downloaded version of Godot to the list of
 # installed versions
-func _add_version(v_name : String, path: String):
-	var entry = {
-		"name": v_name,
-		"path" : ProjectSettings.globalize_path(path), 
-		"arguments" : ""
-	}
-	
+func _add_version(v_name: String, path: String):
+	var entry = {"name": v_name, "path": ProjectSettings.globalize_path(path), "arguments": ""}
+
 	# Read in the config
 	var config = Globals.read_config()
-	
+
 	# Modify the config
 	config.versions.append(entry)
-	
+
 	# Write out changes
 	Globals.write_config(config)
-	
+
 	emit_signal("version_added")
+
+
+func _add_desktop_shortcut(v_name: String, path: String):
+	# Only proceed if we're on Linux
+	if not OS.has_feature("X11"):
+		return
+
+	# Ensure icons are set up
+	_setup_icons()
+
+	var safe_name = _sanitize_version_name(v_name)
+	var system_path = _prepare_system_path(path)
+	var icon_path = _get_icon_path(v_name)
+	var desktop_entry = _create_desktop_entry_content(v_name, system_path, icon_path)
+	_write_desktop_file(safe_name, desktop_entry)
+
+
+func _sanitize_version_name(v_name: String) -> String:
+	return v_name.replace(".", "_")
+
+
+func _prepare_system_path(path: String) -> String:
+	return '"%s"' % ProjectSettings.globalize_path(path)
+
+
+func _get_icon_path(v_name: String) -> String:
+	var version_name = v_name.to_lower()
+	var icon_type = "stable"  # default icon type
+
+	# Determine icon type based on version name
+	for type in ICON_TYPES:
+		if type in version_name:
+			icon_type = ICON_TYPES[type]
+			break
+
+	return OS.get_environment("HOME").plus_file(ICON_FOLDER).plus_file("%s.png" % icon_type)
+
+
+func _setup_icons() -> void:
+	var home = OS.get_environment("HOME")
+	var icons_dir = home.plus_file(ICON_FOLDER)
+	# Create icons directory if it doesn't exist
+	var dir = Directory.new()
+	if not dir.dir_exists(icons_dir):
+		dir.make_dir_recursive(icons_dir)
+		# Export all icon types
+		for icon_type in ICON_TYPES.values():
+			var icon_texture = load("res://icons/%s.res" % icon_type) as AtlasTexture
+			_save_icon_file(icon_texture, icons_dir.plus_file("%s.png" % icon_type))
+
+
+func _save_icon_file(icon_texture: AtlasTexture, icon_path: String) -> void:
+	var atlas_image = icon_texture.atlas.get_data()
+	var image = Image.new()
+	image.create(
+		icon_texture.region.size.x, icon_texture.region.size.y, false, atlas_image.get_format()
+	)
+	image.blit_rect(atlas_image, icon_texture.region, Vector2.ZERO)
+	image.save_png(icon_path)
+
+
+func _create_desktop_entry_content(
+	v_name: String, system_path: String, icon_path: String
+) -> String:
+	return """[Desktop Entry]
+Name={name}
+GenericName=Libre game engine
+GenericName[el]=Ελεύθερη μηχανή παιχνιδιού
+GenericName[fr]=Moteur de jeu libre
+GenericName[nl]=Libre game-engine
+GenericName[ru]=Свободный игровой движок
+GenericName[uk]=Вільний ігровий рушій
+GenericName[zh_CN]=自由的游戏引擎
+Comment=Multi-platform 2D and 3D game engine with a feature-rich editor
+Comment[el]=2D και 3D μηχανή παιχνιδιού πολλαπλών πλατφορμών με επεξεργαστή πλούσιο σε χαρακτηριστικά
+Comment[fr]=Moteur de jeu 2D et 3D multiplateforme avec un éditeur riche en fonctionnalités
+Comment[nl]=Multi-platform 2D- en 3D-game-engine met een veelzijdige editor
+Comment[ru]=Кроссплатформенный движок с многофункциональным редактором для 2D- и 3D-игр
+Comment[uk]=Багатофункціональний кросплатформний рушій для створення 2D та 3D ігор
+Comment[zh_CN]=多平台 2D 和 3D 游戏引擎，带有功能丰富的编辑器
+Exec={path} %f
+Icon={icon}
+Terminal=false
+PrefersNonDefaultGPU=true
+Type=Application
+MimeType=application/x-godot-project;
+Categories=Development;IDE;
+StartupWMClass=Godot""".format(
+		{"name": v_name, "path": system_path, "icon": icon_path}
+	)
+
+
+func _write_desktop_file(safe_name: String, desktop_entry: String) -> void:
+	var home = OS.get_environment("HOME")
+	var desktop_file_path = home.plus_file(".local/share/applications/%s.desktop" % safe_name)
+
+	# Make sure the applications directory exists
+	var dir = Directory.new()
+	dir.make_dir_recursive(home.plus_file(".local/share/applications"))
+
+	# Write the desktop entry file
+	var file = File.new()
+	var error = file.open(desktop_file_path, File.WRITE)
+	if error == OK:
+		file.store_string(desktop_entry)
+		file.close()
+
+		# Make the desktop file executable
+		var output = []
+		OS.execute("chmod", ["+x", desktop_file_path], true, output)
+	else:
+		printerr("Failed to create desktop shortcut: ", error)
+
 
 func _on_Stable_toggled(button_pressed):
 	stable_included = button_pressed
 	Globals.update_ui_flag("stable", button_pressed)
 	_update_list()
-
 
 
 func _on_Alpha_toggled(button_pressed):
@@ -540,7 +736,8 @@ func _on_RC_toggled(button_pressed):
 	rc_included = button_pressed
 	Globals.update_ui_flag("rc", button_pressed)
 	_update_list()
-	
+
+
 func _on_Dev_toggled(button_pressed):
 	dev_included = button_pressed
 	Globals.update_ui_flag("dev", button_pressed)
@@ -553,7 +750,7 @@ func _on_Mono_toggled(button_pressed):
 	_update_list()
 
 
-func _on_VersionSelect_refresh_finished(new_download_db : Dictionary):
+func _on_VersionSelect_refresh_finished(new_download_db: Dictionary):
 	_set_full_refresh_mode(false)
 	download_db = new_download_db
 	_update_list()
