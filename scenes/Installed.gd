@@ -1,7 +1,8 @@
 extends ItemList
 
 const DESKTOP_ENTRY_FOLDER = ".local/share/applications"
-
+const GVM_APP_FOLDER = ".local/gvm.app"
+const GVM_DESKTOP_ENTRY_NAME = "godot-version-manager.desktop"
 # Shows a slightly different icon for alpha, beta, rc, etc. Will be replaced by
 # official icons when https://github.com/godotengine/godot-proposals/issues/541
 # is approved
@@ -23,6 +24,9 @@ var version_regex: RegEx
 
 
 func _ready():
+	# Check and create GVM desktop entry if needed
+	if OS.has_feature("X11"):
+		_ensure_gvm_desktop_entry()
 	version_regex = RegEx.new()
 # warning-ignore:return_value_discarded
 	version_regex.compile("v[0-9].+_")
@@ -306,3 +310,58 @@ func _load_icon_from_file(path: String, default: Texture = preload("res://icon.p
 	var icon_texture = ImageTexture.new()
 	icon_texture.create_from_image(icon_image)
 	return icon_texture
+
+
+func _ensure_gvm_desktop_entry() -> void:
+	var home = OS.get_environment("HOME")
+	var desktop_entry_path = home.plus_file(DESKTOP_ENTRY_FOLDER).plus_file(GVM_DESKTOP_ENTRY_NAME)
+	var gvm_app_path = home.plus_file(GVM_APP_FOLDER)
+
+	# Create gvm.app folder and copy executable
+	var dir = Directory.new()
+	if dir.file_exists(gvm_app_path):
+		return
+	else:
+		dir.make_dir_recursive(gvm_app_path)
+
+	# Copy the current executable to gvm.app folder
+	var current_exe = OS.get_executable_path()
+	var new_exe_path = gvm_app_path.plus_file("gvm.x86_64")
+	if dir.copy(current_exe, new_exe_path) == OK:
+		# Make it executable
+		OS.execute("chmod", ["+x", new_exe_path], true)
+
+		# Create desktop entry
+		# Copy and save the icon
+		var icon_path = gvm_app_path.plus_file("icon.png")
+		var icon = load("res://icon.png")
+		var image = icon.get_data()
+		image.save_png(icon_path)
+
+		# Create desktop entry
+		var desktop_entry = _create_gvm_desktop_entry(new_exe_path, icon_path)
+		var file = File.new()
+		if file.open(desktop_entry_path, File.WRITE) == OK:
+			file.store_string(desktop_entry)
+			file.close()
+			# Make desktop entry executable
+			OS.execute("chmod", ["+x", desktop_entry_path], true)
+		else:
+			printerr("Failed to create GVM desktop entry")
+	else:
+		printerr("Failed to copy GVM executable")
+
+
+func _create_gvm_desktop_entry(exe_path: String, icon_path: String) -> String:
+	return """[Desktop Entry]
+Name=Godot Version Manager
+GenericName=Version Manager
+Comment=Manage multiple Godot versions and projects
+Exec="{exe}" %f
+Icon={icon}
+Terminal=false
+Type=Application
+Categories=Development;IDE;
+StartupWMClass=Godot Version Manager""".format(
+		{"exe": exe_path, "icon": icon_path}
+	)
