@@ -50,9 +50,6 @@ const ICON_TYPES = {
 # Currently detected platform (Windows, OSX, Linux, etc)
 var current_platform
 
-# Flag to add desktop shortcut
-export var add_desktop_shortcut = false
-
 # base_url used for scraping
 const base_url = "https://api.github.com/repos/godotengine/godot-builds/releases?per_page=%d&page=%d"
 
@@ -87,6 +84,9 @@ var download_db: Dictionary
 # on settings
 var filtered_db_view: Array
 
+# Flag to add desktop shortcut
+var add_desktop_entry = true
+
 # Used to regenerate filtered_db_view
 var stable_included = true
 var alpha_included = false
@@ -104,6 +104,7 @@ export var rc_button_path: NodePath
 export var dev_button_path: NodePath
 export var mono_button_path: NodePath
 export var rate_limit_path: NodePath
+export var desktop_entry_button_path: NodePath
 
 onready var refresh_button = get_node(refresh_button_path)
 onready var download_button = get_node(download_button_path)
@@ -114,6 +115,7 @@ onready var rc_button = get_node(rc_button_path)
 onready var dev_button = get_node(dev_button_path)
 onready var mono_button = get_node(mono_button_path)
 onready var rate_limit = get_node(rate_limit_path)
+onready var desktop_entry_button = get_node(desktop_entry_button_path)
 
 signal refresh_started
 # Emitted when the download_db has been updated
@@ -139,7 +141,8 @@ func _ready():
 		rc_button,
 		dev_button,
 		mono_button,
-		rate_limit
+		rate_limit,
+		desktop_entry_button
 	]:
 		assert(button != null, "Make sure all button_paths are properly assigned in the inspector")
 
@@ -160,6 +163,7 @@ func _ready():
 		rc_button.pressed = config.ui.get("rc", rc_button.pressed)
 		dev_button.pressed = config.ui.get("dev", dev_button.pressed)
 		mono_button.pressed = config.ui.get("mono", mono_button.pressed)
+		desktop_entry_button.pressed = config.ui.get("desktop_entry", desktop_entry_button.pressed)
 
 	# RELOAD
 	_reload()
@@ -541,7 +545,7 @@ func _on_Download_pressed():
 		print("chmod executed with exit code: %s" % exit_code)
 		_add_version(_selection.name, run_path)
 		# if enabled, add godot version entry to desktop shortcuts
-		if add_desktop_shortcut:
+		if add_desktop_entry:
 			_add_desktop_shortcut(_selection.name, run_path)
 	elif OS.has_feature("OSX"):
 		exit_code = OS.execute(
@@ -758,3 +762,9 @@ func _on_VersionSelect_refresh_finished(new_download_db: Dictionary):
 
 func _on_autoupdate_timeout():
 	_on_Refresh_pressed()
+
+
+func _on_AddDesktopEntry_toggled(button_pressed: bool):
+	add_desktop_entry = button_pressed
+	Globals.update_ui_flag("desktop_entry", button_pressed)
+	_update_list()
