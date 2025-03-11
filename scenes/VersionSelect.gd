@@ -149,8 +149,14 @@ func _ready():
 	# DETECT PLATFORM
 	if OS.has_feature("Windows"):
 		current_platform = "Windows"
+		desktop_entry_button.pressed = false
+		desktop_entry_button.visible = false
+		desktop_entry_button.disabled = true
 	elif OS.has_feature("OSX"):
 		current_platform = "OSX"
+		desktop_entry_button.pressed = false
+		desktop_entry_button.visible = false
+		desktop_entry_button.disabled = true
 	elif OS.has_feature("X11"):
 		current_platform = "X11"
 
