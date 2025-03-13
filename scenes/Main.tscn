@@ -75,12 +75,12 @@ custom_constants/margin_bottom = 20
 margin_left = 20.0
 margin_top = 20.0
 margin_right = 1090.0
-margin_bottom = 589.0
+margin_bottom = 624.0
 custom_constants/separation = 10
 
 [node name="MenuBar" type="VBoxContainer" parent="MarginContainer/HBox"]
 margin_right = 329.0
-margin_bottom = 569.0
+margin_bottom = 604.0
 rect_min_size = Vector2( 300, 50 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -156,6 +156,7 @@ rc_button_path = NodePath("../../Include/RC")
 dev_button_path = NodePath("../../Include/Dev")
 mono_button_path = NodePath("../../Include/Mono")
 rate_limit_path = NodePath("../../RateLimit")
+desktop_entry_button_path = NodePath("../../AddDesktopEntry")
 
 [node name="autoupdate" type="Timer" parent="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect"]
 wait_time = 300.0
@@ -184,10 +185,17 @@ custom_fonts/font = SubResource( 3057 )
 align = 1
 script = ExtResource( 16 )
 
-[node name="Download" type="Button" parent="MarginContainer/HBox/MenuBar"]
+[node name="AddDesktopEntry" type="CheckBox" parent="MarginContainer/HBox/MenuBar"]
 margin_top = 127.0
 margin_right = 329.0
-margin_bottom = 187.0
+margin_bottom = 152.0
+pressed = true
+text = "Add Desktop Entry"
+
+[node name="Download" type="Button" parent="MarginContainer/HBox/MenuBar"]
+margin_top = 162.0
+margin_right = 329.0
+margin_bottom = 222.0
 rect_min_size = Vector2( 0, 60 )
 hint_tooltip = "Download the selected version"
 size_flags_horizontal = 3
@@ -197,9 +205,9 @@ __meta__ = {
 }
 
 [node name="Add" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 197.0
+margin_top = 232.0
 margin_right = 329.0
-margin_bottom = 247.0
+margin_bottom = 282.0
 rect_min_size = Vector2( 0, 50 )
 hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
@@ -228,9 +236,9 @@ __meta__ = {
 }
 
 [node name="OpenFolder" type="Button" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 257.0
+margin_top = 292.0
 margin_right = 329.0
-margin_bottom = 282.0
+margin_bottom = 317.0
 hint_tooltip = "Add a custom version or another tool from an .exe"
 size_flags_horizontal = 3
 text = "Open Download Folder"
@@ -240,9 +248,9 @@ __meta__ = {
 }
 
 [node name="UIOptions" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
-margin_top = 292.0
+margin_top = 327.0
 margin_right = 329.0
-margin_bottom = 319.0
+margin_bottom = 354.0
 
 [node name="UIScale" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/UIOptions"]
 margin_right = 139.0
@@ -284,9 +292,9 @@ text = "Light"
 
 [node name="LogoContainer" type="MarginContainer" parent="MarginContainer/HBox/MenuBar"]
 unique_name_in_owner = true
-margin_top = 329.0
+margin_top = 364.0
 margin_right = 329.0
-margin_bottom = 532.0
+margin_bottom = 567.0
 hint_tooltip = "Click to go to releases webpage"
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -344,9 +352,9 @@ align = 1
 
 [node name="Version" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar"]
 unique_name_in_owner = true
-margin_top = 542.0
+margin_top = 577.0
 margin_right = 329.0
-margin_bottom = 569.0
+margin_bottom = 604.0
 size_flags_horizontal = 3
 script = ExtResource( 4 )
 
@@ -367,7 +375,7 @@ text = "Update"
 unique_name_in_owner = true
 margin_left = 339.0
 margin_right = 699.0
-margin_bottom = 569.0
+margin_bottom = 604.0
 rect_min_size = Vector2( 320, 0 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -407,7 +415,7 @@ text = "Close on launch"
 [node name="Scroll" type="ScrollContainer" parent="MarginContainer/HBox"]
 margin_left = 709.0
 margin_right = 1070.0
-margin_bottom = 569.0
+margin_bottom = 604.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
@@ -618,6 +626,7 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="version_added" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" to="MarginContainer/HBox/Installed" method="_on_version_added"]
 [connection signal="timeout" from="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect/autoupdate" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_autoupdate_timeout"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version&Refresh/Refresh" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Refresh_pressed"]
+[connection signal="toggled" from="MarginContainer/HBox/MenuBar/AddDesktopEntry" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_AddDesktopEntry_toggled"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Download" to="MarginContainer/HBox/MenuBar/Version&Refresh/VersionSelect" method="_on_Download_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Add" to="MarginContainer/HBox/MenuBar/Add" method="_on_Add_pressed"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Donate" to="MarginContainer/HBox/MenuBar/Donate" method="_on_Donate_pressed"]
