@@ -31,11 +31,12 @@ A: They are saved to `user://versions` which varies depending on your platform. 
 
 **Q: How is this different from Hourglass or Godot Manager?**
 
-A: [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project which also does project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :) [Godot Manager](https://github.com/eumario/godot-manager) seems to be a pretty mature and featureful alternative too. A new (Aug 2023) alternative is [Godots](https://github.com/MakovWait/godots). [GodotEnv](https://github.com/chickensoft-games/GodotEnv) and [godot-version-manager](https://github.com/gaheldev/godot-version-manager) are CLI-only alternatives.
-
-**Q: Why do you scrape godotengine.org/news instead or fetching the RSS feed?**
-
-A: When the feature was added the only alternative was a full feed with every piece of news, with no ability to only fetch the most recent ones. The godot-website team kindly added a json version of the news that fully fits the needs of this app. This is pending implementation https://github.com/noidexe/godot-version-manager/issues/29
+A:
+ - [Hourglass](https://hourglass.jwestman.net/) is a much more mature and featureful project with better support for project management. Maybe the only advantage GVM has is that it also downloads news snippets from the official website :)
+ - [Godot Manager](https://github.com/eumario/godot-manager) seems to be a pretty mature and featureful alternative too.
+ - [Godots](https://github.com/MakovWait/godots) is a new (Aug 2023) alternative that a lot of people seem to like.
+ - [GodotEnv](https://github.com/chickensoft-games/GodotEnv) and [godot-version-manager](https://github.com/gaheldev/godot-version-manager) are CLI-only alternatives.
+ - [Godot Launcher](https://github.com/sebastianoboem/godot-launcher) is a python-based alternative with support for extension and cache management. 
 
 ## LICENSE
 MIT Licensed (see LICENSE.md)
