@@ -6,7 +6,9 @@ const APP_ICONS_PATH: String = "user://app_icons"
 const GITHUB_AUTH_BEARER_TOKEN_PATH: String = "user://github_auth_bearer_token.txt"
 
 const DOWNLOAD_DB_VERSION = 1
-const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
+const DEFAULT_CONFIG: Dictionary = {
+	"ui": {"alpha": false, "beta": false, "rc": false}, "versions": []
+}
 
 # Update before commiting
 # Use semver
@@ -14,25 +16,30 @@ const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc":
 # Remove '-devel' when commiting a build to be tagged as release
 # Remember to update version in export settings before exporting
 const version_tag = "v1.17.1"
-var user_agent : String
+var user_agent: String
 var github_auth_bearer_token: String = ""
 
+
 func _ready():
-	user_agent = "Godot Version Manager/%s (%s) Godot/%s" % [version_tag.lstrip("v"), OS.get_name(), Engine.get_version_info().string ] 
+	user_agent = (
+		"Godot Version Manager/%s (%s) Godot/%s"
+		% [version_tag.lstrip("v"), OS.get_name(), Engine.get_version_info().string]
+	)
 	var file = File.new()
 	if file.file_exists(GITHUB_AUTH_BEARER_TOKEN_PATH):
 		file.open(GITHUB_AUTH_BEARER_TOKEN_PATH, File.READ)
 		github_auth_bearer_token = file.get_as_text()
 
+
 # Read the config from file
 func read_config() -> Dictionary:
 	var file = File.new()
-	
+
 	# Initialise config file if it doesn't exist
 	if not file.file_exists(CONFIG_FILE_PATH):
 		write_config(DEFAULT_CONFIG)
 
-	file.open(CONFIG_FILE_PATH,File.READ)
+	file.open(CONFIG_FILE_PATH, File.READ)
 	var config = parse_json(file.get_as_text())
 	file.close()
 	return config
@@ -42,17 +49,18 @@ func read_config() -> Dictionary:
 func write_config(config: Dictionary):
 	var file = File.new()
 
-	file.open(CONFIG_FILE_PATH,File.WRITE)
+	file.open(CONFIG_FILE_PATH, File.WRITE)
 	file.store_string(JSON.print(config, "\t"))
 	file.close()
 
+
 # Update the ui_flag
-func update_ui_flag(flag: String, value): #switch: bool):
+func update_ui_flag(flag: String, value):  #switch: bool):
 	var config = read_config()
 
 	if not "ui" in config:
 		# There should be a better way to define this
-		config["ui"] = {"alpha": false, "beta": false, "rc": false, "dev": false, "scale": 1.0 }
+		config["ui"] = {"alpha": false, "beta": false, "rc": false, "dev": false, "scale": 1.0}
 
 	config.ui[flag] = value
 	write_config(config)
@@ -62,15 +70,14 @@ func update_ui_flag(flag: String, value): #switch: bool):
 func read_download_db() -> Dictionary:
 	var file = File.new()
 	var download_db
-	
-	
+
 	if file.file_exists(DOWNLOAD_DB_FILE_PATH):
 		file.open(DOWNLOAD_DB_FILE_PATH, File.READ)
 		download_db = parse_json(file.get_as_text())
-	
+
 	# TODO: more advanced validation and sanitization
 	if not _is_download_db_valid(download_db):
-		download_db = { "version" : DOWNLOAD_DB_VERSION }
+		download_db = {"version": DOWNLOAD_DB_VERSION}
 	if not download_db.has("versions"):
 		download_db["versions"] = []
 	if not download_db.has("last_updated"):
@@ -81,16 +88,19 @@ func read_download_db() -> Dictionary:
 	file.close()
 	return download_db
 
+
 func write_download_db(download_db):
 	var file = File.new()
 	file.open(DOWNLOAD_DB_FILE_PATH, File.WRITE)
 	file.store_line(to_json(download_db))
 	file.close()
 
+
 func delete_download_db():
 	var err = OS.move_to_trash(ProjectSettings.globalize_path(DOWNLOAD_DB_FILE_PATH))
 	if err != OK:
 		print_debug(err)
+
 
 func _is_download_db_valid(db) -> bool:
 	# Check basic format
