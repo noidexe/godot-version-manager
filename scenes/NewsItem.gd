@@ -40,7 +40,9 @@ func set_info(info : Dictionary):
 
 func _load_image(_url : String, target : TextureRect):
 	if not _url.begins_with("http"):
+		push_error("_url is not a valid url")
 		return
+	_url = _url.get_slice("?",0)  # Occasionaly some urls end in .webp?1
 	var local_path = BASE_DIR + _url.get_file()
 	var dir = Directory.new()
 	if not dir.dir_exists(BASE_DIR):
