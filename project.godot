@@ -26,7 +26,7 @@ run/main_scene="res://scenes/Main.tscn"
 run/low_processor_mode=true
 boot_splash/image="res://splash.png"
 boot_splash/fullsize=false
-boot_splash/bg_color=Color( 1, 1, 1, 1 )
+boot_splash/bg_color=Color( 0.0784314, 0.0784314, 0.0784314, 1 )
 config/icon="res://icon.png"
 config/windows_native_icon="res://windows_icon.ico"
 
