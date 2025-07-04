@@ -23,6 +23,7 @@ _global_script_class_icons={
 config/name="Godot Version Manager"
 config/description="Small tool to manage downloading different Godot versions. Also shows snippets of the news section. "
 run/main_scene="res://scenes/Main.tscn"
+config/project_settings_override="user://custom_settings.cfg"
 run/low_processor_mode=true
 boot_splash/image="res://splash.png"
 boot_splash/fullsize=false
