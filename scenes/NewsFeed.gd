@@ -131,21 +131,35 @@ func _save_news_etag(etag : String):
 # which will be further parsed by _parse_news_item()
 func _get_news(data, avatars) -> Array:
 	var parsed_news = []
-
+	
+	if typeof(data) != TYPE_DICTIONARY:
+		push_error("News data must be of type Dictionary")
+		return parsed_news
+	
+	if not data.has("items"):
+		push_error("Invalid news data")
+		return parsed_news
+	
 	for post in data["items"]:
+		if typeof(post) != TYPE_DICTIONARY:
+			push_warning("Invalid news post, continuing..")
+			continue
+
 		var parsed_item = {}
-		parsed_item["image"] = post["image"]
-		parsed_item["contents"] = post["description"].replace("&#39;", "'").replace("&amp;", "&") # manually parse some html entieties. Parsing them all would probably be overkill
-		parsed_item["title"] = post["title"].replace("&#39;", "'").replace("&amp;", "&")
-		parsed_item["author"] = post["dc:creator"]
-		parsed_item["avatar"] = BASE_URL + avatars[post["dc:creator"]]
+		parsed_item["image"] = post.get("image", "")
+		parsed_item["contents"] = _replace_html_entities( post.get("description", "") )
+		parsed_item["title"] = _replace_html_entities( post.get("title", "") )
+		parsed_item["author"] = post.get("dc:creator", "")
+		parsed_item["avatar"] = BASE_URL + avatars.get(parsed_item["author"], "/assets/images/authors/default_avatar.svg")
 		
 		# Godot does not support RFC 2822 Date Parsing only ISO 8601 thus this is a small fix to remove some of the weird text from it
-		var date = post["pubDate"].split(" ")
-		date.remove(date.size() - 1)
-		date.remove(date.size() - 1)
+		var date = post.get("pubDate", "").split(" ")
+		if date.size():
+			date.remove(date.size() - 1)
+		if date.size():
+			date.remove(date.size() - 1)
 		parsed_item["date"] = " ".join(date)
-		parsed_item["link"] = post["link"]
+		parsed_item["link"] = post.get("link", "")
 		parsed_news.append(parsed_item)
 	return parsed_news
 
@@ -169,3 +183,8 @@ func _parse_author_avatars(raw_data):
 
 func _on_screen_resized():
 	visible = get_viewport_rect().size.x > 1100
+
+
+static func _replace_html_entities(string : String) -> String:
+	# TODO: replace with more comprehensive implementation if necessary
+	return string.replace("&#39;", "'").replace("&amp;", "&").replace("&quot;", '"')
