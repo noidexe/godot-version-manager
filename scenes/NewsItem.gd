@@ -7,7 +7,7 @@ const BASE_DIR = "user://images/"
 
 onready var title = $title
 onready var author = $author/name
-onready var avatar = $author/avatar
+onready var avatar = $author/avatar_container/avatar
 onready var thumb = $body/thumb_container/thumb
 onready var contents = $body/contents
 
@@ -47,7 +47,9 @@ func _load_image(_url : String, target : TextureRect):
 	var dir = Directory.new()
 	if not dir.dir_exists(BASE_DIR):
 		dir.make_dir(BASE_DIR)
-	if not dir.file_exists(local_path):
+	
+	var is_cached : bool = dir.file_exists(local_path)
+	if not is_cached:
 		$req.download_file = local_path
 		$req.request(_url, ["User-Agent: %s" % Globals.user_agent])
 		var response = yield($req,"request_completed")
@@ -59,4 +61,16 @@ func _load_image(_url : String, target : TextureRect):
 	var tex = ImageTexture.new()
 	if img_err == OK:
 		tex.create_from_image(img)
+	
+	if not is_cached:
+		var transition_textrect := target.duplicate()
+		target.get_parent().add_child(transition_textrect)
+		transition_textrect.self_modulate.a = 0
+		transition_textrect.texture = tex
+		var tween := create_tween()
+		tween.set_ease(Tween.EASE_OUT)
+		tween.tween_property(transition_textrect, "self_modulate:a", 1.0, 0.3)
+		yield(tween, "finished")
+		transition_textrect.queue_free()
+
 	target.texture = tex
