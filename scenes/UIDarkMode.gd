@@ -23,6 +23,8 @@ func _ready():
 	$OptionButton.clear()
 	$OptionButton.add_item("Light", Mode.LIGHT)
 	$OptionButton.add_item("Dark", Mode.DARK)
+	# Hack to fix minimum size being incorrect
+	$OptionButton.get_popup().rect_min_size = $OptionButton.get_minimum_size() * Vector2(2,2.75)
 	
 	var config = Globals.read_config()
 	# adds the darkmode setting if not existing
