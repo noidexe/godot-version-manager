@@ -10,7 +10,7 @@
 [ext_resource path="res://icons/paypal_donate_hover.png" type="Texture" id=8]
 [ext_resource path="res://scenes/Installed.gd" type="Script" id=9]
 [ext_resource path="res://scenes/Donate.gd" type="Script" id=10]
-[ext_resource path="res://theme/main.theme" type="Theme" id=11]
+[ext_resource path="res://theme/light_mode.tres" type="Theme" id=11]
 [ext_resource path="res://theme/round_and_shaded.stylebox" type="StyleBox" id=12]
 [ext_resource path="res://scenes/NewsFeed.gd" type="Script" id=13]
 [ext_resource path="res://icon.png" type="Texture" id=14]
@@ -48,7 +48,7 @@ corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxEmpty" id=3054]
 
-[sub_resource type="StyleBoxEmpty" id=3052]
+[sub_resource type="StyleBoxEmpty" id=3111]
 
 [sub_resource type="StyleBoxEmpty" id=3053]
 
@@ -261,7 +261,7 @@ margin_bottom = 27.0
 min_value = 0.25
 max_value = 3.0
 step = 0.1
-value = 0.25
+value = 0.3
 
 [node name="UITheme" type="HBoxContainer" parent="MarginContainer/HBox/MenuBar/UIOptions"]
 margin_left = 142.0
@@ -386,8 +386,8 @@ __meta__ = {
 context_menu = NodePath("ContextMenu")
 
 [node name="ContextMenu" type="PopupMenu" parent="MarginContainer/HBox/Installed"]
-margin_right = 55.0
-margin_bottom = 26.0
+margin_right = 105.0
+margin_bottom = 120.0
 items = [ "Edit", null, 0, false, false, 0, 0, null, "", false, "Move Up", null, 0, false, false, 1, 0, null, "", false, "Move Down", null, 0, false, false, 2, 0, null, "", false, "Delete", null, 0, false, false, 3, 0, null, "", false ]
 __meta__ = {
 "_edit_use_anchors_": false
@@ -437,7 +437,7 @@ rect_min_size = Vector2( 0, 20 )
 rect_clip_content = false
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/focus = SubResource( 3052 )
+custom_styles/focus = SubResource( 3111 )
 custom_styles/normal = SubResource( 3053 )
 bbcode_enabled = true
 bbcode_text = "[center][wave]updating...[/wave][/center]"
