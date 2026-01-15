@@ -360,6 +360,10 @@ func _update_list():
 	filtered_db_view = []
 	
 	for entry in download_db.versions:
+		# Little hack to filter OLD.Godot_v3.6.2-stable*
+		# Maybe a blacklist feature would make sense
+		if (entry.name as String).begins_with("OLD."):
+			continue
 		# if mono entry should include "mono" and vice versa
 		if mono_included != ("mono" in entry.name):
 			continue
