@@ -28,7 +28,7 @@ Unzip and double-click. Extraction of downloaded versions requires `unzip` which
 ## F.A.Q
 **Q: Where are the downloaded binaries saved to?**
 
-A: They are saved to `user://versions` which varies depending on your platform. On windows it's %appdata%/Godot/app_serdata/Godot Version Manager/versions
+A: They are saved to `user://versions` which varies depending on your platform. On windows it's %appdata%/Godot/app_userdata/Godot Version Manager/versions
 
 **Q: How is this different from Hourglass or Godot Manager?**
 
