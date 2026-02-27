@@ -237,7 +237,8 @@ func _create_preview( item_id : int ) -> HBoxContainer:
 	icon.texture = get_item_icon(item_id)
 	icon.rect_min_size = Vector2(64,64)
 	icon.expand = true
-	ret.add_stylebox_override("panel", preload("res://theme/item_drag.stylebox"))
+	var dark_mode = Globals.read_config()["ui"]["darkmode"]
+	ret.add_stylebox_override("panel", preload("res://theme/item_drag.stylebox") if not dark_mode else preload("res://theme/item_drag_dark.stylebox"))
 	return ret
 
 func _gui_input(event):

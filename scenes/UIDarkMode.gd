@@ -16,7 +16,6 @@ var installed_style_dark : StyleBoxFlat = preload("res://theme/installed_dark.tr
 var logo_panel_style_dark : StyleBoxFlat = preload("res://theme/logo_panel_dark.tres")
 
 
-
 func _ready():
 	main_node = get_node_or_null(main_node_path)
 	assert(is_instance_valid(main_node))
@@ -48,11 +47,13 @@ func mode_handler(dark: bool):
 			# Tweaks the custom override styles that has been set to dark
 			$"%Installed".set("custom_styles/bg", installed_style_dark)
 			$"%LogoContainer/Panel".set("custom_styles/panel", logo_panel_style_dark)
+			$"../../../../../AddNew/Panel".add_stylebox_override("panel", load("res://theme/round_and_shaded_dark.tres"))
 		false:
 			main_node.set_theme(load("res://theme/light_mode.tres"))
 			# Tweaks the custom override styles to normal
 			$"%Installed".set("custom_styles/bg", install_style)
 			$"%LogoContainer/Panel".set("custom_styles/panel", logo_panel_style)
+			$"../../../../../AddNew/Panel".add_stylebox_override("panel", load("res://theme/round_and_shaded.tres"))
 	_update_config(dark)
 
 
