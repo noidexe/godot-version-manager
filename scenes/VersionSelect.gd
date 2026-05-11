@@ -423,14 +423,26 @@ func _on_Refresh_pressed():
 func _on_Download_pressed():
 	if selected == -1:
 		return false
-	
+
+	var _selection = filtered_db_view[selected]
+
+	# Skip if this version is already in the installed list
+	var current_config = Globals.read_config()
+	for existing in current_config.versions:
+		if existing.name == _selection.name:
+			download_button.disabled = true
+			download_button.text = "Already installed"
+			yield(get_tree().create_timer(1.5), "timeout")
+			download_button.text = "Download"
+			download_button.disabled = false
+			return
+
 	is_downloading = true
 	emit_signal("download_started")
 	# Make sure the directory exists
 	var dir = Directory.new()
 	dir.make_dir("user://versions/")
-	
-	var _selection = filtered_db_view[selected]
+
 	download_button.disabled = true
 	
 	# TODO: make it work with other platforms
