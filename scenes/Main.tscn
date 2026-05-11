@@ -288,6 +288,7 @@ margin_top = 329.0
 margin_right = 329.0
 margin_bottom = 532.0
 hint_tooltip = "Click to open contributors graph"
+mouse_default_cursor_shape = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/margin_right = 35
