@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=noidexe&project=godot-version-manager&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 <table><tr width=64px><td><img height=64px src="https://user-images.githubusercontent.com/526829/169241046-3087a41d-9606-43ab-90ae-ee0055bef039.png"/></td><td><h1>godot-version-manager</h1></td></tr></table>
   
 Download, install and manage any version of Godot Engine from a simple app. 
