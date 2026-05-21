@@ -287,7 +287,6 @@ unique_name_in_owner = true
 margin_top = 329.0
 margin_right = 329.0
 margin_bottom = 532.0
-hint_tooltip = "Click to open contributors graph"
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/margin_right = 35
@@ -336,6 +335,9 @@ stretch_mode = 6
 margin_top = 133.0
 margin_right = 259.0
 margin_bottom = 183.0
+hint_tooltip = "Click to open contributors graph"
+mouse_filter = 0
+mouse_default_cursor_shape = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Copyright ©2022
@@ -624,7 +626,7 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/OpenFolder" to="MarginContainer/HBox/MenuBar/OpenFolder" method="_on_OpenFolder_pressed"]
 [connection signal="value_changed" from="MarginContainer/HBox/MenuBar/UIOptions/UIScale/SpinBox" to="MarginContainer/HBox/MenuBar/UIOptions/UIScale" method="_on_SpinBox_value_changed"]
 [connection signal="item_selected" from="MarginContainer/HBox/MenuBar/UIOptions/UITheme/OptionButton" to="MarginContainer/HBox/MenuBar/UIOptions/UITheme" method="_on_OptionButton_item_selected"]
-[connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer" to="MarginContainer/HBox/MenuBar/Version" method="_on_LogoContainer_gui_input"]
+[connection signal="gui_input" from="MarginContainer/HBox/MenuBar/LogoContainer/Panel/HBox/Copyright" to="MarginContainer/HBox/MenuBar/Version" method="_on_Copyright_gui_input"]
 [connection signal="pressed" from="MarginContainer/HBox/MenuBar/Version/update" to="MarginContainer/HBox/MenuBar/Version" method="_on_update_pressed"]
 [connection signal="request_completed" from="MarginContainer/HBox/MenuBar/Version/req" to="MarginContainer/HBox/MenuBar/Version" method="_on_request_completed"]
 [connection signal="item_activated" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_activated"]

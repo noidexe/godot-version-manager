@@ -158,7 +158,7 @@ func _on_update_pressed():
 	$update.disabled = true
 
 
-func _on_LogoContainer_gui_input(event):
+func _on_Copyright_gui_input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == BUTTON_LEFT:
 		var error = OS.shell_open("https://github.com/noidexe/godot-version-manager/graphs/contributors")
 		if error != OK:
