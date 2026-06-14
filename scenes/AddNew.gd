@@ -58,8 +58,9 @@ func _validate(_unused = ""):
 func _on_Add_pressed():
 	var entry = {
 		"name": line_edit_name.text,
-		"path" :line_edit_path.text,
-		"arguments" :line_edit_arguments.text
+		"path": line_edit_path.text,
+		"arguments": line_edit_arguments.text,
+		"last_access": OS.get_unix_time()
 	}
 	
 	# Read the config
