@@ -39,6 +39,7 @@ A:
  - [GodotEnv](https://github.com/chickensoft-games/GodotEnv) and [godot-version-manager](https://github.com/gaheldev/godot-version-manager) are CLI-only alternatives.
  - [Godot Launcher](https://github.com/sebastianoboem/godot-launcher) is a python-based alternative with support for extension and cache management.
  - [gdvm](https://github.com/adalinesimonian/gdvm) is another CLI based version manager built with Rust.
+ - [GodotHub](https://github.com/RykoTheDev/GodotHub) a full-featured GUI version and project manager created with Rust and NodeJS
 
 ## LICENSE
 MIT Licensed (see LICENSE.md)
