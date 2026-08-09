@@ -6,7 +6,7 @@ const APP_ICONS_PATH: String = "user://app_icons"
 const GITHUB_AUTH_BEARER_TOKEN_PATH: String = "user://github_auth_bearer_token.txt"
 
 const DOWNLOAD_DB_VERSION = 1
-const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false}, "versions" : [] }
+const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc": false, "sort_by_last_access": true}, "versions" : [] }
 
 # Update before commiting
 # Use semver
@@ -51,8 +51,7 @@ func update_ui_flag(flag: String, value): #switch: bool):
 	var config = read_config()
 
 	if not "ui" in config:
-		# There should be a better way to define this
-		config["ui"] = {"alpha": false, "beta": false, "rc": false, "dev": false, "scale": 1.0 }
+		config["ui"] = DEFAULT_CONFIG.ui.duplicate()
 
 	config.ui[flag] = value
 	write_config(config)
