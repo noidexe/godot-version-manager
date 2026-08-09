@@ -439,19 +439,23 @@ func _on_Download_pressed():
 
 	is_downloading = true
 	emit_signal("download_started")
-	# Make sure the directory exists
+	# Make sure the directories exist. Downloads are staged in user://tmp/ so
+	# the in-flight zip (and macOS's hardcoded Godot.app extraction) can never
+	# collide with a user-managed binary placed in user://versions/ for PATH.
 	var dir = Directory.new()
 	dir.make_dir("user://versions/")
+	dir.make_dir("user://tmp/")
 
 	download_button.disabled = true
-	
+
 	# TODO: make it work with other platforms
-	var filename =  "user://versions/" + _selection.path.get_file()
+	var zip_filename = _selection.path.get_file()
+	var download_path = "user://tmp/" + zip_filename
 	var url = _selection.path
-	
+
 	var req = HTTPRequest.new()
 	add_child(req)
-	req.download_file = filename
+	req.download_file = download_path
 	req.request(url, ["User-Agent: %s" % Globals.user_agent], false)
 	
 	var divisor : float = 1024 * 1024
@@ -465,51 +469,50 @@ func _on_Download_pressed():
 	
 	var output = []
 	var exit_code : int
+	var zip_basename = zip_filename.trim_suffix(".zip")
 	if OS.has_feature("Windows"):
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(download_path), ProjectSettings.globalize_path("user://versions/") ] ], true, output)
 		print(output.pop_front())
 		print("Powershell.exe executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename) ], true, output) 
-		print(output.pop_front())
-		print("Powershell.exe executed with exit code: %s" % exit_code)
-		var run_path = filename.trim_suffix(".zip")
-		if "_mono_" in filename:
-			run_path += "/" + _selection.path.get_file().trim_suffix(".zip") + ".exe"
+		var run_path = "user://versions/" + zip_basename
+		if "_mono_" in zip_filename:
+			run_path += "/" + zip_basename + ".exe"
 		_add_version(_selection.name,run_path)
 	elif OS.has_feature("X11"):
-		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(download_path), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
 		print(output.pop_front())
 		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
-		print(output.pop_front())
-		print("rm executed with exit code: %s" % exit_code)
-		var run_path = filename.trim_suffix(".zip")
-		if "_mono_" in filename:
-			if "v3." in filename:
+		var run_path = "user://versions/" + zip_basename
+		if "_mono_" in zip_filename:
+			if "v3." in zip_filename:
 				run_path += "/" + _selection.name + "_x11.64"
-			elif "v4." in filename:
+			elif "v4." in zip_filename:
 				run_path += "/" + _selection.name + "_linux.x86_64"
 		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], true, output )
 		print(output.pop_front())
 		print("chmod executed with exit code: %s" % exit_code)
 		_add_version(_selection.name,run_path)
 	elif OS.has_feature("OSX"):
-		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+		# Extract into user://tmp/ — the macOS zip's root entry is the generic
+		# Godot.app / Godot_mono.app, which would clobber a user-PATHed binary
+		# if extracted into user://versions/. -o avoids interactive prompts on
+		# any leftover from a prior failed run.
+		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(download_path), "-d", "%s" % ProjectSettings.globalize_path("user://tmp/")], true, output)
 		print(output.pop_front())
 		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
-		print(output.pop_front())
-		print("rm executed with exit code: %s" % exit_code)
-		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
-		var original_path = "user://versions/Godot_mono.app" if "_mono_" in filename else "user://versions/Godot.app"
-		exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_path), app_full_path], true, output)
+		var original_in_tmp = "user://tmp/Godot_mono.app" if "_mono_" in zip_filename else "user://tmp/Godot.app"
+		var final_app_path = "user://versions/" + _selection.name + ".app"
+		exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_in_tmp), ProjectSettings.globalize_path(final_app_path)], true, output)
 		print(output.pop_front())
 		print("mv run with exit code: %s" % exit_code)
-		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
-	
+		_add_version(_selection.name, final_app_path)
+
+	if dir.file_exists(download_path):
+		dir.remove(download_path)
+
 	download_button.disabled = false
 	download_button.text = "Download"
-	
+
 	is_downloading = false
 	emit_signal("download_finished")
 
