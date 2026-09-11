@@ -291,6 +291,8 @@ func _process_github(results, db: Dictionary):
 			for suffix in suffixes:
 				if full_path.ends_with(suffix):
 					db.cache.download_links[full_path] = true
+					var digest = asset["digest"]
+					db.cache.digests[full_path] = digest
 
 func _get_next_github_url(string : String):
 	var next : String
@@ -460,53 +462,66 @@ func _on_Download_pressed():
 		download_button.text = "Downloading... %d%% [%.2f/%.2fMB]" % [100.0 * req.get_downloaded_bytes() / req.get_body_size(), req.get_downloaded_bytes() / divisor, req.get_body_size() / divisor]
 		yield(get_tree().create_timer(1.0),"timeout")
 	
-	download_button.text = "Extracting.."
-	yield(get_tree(),"idle_frame")
+	var digest = download_db.get("cache", {}).get("digests", {}).get(url, "")
+	var validation_passed := false
+	if digest is String and digest.begins_with("sha256:"):
+		var sha256 := (digest as String).get_slice(":", 1)
+		var file := File.new()
+		validation_passed = sha256 == file.get_sha256(filename)
+	else:
+		# Skip validation
+		validation_passed = true
 	
-	var output = []
-	var exit_code : int
-	if OS.has_feature("Windows"):
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
-		print(output.pop_front())
-		print("Powershell.exe executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename) ], true, output) 
-		print(output.pop_front())
-		print("Powershell.exe executed with exit code: %s" % exit_code)
-		var run_path = filename.trim_suffix(".zip")
-		if "_mono_" in filename:
-			run_path += "/" + _selection.path.get_file().trim_suffix(".zip") + ".exe"
-		_add_version(_selection.name,run_path)
-	elif OS.has_feature("X11"):
-		exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
-		print(output.pop_front())
-		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
-		print(output.pop_front())
-		print("rm executed with exit code: %s" % exit_code)
-		var run_path = filename.trim_suffix(".zip")
-		if "_mono_" in filename:
-			if "v3." in filename:
-				run_path += "/" + _selection.name + "_x11.64"
-			elif "v4." in filename:
-				run_path += "/" + _selection.name + "_linux.x86_64"
-		exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], true, output )
-		print(output.pop_front())
-		print("chmod executed with exit code: %s" % exit_code)
-		_add_version(_selection.name,run_path)
-	elif OS.has_feature("OSX"):
-		exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
-		print(output.pop_front())
-		print("unzip executed with exit code: %s" % exit_code)
-		exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
-		print(output.pop_front())
-		print("rm executed with exit code: %s" % exit_code)
-		var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
-		var original_path = "user://versions/Godot_mono.app" if "_mono_" in filename else "user://versions/Godot.app"
-		exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_path), app_full_path], true, output)
-		print(output.pop_front())
-		print("mv run with exit code: %s" % exit_code)
-		_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
-	
+	if validation_passed:
+		download_button.text = "Extracting.."
+		yield(get_tree(),"idle_frame")
+		
+		var output = []
+		var exit_code : int
+		if OS.has_feature("Windows"):
+			exit_code = OS.execute("powershell.exe", ["-command", "\"Expand-Archive '%s' '%s'\" -Force" % [ ProjectSettings.globalize_path(filename), ProjectSettings.globalize_path("user://versions/") ] ], true, output) 
+			print(output.pop_front())
+			print("Powershell.exe executed with exit code: %s" % exit_code)
+			exit_code = OS.execute("powershell.exe", ["-command", "\"Remove-Item '%s'\" -Force" % ProjectSettings.globalize_path(filename) ], true, output) 
+			print(output.pop_front())
+			print("Powershell.exe executed with exit code: %s" % exit_code)
+			var run_path = filename.trim_suffix(".zip")
+			if "_mono_" in filename:
+				run_path += "/" + _selection.path.get_file().trim_suffix(".zip") + ".exe"
+			_add_version(_selection.name,run_path)
+		elif OS.has_feature("X11"):
+			exit_code = OS.execute("unzip", ["-o", "%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+			print(output.pop_front())
+			print("unzip executed with exit code: %s" % exit_code)
+			exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
+			print(output.pop_front())
+			print("rm executed with exit code: %s" % exit_code)
+			var run_path = filename.trim_suffix(".zip")
+			if "_mono_" in filename:
+				if "v3." in filename:
+					run_path += "/" + _selection.name + "_x11.64"
+				elif "v4." in filename:
+					run_path += "/" + _selection.name + "_linux.x86_64"
+			exit_code = OS.execute("chmod", ["+x", "%s" % ProjectSettings.globalize_path(run_path) ], true, output )
+			print(output.pop_front())
+			print("chmod executed with exit code: %s" % exit_code)
+			_add_version(_selection.name,run_path)
+		elif OS.has_feature("OSX"):
+			exit_code = OS.execute("unzip", ["%s" % ProjectSettings.globalize_path(filename), "-d", "%s" % ProjectSettings.globalize_path("user://versions/")], true, output)
+			print(output.pop_front())
+			print("unzip executed with exit code: %s" % exit_code)
+			exit_code = OS.execute("rm", ["%s" % ProjectSettings.globalize_path(filename)], true, output)
+			print(output.pop_front())
+			print("rm executed with exit code: %s" % exit_code)
+			var app_full_path = ProjectSettings.globalize_path("user://versions/") + _selection.name + ".app"
+			var original_path = "user://versions/Godot_mono.app" if "_mono_" in filename else "user://versions/Godot.app"
+			exit_code = OS.execute("mv", [ProjectSettings.globalize_path(original_path), app_full_path], true, output)
+			print(output.pop_front())
+			print("mv run with exit code: %s" % exit_code)
+			_add_version(_selection.name, "user://versions/" + _selection.name + ".app")
+	else:
+		OS.alert("File integrity validation failed. Try redownloading")
+
 	download_button.disabled = false
 	download_button.text = "Download"
 	

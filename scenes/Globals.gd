@@ -13,7 +13,7 @@ const DEFAULT_CONFIG : Dictionary = { "ui":{"alpha": false, "beta": false, "rc":
 # Add '-devel' for versions not intended for release
 # Remove '-devel' when commiting a build to be tagged as release
 # Remember to update version in export settings before exporting
-const version_tag = "v1.17.4-devel"
+const version_tag = "v1.18"
 var user_agent : String
 var github_auth_bearer_token: String = ""
 
@@ -78,6 +78,8 @@ func read_download_db() -> Dictionary:
 	if not download_db.has("cache"):
 		download_db["cache"] = {}
 		download_db["cache"]["download_links"] = {}
+	if not download_db.cache.has("digests"):
+		download_db["cache"]["digests"] = {}
 	file.close()
 	return download_db
 
