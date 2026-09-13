@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://scenes/OpenFolder.gd" type="Script" id=1]
 [ext_resource path="res://scenes/Add.gd" type="Script" id=2]
@@ -45,8 +45,6 @@ corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxEmpty" id=3054]
 
 [sub_resource type="StyleBoxEmpty" id=3111]
 
@@ -387,6 +385,20 @@ __meta__ = {
 }
 context_menu = NodePath("ContextMenu")
 
+[node name="OptionsButton" type="Button" parent="MarginContainer/HBox/Installed"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -52.0
+margin_bottom = 25.0
+text = "Options"
+flat = true
+
+[node name="OptionsPopup" type="PopupMenu" parent="MarginContainer/HBox/Installed"]
+margin_right = 155.0
+margin_bottom = 69.0
+items = [ "Close on launch", null, 1, false, false, 1, 0, null, "", false, "Sort by last access", null, 1, true, false, 2, 0, null, "", false ]
+hide_on_checkable_item_selection = false
+
 [node name="ContextMenu" type="PopupMenu" parent="MarginContainer/HBox/Installed"]
 margin_right = 105.0
 margin_bottom = 120.0
@@ -394,17 +406,6 @@ items = [ "Edit", null, 0, false, false, 0, 0, null, "", false, "Move Up", null,
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="CloseOnLaunch" type="CheckButton" parent="MarginContainer/HBox/Installed"]
-unique_name_in_owner = true
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -128.0
-margin_bottom = 25.0
-grow_horizontal = 0
-custom_colors/font_color_pressed = Color( 0.27451, 0.54902, 0.74902, 1 )
-custom_styles/focus = SubResource( 3054 )
-text = "Close on launch"
 
 [node name="Scroll" type="ScrollContainer" parent="MarginContainer/HBox"]
 margin_left = 709.0
@@ -632,7 +633,6 @@ filters = PoolStringArray( "*.exe ; Windows executable", "*.app ; OSX Applicatio
 [connection signal="item_activated" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_activated"]
 [connection signal="item_rmb_selected" from="MarginContainer/HBox/Installed" to="MarginContainer/HBox/Installed" method="_on_Installed_item_rmb_selected"]
 [connection signal="id_pressed" from="MarginContainer/HBox/Installed/ContextMenu" to="MarginContainer/HBox/Installed" method="_on_ContextMenu_id_pressed"]
-[connection signal="toggled" from="MarginContainer/HBox/Installed/CloseOnLaunch" to="MarginContainer/HBox/Installed" method="_on_CloseOnLaunch_toggled"]
 [connection signal="about_to_show" from="AddNew" to="AddNew" method="_on_AddNew_about_to_show"]
 [connection signal="popup_hide" from="AddNew" to="AddNew" method="_on_AddNew_popup_hide"]
 [connection signal="version_added" from="AddNew" to="MarginContainer/HBox/Installed" method="_on_version_added"]

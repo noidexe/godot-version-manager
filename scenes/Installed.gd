@@ -17,26 +17,62 @@ var icons = {
 var config : Dictionary
 export var context_menu : NodePath
 
+# Maps display index -> config.versions index, sorted by last_access descending
+var _sorted_indices : Array = []
+
 var version_regex : RegEx
 
 func _ready():
 	version_regex = RegEx.new()
 # warning-ignore:return_value_discarded
 	version_regex.compile("v[0-9].+_")
+# warning-ignore:return_value_discarded
+	$OptionsPopup.connect("id_pressed", self, "_on_OptionsMenuButton_id_pressed")
+# warning-ignore:return_value_discarded
+	$OptionsButton.connect("pressed", self, "_on_OptionsButton_pressed")
 	_reload()
 
+func _on_OptionsButton_pressed():
+	var btn : Button = $OptionsButton
+	var popup : PopupMenu = $OptionsPopup
+	popup.rect_position = btn.rect_global_position + Vector2(0, btn.rect_size.y)
+	popup.popup()
 
 func _reload():
 	config = Globals.read_config()
 	if "ui" in config:
-		$"%CloseOnLaunch".pressed = config.ui.get("close_on_launch", false)
+		var popup : PopupMenu = $OptionsPopup
+		popup.set_item_checked(popup.get_item_index(1), config.ui.get("close_on_launch", false))
+		popup.set_item_checked(popup.get_item_index(2), config.ui.get("sort_by_last_access", true))
 	_update_list()
 
 
 func _update_list():
 	clear()
-	for version in config.versions:
+	_sorted_indices = range(config.versions.size())
+	var sort_enabled : bool = config.get("ui", {}).get("sort_by_last_access", true)
+	if sort_enabled:
+		_sorted_indices.sort_custom(self, "_sort_by_last_access")
+	for i in _sorted_indices:
+		var version = config.versions[i]
 		add_item(_get_name(version), _get_correct_icon(version.name, version.arguments))
+
+func _sort_by_last_access(a, b) -> bool:
+	var ta : int = config.versions[a].get("last_access", 0)
+	var tb : int = config.versions[b].get("last_access", 0)
+	return ta > tb
+
+func _on_OptionsMenuButton_id_pressed(id: int):
+	var popup : PopupMenu = $OptionsPopup
+	var idx : int = popup.get_item_index(id)
+	var checked := not popup.is_item_checked(idx)
+	popup.set_item_checked(idx, checked)
+	match id:
+		1:
+			Globals.update_ui_flag("close_on_launch", checked)
+		2:
+			Globals.update_ui_flag("sort_by_last_access", checked)
+			_update_list()
 
 
 func _get_name(version):
@@ -117,11 +153,12 @@ func _get_correct_icon(v_name : String, v_args : String):
 
 
 func _on_Installed_item_activated(index):
+	var config_idx : int = _sorted_indices[index]
 	var pid :int
-	var path : String =  config.versions[index].path
-	var is_game_project = "--path" in config.versions[index].arguments
+	var path : String =  config.versions[config_idx].path
+	var is_game_project = "--path" in config.versions[config_idx].arguments
 	var is_godot = "godot" in path.to_lower()
-	var args : PoolStringArray = _args_string_to_array(config.versions[index].arguments)
+	var args : PoolStringArray = _args_string_to_array(config.versions[config_idx].arguments)
 	if is_game_project:
 		args.append("-e")
 	elif is_godot:
@@ -133,7 +170,11 @@ func _on_Installed_item_activated(index):
 	else:
 		pid = OS.execute(ProjectSettings.globalize_path(path), args, false)
 	print( "Running \"%s\" with pid %s" % [ path, pid ] )
-	if $"%CloseOnLaunch".pressed:
+	config = Globals.read_config()
+	config.versions[config_idx]["last_access"] = OS.get_unix_time()
+	Globals.write_config(config)
+	_update_list()
+	if $OptionsPopup.is_item_checked($OptionsPopup.get_item_index(1)):
 		print("Close on launch enabled. Quitting.." )
 		get_tree().quit(0)
 
@@ -181,21 +222,22 @@ func _on_ContextMenu_id_pressed(id):
 
 
 func _delete(idx):
-	config.versions.remove(idx)
+	config.versions.remove(_sorted_indices[idx])
 	Globals.write_config(config)
 	_reload()
 
 
 func _move(idx : int, offset: int):
-	var to_move = config.versions[idx]
-	config.versions.remove(idx)
-	var new_idx = clamp(idx + offset, 0, config.versions.size() )
+	var config_idx : int = _sorted_indices[idx]
+	var to_move = config.versions[config_idx]
+	config.versions.remove(config_idx)
+	var new_idx = clamp(config_idx + offset, 0, config.versions.size())
 	config.versions.insert(new_idx, to_move)
 	Globals.write_config(config)
 	_reload()
 
 func _edit(idx):
-	$"%AddNew".edit(idx)
+	$"%AddNew".edit(_sorted_indices[idx])
 
 func _on_Installed_item_rmb_selected(_index, at_position):
 	var menu = get_node(context_menu) as PopupMenu
@@ -204,11 +246,6 @@ func _on_Installed_item_rmb_selected(_index, at_position):
 	# Compensate
 	menu.set_position(rect_global_position + at_position + Vector2(0, 20))
 	menu.popup()
-
-
-func _on_CloseOnLaunch_toggled(button_pressed):
-	Globals.update_ui_flag("close_on_launch", button_pressed)
-	pass # Replace with function body.
 
 
 func can_drop_data(position, _data):
@@ -222,7 +259,9 @@ func get_drag_data(position):
 func drop_data(position, data):
 	var old_pos : int = data
 	var new_pos : int = get_item_at_position(position)
-	_move(old_pos, new_pos - old_pos)
+	var old_config_idx : int = _sorted_indices[old_pos]
+	var new_config_idx : int = _sorted_indices[new_pos]
+	_move(old_pos, new_config_idx - old_config_idx)
 
 func _create_preview( item_id : int ) -> HBoxContainer:
 	assert(item_id >= 0 and item_id < get_item_count())
